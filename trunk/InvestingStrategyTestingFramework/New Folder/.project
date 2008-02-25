@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>InvestingStrategyTestingFramework</name>
+	<comment></comment>
+	<projects>
+		<project>BrownianWalks</project>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.python.pydev.PyDevBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.python.pydev.pythonNature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>src/debug.log</name>
+			<type>1</type>
+			<location>C:/Documents and Settings/John Graham/workspace/InvestingStrategyTestingFramework/src/debug.log</location>
+		</link>
+	</linkedResources>
+</projectDescription>
