@@ -129,9 +129,14 @@
 		<mapping frequency='Quarterly'>balinterimdiv</mapping>
 	</div>
 	<div>
-		<value>CashFlows</value>
+		<value>CashFlowStatement</value>
 		<mapping frequency='Annual'>casannualdiv</mapping>
 		<mapping frequency='Quarterly'>casinterimdiv</mapping>
+	</div>
+	<div>
+		<value>Dates</value>
+		<mapping frequency='Annual'>incannualdiv</mapping>
+		<mapping frequency='Quarterly'>incinterimdiv</mapping>
 	</div>
 </divisions>
 
@@ -139,7 +144,7 @@
 <regular_expressions>
 	<regex>
 		<value>Revenue</value>
-		<definition><![CDATA[(?<!(Other |Total |Cost of ))Revenue]]></definition>
+		<definition><![CDATA[(?<!(Other |Total |st of ))Revenue]]></definition> <!-- Need to eliminate "Other Revenue", "Total Revenue" and "Cost of Revenue" -->
 	</regex>
 	<regex>
 		<value>OtherRevenue</value>
@@ -275,7 +280,7 @@
 	</regex>
 	<regex>
 		<value>DilutedEPSInclExtraItems</value> <!-- Diluted EPS Including Extraordinary Items -->
-		<definition><![CDATA[Diluted EPS Including Extraordinary Items]></definition>
+		<definition><![CDATA[Diluted EPS Including Extraordinary Items]]></definition>
 	</regex>
 	<regex>
 		<value>DividendsPerShare</value> <!-- Dividends Per Share, Common Stock Primary Issue -->
