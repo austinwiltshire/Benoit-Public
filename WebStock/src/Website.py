@@ -29,7 +29,7 @@ class GoogleSoup(object):
     #getAttr[] heavily
     
     numberRe = re.compile(r"-?[\d{3,3},]*\d{0,3}\.\d+|-")
-    dateRe = re.compile(r"\d+ months Ending (?P<year>\d{4,4})-(?P<month>\d{2,2})-(?P<day>\d{2,2})")    
+    dateRe = re.compile(r"((\d+ (months|weeks) Ending )|(As of ))(?P<year>\d{4,4})-(?P<month>\d{2,2})-(?P<day>\d{2,2})")    
     
 
     
@@ -76,9 +76,9 @@ class GoogleSoup(object):
         searchRe = re.compile(regEx)
         
         annualMethod = lambda : self.webparse(annualVariableName, searchRe\
-                                              , annualDiv, self.getAnnualDates())
+                                              , annualDiv, self.getDates(annualDiv))
         quarterlyMethod = lambda : self.webparse(quarterlyVariableName, searchRe\
-                                              , quarterlyDiv, self.getQuarterlyDates())
+                                              , quarterlyDiv, self.getDates(quarterlyDiv))
         
         self.__setattr__(annualMethodName, annualMethod)
         self.__setattr__(quarterlyMethodName, quarterlyMethod)
@@ -134,7 +134,7 @@ class GoogleSoup(object):
             
             #add it to results.
             values.append(val)
-            
+        
         return values
     
     def webparse(self, variableName, searchRe, division, dates):
@@ -143,35 +143,11 @@ class GoogleSoup(object):
         
         return dict(zip(dates, self.__getattribute__(variableName)))
      
-    def getQuarterlyDates(self):
-        if not self.quarterlyDates :
-            quarterlyDiv = self.labels['Dates']['Quarterly']
-        
-            tds = quarterlyDiv.findAll('td')[1:]
-            #TODO: replace this with a callable or something?
-            #get all td's, except the first because it is just 'in millions of USD ...
-            
-            tds = [self.dateRe.search(td.b.string) for td in tds if td.b and td.b.string and self.dateRe.search(td.b.string)]    
-            #TODO: should this be simplified in a loop or can I improve my div.findAll above to get this sort of stuff?
-        
-            self.quarterlyDates = [datetime.date(int(td.group('year')), int(td.group('month')), int(td.group('day'))) for td in tds]
-            
-        return self.quarterlyDates
-    
-    def getAnnualDates(self):
-        if not self.annualDates :
-            annualDiv = self.labels['Dates']['Annual']
-        
-            tds = annualDiv.findAll('td')[1:]
-            #TODO: replace this with a callable or something?
-            #get all td's, except the first because it is just 'in millions of USD ...
-            
-            tds = [self.dateRe.search(td.b.string) for td in tds if td.b and td.b.string and self.dateRe.search(td.b.string)]    
-            #TODO: should this be simplified in a loop or can I improve my div.findAll above to get this sort of stuff?
-        
-            self.annualDates = [datetime.date(int(td.group('year')), int(td.group('month')), int(td.group('day'))) for td in tds]
-            
-        return self.annualDates
+    def getDates(self, div):
+        tds = div.findAll('td')
+        tds = [self.dateRe.search(str(td)) for td in tds if self.dateRe.search(str(td))]
+        dates = [datetime.date(int(td.group('year')), int(td.group('month')), int(td.group('day'))) for td in tds]
+        return dates
 
 class Google(Website):
 
