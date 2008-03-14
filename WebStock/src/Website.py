@@ -91,6 +91,7 @@ class GoogleSoup(object):
         trs = div.findAll('tr')[1:]
         #get all trs, except the first because its just the dates.
         
+        #why don't you just bite the bullet here and do a regex on the whole damned thing?
         tds = None
         for tr in trs:  
             tds = tr.findAll("td")
@@ -105,6 +106,9 @@ class GoogleSoup(object):
             if tds[0].b and tds[0].b.span and tds[0].b.span.string and searchRe.search(tds[0].b.span.string) != None:
                 break
             #TODO: 'find' syntax again
+        else: #didn't break out of the loop at all
+            raise Exception("Couldn't find searchRe")
+        
         
         values = []
         for result in tds[1:]:
@@ -162,8 +166,19 @@ class Google(Website):
         inc = re.compile("Income.*Statement")
         links = page.findAll('a')
         
-        suffix = filter(lambda x: x.string != None\
-                         and inc.search(x.string) != None,links)[0]['href']
+        suffix=None
+        for link in links:
+            if not link.string:
+                continue
+            finding = inc.search(link.string)
+            if not finding:
+                continue
+            suffix = link['href']
+            break
+#        suffix = [x for x in inc.searchiter(x.string) if ]
+        
+ #       suffix = filter(lambda x: x.string != None\
+  #                       and inc.search(x.string) != None,links)[0]['href']
         return "".join(["http://finance.google.com/finance",suffix])
     
         #TODO: figure out 'find' syntax for lists.  there ought to be a find for lists.

@@ -180,7 +180,7 @@
 	</regex>
 	<regex>
 		<value>UnusualExpense</value> <!-- Unusual Expense(Income) -->
-		<definition><![CDATA[Unusual Expense\(Income\)]]></definition>
+		<definition><![CDATA[Unusual Expense \(Income\)]]></definition>
 	</regex>
 	<regex>
 		<value>OtherOperatingExpenses</value> <!-- Other Operating Expenses, Total -->
@@ -284,7 +284,7 @@
 	</regex>
 	<regex>
 		<value>DividendsPerShare</value> <!-- Dividends Per Share, Common Stock Primary Issue -->
-		<definition><![CDATA[Dividends Per Share - Common Stock Primary Issue]]></definition>
+		<definition><![CDATA[Dividends per Share - Common Stock Primary Issue]]></definition>
 	</regex>
 	<regex>
 		<value>GrossDividends</value> <!-- Gross Dividends, Common Stock -->
