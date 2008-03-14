@@ -1,6 +1,8 @@
 import Website
 from datetime import date
-from TestTools import assertClose, compareDicts
+from TestTools import assertClose, compareDicts, checkForError
+import BeautifulSoup
+import re
 
 x = Website.Google()
 
@@ -349,4 +351,124 @@ assert not res[0], "Did not detect a negative number when there ought to have be
 print "All random unit tests passed"
 
 #white box testing
+
+
+x = Website.Google()
+assert isinstance(x,Website.Google), "Class instantiation failed."
+assert isinstance(x,Website.Website), "Class instantiation failed."
+assert isinstance(x,Website.Bloomberg), "Class instantiation failed."
+assert isinstance(x,object), "Class instantiation failed"
+
+assert checkForError(x.cachedPages.__getitem__,'FDX',KeyError), "Cached pages failed"
+
+trial = False
+try:
+    x.__getattr__("dumbname")
+except AttributeError, e:
+    trial = True
+
+assert trial, "Attribute error in calling __getattr__"
+
+y = x.__getattr__("getQuarterlyRevenue")
+
+assert hasattr(y,"__call__"), "Failed to get __call__ from __getattr__"
+assert y.func_code.co_name=='<lambda>', "Failed to get lambda from __getattr__"
+
+trial = False
+try:
+    x.__myGetAttr__("dumbname",1)
+except AttributeError, e:
+    trial = True
+    
+assert trial, "Attribute error on __myGetAttr__"
+
+trial = False
+try:
+    x.___myGetAttr__("dumbname")
+except AttributeError, e:
+    trial= True
+ 
+assert trial, "Attribute error on __myGetAttr__"
+
+#check for type check of third argument, should be datetime not string
+assert checkForError(x.__myGetAttr__, ("dumbname","symbol","notdict"), AttributeError), "Attribute error on __myGetAttr__"
+
+#check for too many args
+assert checkForError(x.__myGetAttr__, ("dumbname","symbol",date(2001,1,1),"toomanyargs"), AttributeError), "Attribute error on __myGetAttr__"
+
+#check for proper return type
+assert isinstance(x.__myGetAttr__("getQuarterlyRevenue","FDX"),dict), "Failed on return type"
+
+#check for proper return type
+assert isinstance(x.__myGetAttr__("getQuarterlyRevenue","FDX",date(2006,11,30)),float), "Failed on return type"
+
+#check type in cached pages
+assert isinstance(x.cachedPages["FDX"], Website.GoogleSoup)
+
+#check type for buildsoup
+assert isinstance(x.buildSoup("FDX"), BeautifulSoup.BeautifulSoup)
+
+#check that buildURL returns the right type and is the right link
+url = x.buildURL("FDX")
+print url, type(url)
+assert isinstance(url,str) or isinstance(url,unicode), "Google build URL failed type check" 
+assert url=="http://finance.google.com/finance?fstype=ii&q=NYSE:FDX", "Google.buildURL type check and value check failed"
+
+#check GoogleSoup
+y = x.cachedPages["FDX"]
+assert isinstance(y,Website.GoogleSoup)
+
+#check that getSecDoc throws exception on garbage
+assert checkForError(y.getSecDoc,"notadoc",Exception,"Not a valid SEC identifier"), "Googlesoup.getSecDoc failed on exception"
+
+#check general values of getSecDoc
+assert isinstance(y.getSecDoc("Revenue"),str) and y.getSecDoc("Revenue") == "IncomeStatement", "getSecDoc failed on IncomeStatement"
+assert isinstance(y.getSecDoc("CapitalExpenditures"),str) and y.getSecDoc("CapitalExpenditures") == "CashFlowStatement", "getSecDoc failed on CashFlowStatement"
+assert isinstance(y.getSecDoc("TotalLiabilities"),str) and y.getSecDoc("TotalLiabilities") == "BalanceSheet", "getSecDoc failed on Balance Sheet"
+
+#check addAttribute has added attributes
+
+assert hasattr(y,"getAnnualRevenue"), "addAttribute is not working"
+
+#pull a switcheroo
+y.sec_docs['BalanceSheet'].append("newAttribute")
+
+y.addAttribute("newAttribute","regex")
+
+assert hasattr(y,"getAnnualnewAttribute"), "Add attribute failed"
+assert hasattr(y,"getQuarterlynewAttribute"), "Add attribute failed"
+assert hasattr(y.getAnnualnewAttribute,"__call__"), "Add attribute failed"
+assert hasattr(y.getQuarterlynewAttribute,"__call__"), "Add attribute failed"
+
+div = y.labels['BalanceSheet']['Annual']
+
+assert checkForError(y.getRows,(div,re.compile("boobies")), Exception), "Couldn't find searchRe"
+assert isinstance(y.getRows(div,re.compile("Short Term Investments")),list), "getRows didn't return an array"
+
+#check webparse
+assert isinstance(y.webparse("getQuarterlyShortTermInvestments",re.compile("Short Term Investments"),div,y.getDates(div)), dict), "failed webparse return value"
+
+#check getDates
+assert isinstance(y.getDates(div),list) and isinstance(y.getDates(div)[0],date), "Failed on getDates return value"
+
+print "Done white box testing"
+                  
+                  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

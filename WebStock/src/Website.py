@@ -154,7 +154,6 @@ class GoogleSoup(object):
         return dates
 
 class Google(Website):
-
     def __init__(self):
         self.cachedPages = {}
         

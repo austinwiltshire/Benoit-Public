@@ -32,3 +32,22 @@ def compareDicts(x,y, compareFunc = lambda x,y: x - y < 0.05 and x - y > -0.05, 
             return (False,"Values do not match in dicts")
         
     return (True,"Passed Test")
+
+def checkForError(func, args, error,msg=None):
+    try:
+        func(args)
+    except error, e:
+        if msg:
+            if e.message == msg:
+                print "returning true"
+                return True
+            else:
+                print "returning false, message didn't match"
+                print e.message, msg, e.message == msg
+                return False
+        print "returning true"
+        return True
+    print "no exception was thrown"
+    print "returning false"
+    return False
+        
