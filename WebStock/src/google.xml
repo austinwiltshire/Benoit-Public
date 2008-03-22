@@ -18,7 +18,7 @@
 		<value>OtherNet</value> <!-- Other, Net -->
 		<value>IncomeBeforeTax</value> <!-- Income Before Tax -->
 		<value>IncomeAfterTax</value> <!-- Income After Tax -->
-		<value>MinorityInterest</value> <!-- Minority Interest -->
+		<value>MinorityInterest_Inc</value> <!-- Minority Interest -->
 		<value>EquityInAffiliates</value> <!-- Equity In Affiliates -->
 		<value>NetIncomeBeforeExtraItems</value> <!-- Net Income Before Extraordinary Items -->
 		<value>AccountingChange</value> <!-- Accounting Change -->
@@ -78,7 +78,7 @@
 		<value>TotalLongTermDebt</value> <!-- Total Long Term Debt -->
 		<value>TotalDebt</value> <!-- Total Debt -->
 		<value>DeferredIncomeTax</value> <!-- Deferred Income Tax -->
-		<value>MinorityInterest</value> <!-- Minority Interest -->
+		<value>MinorityInterest_Bal</value> <!-- Minority Interest -->
 		<value>OtherLiabilities</value> <!-- Other Liabilities, Total -->
 		<value>TotalLiabilities</value> <!-- Total Liabilities -->
 		<value>RedeemablePreferredStock</value> <!-- Redeemable Preferred Stock, Total -->
@@ -215,7 +215,7 @@
 		<definition><![CDATA[Income After Tax]]></definition>
 	</regex>
 	<regex>
-		<value>MinorityInterest</value> <!-- Minority Interest -->
+		<value>MinorityInterest_Inc</value> <!-- Minority Interest -->
 		<definition><![CDATA[Minority Interest]]></definition>
 	</regex>
 	<regex>
@@ -240,7 +240,7 @@
 	</regex>
 	<regex>
 		<value>NetIncome</value> <!-- Net Income -->
-		<definition><![CDATA[Net Income(?![/]Starting Line)]]></definition>
+		<definition><![CDATA[Net Income(?!(([/]Starting Line)|( Before Extra[.] Items)))]]></definition>
 	</regex>
 	<regex>
 		<value>PreferredDividends</value> <!-- Preferred Dividends -->
@@ -296,11 +296,11 @@
 	</regex>
 	<regex>
 		<value>BasicEPSAfterCompExp</value> <!-- Basic EPS After Stock Based Comp. Expense -->
-		<definition><![CDATA[Basic EPS After Stock Based Comp. Expense]]></definition>
+		<definition><![CDATA[Basic EPS after Stock Based Comp[.] Expense]]></definition>
 	</regex>
 	<regex>
 		<value>DilutedEPSAfterCompExp</value> <!-- Diluted EPS After Stock Based Comp. Expense -->
-		<definition><![CDATA[Diluted EPS After Stock Based Comp[.] Expense]]></definition>
+		<definition><![CDATA[Diluted EPS after Stock Based Comp[.] Expense]]></definition>
 	</regex>
 	<regex>
 		<value>DepreciationSupplemental</value> <!-- Depreciation, Supplemental -->
@@ -420,7 +420,7 @@
 	</regex>
 	<regex>
 		<value>OtherCurrentLiabilities</value> <!-- Other Current Liabilities, Total -->
-		<definition><![CDATA[Other Current libailities, Total]]></definition>
+		<definition><![CDATA[Other Current liabilities, Total]]></definition>
 	</regex>
 	<regex>
 		<value>TotalCurrentLiabilities</value> <!-- Total Current Liabilities -->
@@ -447,7 +447,7 @@
 		<definition><![CDATA[Deferred Income Tax]]></definition>
 	</regex>
 	<regex>
-		<value>MinorityInterest</value> <!-- Minority Interest -->
+		<value>MinorityInterest_Bal</value> <!-- Minority Interest -->
 		<definition><![CDATA[Minority Interest]]></definition>
 	</regex>
 	<regex>

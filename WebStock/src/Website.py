@@ -144,7 +144,6 @@ class GoogleSoup(object):
     def webparse(self, variableName, searchRe, division, dates):
         if not self.__getattribute__(variableName):
                 self.__setattr__(variableName, self.getRows(division, searchRe))
-        
         return dict(zip(dates, self.__getattribute__(variableName)))
      
     def getDates(self, div):

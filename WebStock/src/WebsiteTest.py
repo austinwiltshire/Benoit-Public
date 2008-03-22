@@ -285,12 +285,12 @@ assert trial, "FAILED, should have gotten key error when looking up bad date"
 
 #check for extreme dates
 temp = x.getAnnualResearchAndDevelopment("PNS")
-assert temp.has_key(date(2006,12,31)), "FAILED did not find extreme date"
-assert temp.has_key(date(2001,12,31)), "FAILED did not find extreme date, this might just need an update to the test"
+assert temp.has_key(date(2007,12,31)), "FAILED did not find extreme date"
+assert temp.has_key(date(2002,12,31)), "FAILED did not find extreme date, this might just need an update to the test"
 
 temp = x.getQuarterlyResearchAndDevelopment("PNS")
-assert temp.has_key(date(2007,9,30)), "FAILED did not find extreme date"
-assert temp.has_key(date(2006,9,30)), "FAILED did not find extreme date"
+assert temp.has_key(date(2007,12,31)), "FAILED did not find extreme date"
+assert temp.has_key(date(2006,12,31)), "FAILED did not find extreme date"
 
 assert not temp.has_key(date(2006,9,29)), "FAILED did not find extreme date" #failure test
 
@@ -446,7 +446,7 @@ assert checkForError(y.getRows,(div,re.compile("boobies")), Exception), "Couldn'
 assert isinstance(y.getRows(div,re.compile("Short Term Investments")),list), "getRows didn't return an array"
 
 #check webparse
-assert isinstance(y.webparse("getQuarterlyShortTermInvestments",re.compile("Short Term Investments"),div,y.getDates(div)), dict), "failed webparse return value"
+assert isinstance(y.webparse("quarterlyShortTermInvestments",re.compile("Short Term Investments"),div,y.getDates(div)), dict), "failed webparse return value"
 
 #check getDates
 assert isinstance(y.getDates(div),list) and isinstance(y.getDates(div)[0],date), "Failed on getDates return value"

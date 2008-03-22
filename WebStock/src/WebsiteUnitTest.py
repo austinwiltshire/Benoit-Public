@@ -2,6 +2,8 @@ import Website
 from TestTools import assertClose, compareDicts
 from datetime import date
 
+totest = Website.Google()
+
 #incomestatement
 res =compareDicts(totest.getAnnualRevenue("DD"), {date(2007, 12, 31):29378.00, \
                                              date(2006, 12, 31):27421.00, \
@@ -129,7 +131,7 @@ res = compareDicts(totest.getAnnualIncomeAfterTax("DD"), {date(2007, 12, 31):299
                                        date(2003, 12, 31):1073.00, \
                                        date(2002, 12, 31):1939.00}) 
 assert res[0], res[1]
-res = compareDicts(totest.getAnnualMinorityInterest("DD"), {date(2007, 12, 31):-7.00, \
+res = compareDicts(totest.getAnnualMinorityInterest_Inc("DD"), {date(2007, 12, 31):-7.00, \
                                          date(2006, 12, 31):15.00, \
                                          date(2005, 12, 31):-37.00, \
                                          date(2004, 12, 31):9.00, \
@@ -176,7 +178,7 @@ res = compareDicts(totest.getAnnualNetIncome("DD"), {date(2007, 12, 31):2988.00,
                                   date(2005, 12, 31):2056.00, \
                                   date(2004, 12, 31):1780.00, \
                                   date(2003, 12, 31):973.00, \
-                                  date(2002, 12, 31):992.00}) 
+                                  date(2002, 12, 31):-1103.00},prnt=True) 
 assert res[0], res[1]
 res = compareDicts(totest.getAnnualPreferredDividends("DD"), {date(2007, 12, 31):'-', \
                                            date(2006, 12, 31):'-', \
@@ -374,7 +376,7 @@ res = compareDicts(totest.getAnnualAccountsReceivableTrade("DD"), {date(2007, 12
                                                 date(2005, 12, 31):3907.00, \
                                                 date(2004, 12, 31):3860.00, \
                                                 date(2003, 12, 31):3427.00, \
-                                                date(2002, 12, 31):3913.00})
+                                                date(2002, 12, 31):2913.00})
 assert res[0], res[1]
 res = compareDicts(totest.getAnnualReceivablesOther("DD"), {date(2007, 12, 31):'-', \
                                          date(2006, 12, 31):'-', \
@@ -516,7 +518,7 @@ res = compareDicts(totest.getAnnualCapitalLeaseObligations("DD"), {date(2007, 12
                                                 date(2003, 12, 31):'-', \
                                                 date(2002, 12, 31):'-'}) 
 assert res[0], res[1]
-res = compareDicts(totest.getAnnualTotalLongTermDebt("DD"), {date(2007, 12, 31):5995.00, \
+res = compareDicts(totest.getAnnualTotalLongTermDebt("DD"), {date(2007, 12, 31):5955.00, \
                                           date(2006, 12, 31):6013.00, \
                                           date(2005, 12, 31):6783.00, \
                                           date(2004, 12, 31):5548.00, \
@@ -537,7 +539,7 @@ res = compareDicts(totest.getAnnualDeferredIncomeTax("DD"), {date(2007, 12, 31):
                                           date(2003, 12, 31):508.00, \
                                           date(2002, 12, 31):563.00}) 
 assert res[0], res[1]
-res = compareDicts(totest.getAnnualMinorityInterest("DD"), {date(2007, 12, 31):442.00, \
+res = compareDicts(totest.getAnnualMinorityInterest_Bal("DD"), {date(2007, 12, 31):442.00, \
                                          date(2006, 12, 31):441.00, \
                                          date(2005, 12, 31):490.00, \
                                          date(2004, 12, 31):1110.00, \
@@ -556,7 +558,7 @@ res = compareDicts(totest.getAnnualTotalLiabilities("DD"), {date(2007, 12, 31):2
                                          date(2005, 12, 31):24329.00, \
                                          date(2004, 12, 31):24255.00, \
                                          date(2003, 12, 31):27258.00, \
-                                         date(2002, 12, 31):25557.00}) 
+                                         date(2002, 12, 31):25558.00}) 
 assert res[0], res[1]
 res = compareDicts(totest.getAnnualRedeemablePreferredStock("DD"), {date(2007, 12, 31):'-', \
                                                  date(2006, 12, 31):'-', \
@@ -632,7 +634,7 @@ res = compareDicts(totest.getAnnualTotalCommonSharesOutstanding("DD"), {date(200
                                                      date(2006, 12, 31):922.07, \
                                                      date(2005, 12, 31):919.61, \
                                                      date(2004, 12, 31):994.34, \
-                                                     date(2003, 12, 31):997.34, \
+                                                     date(2003, 12, 31):997.28, \
                                                      date(2002, 12, 31):993.94}) 
 assert res[0], res[1]
 #cash flow
@@ -806,769 +808,769 @@ assert res[0], res[1]
 
 #quarterly
 #incomestatement
-res =compareDicts(totest.getQuarterlyRevenue("DD"), {date(2007, 12, 31):, \
-                                             date(2007, 9, 30):, \
-                                             date(2007, 6, 30):, \
-                                             date(2007, 3, 31):, \
-                                             date(2006, 12, 31):})
+res =compareDicts(totest.getQuarterlyRevenue("DD"), {date(2007, 12, 31):6983.00, \
+                                             date(2007, 9, 30):6675.00, \
+                                             date(2007, 6, 30):7875.00, \
+                                             date(2007, 3, 31):7845.00, \
+                                             date(2006, 12, 31):6276.00})
                                              
 assert res[0], res[1] 
-res = compareDictsres = compareDicts(totest.getQuarterlyOtherRevenue("DD"), {date(2007, 12, 31):, \
-                                     date(2007, 9, 30):, \
-                                     date(2007, 6, 30):, \
-                                     date(2007, 3, 31):, \
-                                     date(2006, 12, 31):})
+res = compareDictsres = compareDicts(totest.getQuarterlyOtherRevenue("DD"), {date(2007, 12, 31):230.00, \
+                                     date(2007, 9, 30):365.00, \
+                                     date(2007, 6, 30):364.00, \
+                                     date(2007, 3, 31):316.00, \
+                                     date(2006, 12, 31):559.00})
                                         
 assert res[0], res[1]                                          
-res = compareDicts(totest.getQuarterlyTotalRevenue("DD"), {date(2007, 12, 31):, \
-                                     date(2007, 9, 30):, \
-                                     date(2007, 6, 30):, \
-                                     date(2007, 3, 31):, \
-                                     date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyTotalRevenue("DD"), {date(2007, 12, 31):7213.00, \
+                                     date(2007, 9, 30):7040.00, \
+                                     date(2007, 6, 30):8239.00, \
+                                     date(2007, 3, 31):8161.00, \
+                                     date(2006, 12, 31):6835.00})
                                       
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyCostOfRevenue("DD"), {date(2007, 12, 31):, \
-                                      date(2007, 9, 30):, \
-                                      date(2007, 6, 30):, \
-                                      date(2007, 3, 31):, \
-                                      date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyCostOfRevenue("DD"), {date(2007, 12, 31):5349.00, \
+                                      date(2007, 9, 30):5115.00, \
+                                      date(2007, 6, 30):5555.00, \
+                                      date(2007, 3, 31):5546.00, \
+                                      date(2006, 12, 31):5114.00})
                                        
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyGrossProfit("DD"), {date(2007, 12, 31):, \
-                                    date(2007, 9, 30):, \
-                                    date(2007, 6, 30):, \
-                                    date(2007, 3, 31):, \
-                                    date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyGrossProfit("DD"), {date(2007, 12, 31):1634.00, \
+                                    date(2007, 9, 30):1560.00, \
+                                    date(2007, 6, 30):2320.00, \
+                                    date(2007, 3, 31):2299.00, \
+                                    date(2006, 12, 31):1162.00})
                                     
 assert res[0], res[1] 
-res = compareDicts(totest.getQuarterlySGAExpenses("DD"), {date(2007, 12, 31):, \
-                                    date(2007, 9, 30):, \
-                                    date(2007, 6, 30):, \
-                                    date(2007, 3, 31):, \
-                                    date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlySGAExpenses("DD"), {date(2007, 12, 31):852.00, \
+                                    date(2007, 9, 30):797.00, \
+                                    date(2007, 6, 30):877.00, \
+                                    date(2007, 3, 31):838.00, \
+                                    date(2006, 12, 31):824.00})
                                     
 assert res[0], res[1] 
-res = compareDicts(totest.getQuarterlyResearchAndDevelopment("DD"), {date(2007, 12, 31):, \
-                                               date(2007, 9, 30):, \
-                                               date(2007, 6, 30):, \
-                                               date(2007, 3, 31):, \
-                                               date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyResearchAndDevelopment("DD"), {date(2007, 12, 31):359.00, \
+                                               date(2007, 9, 30):332.00, \
+                                               date(2007, 6, 30):337.00, \
+                                               date(2007, 3, 31):310.00, \
+                                               date(2006, 12, 31):341.00})
                                                 
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyDepreciationAmortization("DD"), {date(2007, 12, 31):, \
-                                                 date(2007, 9, 30):, \
-                                                 date(2007, 6, 30):, \
-                                                 date(2007, 3, 31):, \
-                                                 date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyDepreciationAmortization("DD"), {date(2007, 12, 31):50.00, \
+                                                 date(2007, 9, 30):53.00, \
+                                                 date(2007, 6, 30):54.00, \
+                                                 date(2007, 3, 31):56.00, \
+                                                 date(2006, 12, 31):55.00})
                                                   
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyInterestNetOperating("DD"), {date(2007, 12, 31):, \
-                                             date(2007, 9, 30):, \
-                                             date(2007, 6, 30):, \
-                                             date(2007, 3, 31):, \
-                                             date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyInterestNetOperating("DD"), {date(2007, 12, 31):110.00, \
+                                             date(2007, 9, 30):113.00, \
+                                             date(2007, 6, 30):108.00, \
+                                             date(2007, 3, 31):99.00, \
+                                             date(2006, 12, 31):113.00})
                                              
 assert res[0], res[1] 
-res = compareDicts(totest.getQuarterlyUnusualExpense("DD"), {date(2007, 12, 31):, \
-                                       date(2007, 9, 30):, \
-                                       date(2007, 6, 30):, \
-                                       date(2007, 3, 31):, \
-                                       date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyUnusualExpense("DD"), {date(2007, 12, 31):'-', \
+                                       date(2007, 9, 30):'-', \
+                                       date(2007, 6, 30):'-', \
+                                       date(2007, 3, 31):'-', \
+                                       date(2006, 12, 31):0.00})
                                        
 assert res[0], res[1] 
-res = compareDicts(totest.getQuarterlyOtherOperatingExpenses("DD"), {date(2007, 12, 31):, \
-                                               date(2007, 9, 30):, \
-                                               date(2007, 6, 30):, \
-                                               date(2007, 3, 31):, \
-                                               date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyOtherOperatingExpenses("DD"), {date(2007, 12, 31):'-', \
+                                               date(2007, 9, 30):'-', \
+                                               date(2007, 6, 30):'-', \
+                                               date(2007, 3, 31):'-', \
+                                               date(2006, 12, 31):'-'})
                                                
 assert res[0], res[1] 
-res = compareDicts(totest.getQuarterlyTotalOperatingExpense("DD"), {date(2007, 12, 31):, \
-                                              date(2007, 9, 30):, \
-                                              date(2007, 6, 30):, \
-                                              date(2007, 3, 31):, \
-                                              date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyTotalOperatingExpense("DD"), {date(2007, 12, 31):6720.00, \
+                                              date(2007, 9, 30):6410.00, \
+                                              date(2007, 6, 30):6931.00, \
+                                              date(2007, 3, 31):6849.00, \
+                                              date(2006, 12, 31):6447.00})
                                                
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyOperatingIncome("DD"), {date(2007, 12, 31):, \
-                                        date(2007, 9, 30):, \
-                                        date(2007, 6, 30):, \
-                                        date(2007, 3, 31):, \
-                                        date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyOperatingIncome("DD"), {date(2007, 12, 31):493.00, \
+                                        date(2007, 9, 30):630.00, \
+                                        date(2007, 6, 30):1308.00, \
+                                        date(2007, 3, 31):1312.00, \
+                                        date(2006, 12, 31):388.00})
                                          
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyInterestIncome("DD"), {date(2007, 12, 31):, \
-                                       date(2007, 9, 30):, \
-                                       date(2007, 6, 30):, \
-                                       date(2007, 3, 31):, \
-                                       date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyInterestIncome("DD"), {date(2007, 12, 31):'-', \
+                                       date(2007, 9, 30):'-', \
+                                       date(2007, 6, 30):'-', \
+                                       date(2007, 3, 31):'-', \
+                                       date(2006, 12, 31):'-'})
                                         
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyGainOnSaleOfAssets("DD"), {date(2007, 12, 31):, \
-                                           date(2007, 9, 30):, \
-                                           date(2007, 6, 30):, \
-                                           date(2007, 3, 31):, \
-                                           date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyGainOnSaleOfAssets("DD"), {date(2007, 12, 31):'-', \
+                                           date(2007, 9, 30):'-', \
+                                           date(2007, 6, 30):'-', \
+                                           date(2007, 3, 31):'-', \
+                                           date(2006, 12, 31):'-'})
                                             
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyOtherNet("DD"), {date(2007, 12, 31):, \
-                                 date(2007, 9, 30):, \
-                                 date(2007, 6, 30):, \
-                                 date(2007, 3, 31):, \
-                                 date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyOtherNet("DD"), {date(2007, 12, 31):'-', \
+                                 date(2007, 9, 30):'-', \
+                                 date(2007, 6, 30):'-', \
+                                 date(2007, 3, 31):'-', \
+                                 date(2006, 12, 31):'-'})
                                   
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyIncomeBeforeTax("DD"), {date(2007, 12, 31):, \
-                                        date(2007, 9, 30):, \
-                                        date(2007, 6, 30):, \
-                                        date(2007, 3, 31):, \
-                                        date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyIncomeBeforeTax("DD"), {date(2007, 12, 31):493.00, \
+                                        date(2007, 9, 30):630.00, \
+                                        date(2007, 6, 30):1308.00, \
+                                        date(2007, 3, 31):1312.00, \
+                                        date(2006, 12, 31):388.00})
                                          
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyIncomeAfterTax("DD"), {date(2007, 12, 31):, \
-                                       date(2007, 9, 30):, \
-                                       date(2007, 6, 30):, \
-                                       date(2007, 3, 31):, \
-                                       date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyIncomeAfterTax("DD"), {date(2007, 12, 31):547.00, \
+                                       date(2007, 9, 30):528.00, \
+                                       date(2007, 6, 30):973.00, \
+                                       date(2007, 3, 31):947.00, \
+                                       date(2006, 12, 31):853.00})
                                         
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyMinorityInterest("DD"), {date(2007, 12, 31):, \
-                                         date(2007, 9, 30):, \
-                                         date(2007, 6, 30):, \
-                                         date(2007, 3, 31):, \
-                                         date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyMinorityInterest_Inc("DD"), {date(2007, 12, 31):-2.00, \
+                                         date(2007, 9, 30):-2.00, \
+                                         date(2007, 6, 30):-1.00, \
+                                         date(2007, 3, 31):-2.00, \
+                                         date(2006, 12, 31):18.00})
                                           
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyEquityInAffiliates("DD"), {date(2007, 12, 31):, \
-                                           date(2007, 9, 30):, \
-                                           date(2007, 6, 30):, \
-                                           date(2007, 3, 31):, \
-                                           date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyEquityInAffiliates("DD"), {date(2007, 12, 31):'-', \
+                                           date(2007, 9, 30):'-', \
+                                           date(2007, 6, 30):'-', \
+                                           date(2007, 3, 31):'-', \
+                                           date(2006, 12, 31):'-'})
                                             
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyNetIncomeBeforeExtraItems("DD"), {date(2007, 12, 31):, \
-                                                  date(2007, 9, 30):, \
-                                                  date(2007, 6, 30):, \
-                                                  date(2007, 3, 31):, \
-                                                  date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyNetIncomeBeforeExtraItems("DD"), {date(2007, 12, 31):545.00, \
+                                                  date(2007, 9, 30):526.00, \
+                                                  date(2007, 6, 30):972.00, \
+                                                  date(2007, 3, 31):945.00, \
+                                                  date(2006, 12, 31):871.00})
                                                    
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyAccountingChange("DD"), {date(2007, 12, 31):, \
-                                         date(2007, 9, 30):, \
-                                         date(2007, 6, 30):, \
-                                         date(2007, 3, 31):, \
-                                         date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyAccountingChange("DD"), {date(2007, 12, 31):'-', \
+                                         date(2007, 9, 30):'-', \
+                                         date(2007, 6, 30):'-', \
+                                         date(2007, 3, 31):'-', \
+                                         date(2006, 12, 31):'-'})
                                           
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyDiscontinuedOperations("DD"), {date(2007, 12, 31):, \
-                                               date(2007, 9, 30):, \
-                                               date(2007, 6, 30):, \
-                                               date(2007, 3, 31):, \
-                                               date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyDiscontinuedOperations("DD"), {date(2007, 12, 31):'-', \
+                                               date(2007, 9, 30):'-', \
+                                               date(2007, 6, 30):'-', \
+                                               date(2007, 3, 31):'-', \
+                                               date(2006, 12, 31):'-'})
                                                 
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyExtraordinaryItem("DD"), {date(2007, 12, 31):, \
-                                          date(2007, 9, 30):, \
-                                          date(2007, 6, 30):, \
-                                          date(2007, 3, 31):, \
-                                          date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyExtraordinaryItem("DD"), {date(2007, 12, 31):'-', \
+                                          date(2007, 9, 30):'-', \
+                                          date(2007, 6, 30):'-', \
+                                          date(2007, 3, 31):'-', \
+                                          date(2006, 12, 31):'-'})
                                            
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyNetIncome("DD"), {date(2007, 12, 31):, \
-                                  date(2007, 9, 30):, \
-                                  date(2007, 6, 30):, \
-                                  date(2007, 3, 31):, \
-                                  date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyNetIncome("DD"), {date(2007, 12, 31):545.00, \
+                                  date(2007, 9, 30):526.00, \
+                                  date(2007, 6, 30):972.00, \
+                                  date(2007, 3, 31):945.00, \
+                                  date(2006, 12, 31):871.00})
                                    
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyPreferredDividends("DD"), {date(2007, 12, 31):, \
-                                           date(2007, 9, 30):, \
-                                           date(2007, 6, 30):, \
-                                           date(2007, 3, 31):, \
-                                           date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyPreferredDividends("DD"), {date(2007, 12, 31):'-', \
+                                           date(2007, 9, 30):'-', \
+                                           date(2007, 6, 30):'-', \
+                                           date(2007, 3, 31):'-', \
+                                           date(2006, 12, 31):'-'})
                                             
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyIncomeAvailToCommonExclExtraItems("DD"), {date(2007, 12, 31):, \
-                                                          date(2007, 9, 30):, \
-                                                          date(2007, 6, 30):, \
-                                                          date(2007, 3, 31):, \
-                                                          date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyIncomeAvailToCommonExclExtraItems("DD"), {date(2007, 12, 31):543.00, \
+                                                          date(2007, 9, 30):524.00, \
+                                                          date(2007, 6, 30):969.00, \
+                                                          date(2007, 3, 31):942.00, \
+                                                          date(2006, 12, 31):869.00})
                                                            
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyIncomeAvailToCommonInclExtraItems("DD"), {date(2007, 12, 31):, \
-                                                          date(2007, 9, 30):, \
-                                                          date(2007, 6, 30):, \
-                                                          date(2007, 3, 31):, \
-                                                          date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyIncomeAvailToCommonInclExtraItems("DD"), {date(2007, 12, 31):543.00, \
+                                                          date(2007, 9, 30):524.00, \
+                                                          date(2007, 6, 30):969.00, \
+                                                          date(2007, 3, 31):942.00, \
+                                                          date(2006, 12, 31):869.00})
                                                            
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyBasicWeightedAverageShares("DD"), {date(2007, 12, 31):, \
-                                                   date(2007, 9, 30):, \
-                                                   date(2007, 6, 30):, \
-                                                   date(2007, 3, 31):, \
-                                                   date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyBasicWeightedAverageShares("DD"), {date(2007, 12, 31):'-', \
+                                                   date(2007, 9, 30):'-', \
+                                                   date(2007, 6, 30):'-', \
+                                                   date(2007, 3, 31):'-', \
+                                                   date(2006, 12, 31):'-'})
                                                     
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyBasicEPSExclExtraItems("DD"), {date(2007, 12, 31):, \
-                                               date(2007, 9, 30):, \
-                                               date(2007, 6, 30):, \
-                                               date(2007, 3, 31):, \
-                                               date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyBasicEPSExclExtraItems("DD"), {date(2007, 12, 31):'-', \
+                                               date(2007, 9, 30):'-', \
+                                               date(2007, 6, 30):'-', \
+                                               date(2007, 3, 31):'-', \
+                                               date(2006, 12, 31):'-'})
                                                 
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyBasicEPSInclExtraItems("DD"), {date(2007, 12, 31):, \
-                                               date(2007, 9, 30):, \
-                                               date(2007, 6, 30):, \
-                                               date(2007, 3, 31):, \
-                                               date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyBasicEPSInclExtraItems("DD"), {date(2007, 12, 31):'-', \
+                                               date(2007, 9, 30):'-', \
+                                               date(2007, 6, 30):'-', \
+                                               date(2007, 3, 31):'-', \
+                                               date(2006, 12, 31):'-'})
                                                 
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyDilutionAdjustment("DD"), {date(2007, 12, 31):, \
-                                           date(2007, 9, 30):, \
-                                           date(2007, 6, 30):, \
-                                           date(2007, 3, 31):, \
-                                           date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyDilutionAdjustment("DD"), {date(2007, 12, 31):'-', \
+                                           date(2007, 9, 30):'-', \
+                                           date(2007, 6, 30):'-', \
+                                           date(2007, 3, 31):'-', \
+                                           date(2006, 12, 31):'-'})
                                             
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyDilutedWeightedAverageShares("DD"), {date(2007, 12, 31):, \
-                                                     date(2007, 9, 30):, \
-                                                     date(2007, 6, 30):, \
-                                                     date(2007, 3, 31):, \
-                                                     date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyDilutedWeightedAverageShares("DD"), {date(2007, 12, 31):906.48, \
+                                                     date(2007, 9, 30):929.32, \
+                                                     date(2007, 6, 30):932.81, \
+                                                     date(2007, 3, 31):933.27, \
+                                                     date(2006, 12, 31):941.43})
                                                       
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyDilutedEPSExclExtraItems("DD"), {date(2007, 12, 31):, \
-                                                 date(2007, 9, 30):, \
-                                                 date(2007, 6, 30):, \
-                                                 date(2007, 3, 31):, \
-                                                 date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyDilutedEPSExclExtraItems("DD"), {date(2007, 12, 31):0.60, \
+                                                 date(2007, 9, 30):0.56, \
+                                                 date(2007, 6, 30):1.04, \
+                                                 date(2007, 3, 31):1.01, \
+                                                 date(2006, 12, 31):0.92})
                                                   
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyDilutedEPSInclExtraItems("DD"), {date(2007, 12, 31):, \
-                                                 date(2007, 9, 30):, \
-                                                 date(2007, 6, 30):, \
-                                                 date(2007, 3, 31):, \
-                                                 date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyDilutedEPSInclExtraItems("DD"), {date(2007, 12, 31):'-', \
+                                                 date(2007, 9, 30):'-', \
+                                                 date(2007, 6, 30):'-', \
+                                                 date(2007, 3, 31):'-', \
+                                                 date(2006, 12, 31):'-'})
                                                   
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyDividendsPerShare("DD"), {date(2007, 12, 31):, \
-                                          date(2007, 9, 30):, \
-                                          date(2007, 6, 30):, \
-                                          date(2007, 3, 31):, \
-                                          date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyDividendsPerShare("DD"), {date(2007, 12, 31):0.41, \
+                                          date(2007, 9, 30):0.37, \
+                                          date(2007, 6, 30):0.37, \
+                                          date(2007, 3, 31):0.37, \
+                                          date(2006, 12, 31):0.37})
                                            
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyGrossDividends("DD"), {date(2007, 12, 31):, \
-                                       date(2007, 9, 30):, \
-                                       date(2007, 6, 30):, \
-                                       date(2007, 3, 31):, \
-                                       date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyGrossDividends("DD"), {date(2007, 12, 31):'-', \
+                                       date(2007, 9, 30):'-', \
+                                       date(2007, 6, 30):'-', \
+                                       date(2007, 3, 31):'-', \
+                                       date(2006, 12, 31):'-'})
                                         
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyNetIncomeAfterCompExp("DD"), {date(2007, 12, 31):, \
-                                              date(2007, 9, 30):, \
-                                              date(2007, 6, 30):, \
-                                              date(2007, 3, 31):, \
-                                              date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyNetIncomeAfterCompExp("DD"), {date(2007, 12, 31):'-', \
+                                              date(2007, 9, 30):'-', \
+                                              date(2007, 6, 30):'-', \
+                                              date(2007, 3, 31):'-', \
+                                              date(2006, 12, 31):'-'})
                                                
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyBasicEPSAfterCompExp("DD"), {date(2007, 12, 31):, \
-                                             date(2007, 9, 30):, \
-                                             date(2007, 6, 30):, \
-                                             date(2007, 3, 31):, \
-                                             date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyBasicEPSAfterCompExp("DD"), {date(2007, 12, 31):'-', \
+                                             date(2007, 9, 30):'-', \
+                                             date(2007, 6, 30):'-', \
+                                             date(2007, 3, 31):'-', \
+                                             date(2006, 12, 31):'-'})
                                               
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyDilutedEPSAfterCompExp("DD"), {date(2007, 12, 31):, \
-                                               date(2007, 9, 30):, \
-                                               date(2007, 6, 30):, \
-                                               date(2007, 3, 31):, \
-                                               date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyDilutedEPSAfterCompExp("DD"), {date(2007, 12, 31):'-', \
+                                               date(2007, 9, 30):'-', \
+                                               date(2007, 6, 30):'-', \
+                                               date(2007, 3, 31):'-', \
+                                               date(2006, 12, 31):'-'})
                                                 
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyDepreciationSupplemental("DD"), {date(2007, 12, 31):, \
-                                                 date(2007, 9, 30):, \
-                                                 date(2007, 6, 30):, \
-                                                 date(2007, 3, 31):, \
-                                                 date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyDepreciationSupplemental("DD"), {date(2007, 12, 31):'-', \
+                                                 date(2007, 9, 30):'-', \
+                                                 date(2007, 6, 30):'-', \
+                                                 date(2007, 3, 31):'-', \
+                                                 date(2006, 12, 31):'-'})
                                                   
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyTotalSpecialItems("DD"), {date(2007, 12, 31):, \
-                                          date(2007, 9, 30):, \
-                                          date(2007, 6, 30):, \
-                                          date(2007, 3, 31):, \
-                                          date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyTotalSpecialItems("DD"), {date(2007, 12, 31):'-', \
+                                          date(2007, 9, 30):'-', \
+                                          date(2007, 6, 30):'-', \
+                                          date(2007, 3, 31):'-', \
+                                          date(2006, 12, 31):'-'})
                                            
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyNormalizedIncomeBeforeTaxes("DD"), {date(2007, 12, 31):, \
-                                                    date(2007, 9, 30):, \
-                                                    date(2007, 6, 30):, \
-                                                    date(2007, 3, 31):, \
-                                                    date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyNormalizedIncomeBeforeTaxes("DD"), {date(2007, 12, 31):'-', \
+                                                    date(2007, 9, 30):'-', \
+                                                    date(2007, 6, 30):'-', \
+                                                    date(2007, 3, 31):'-', \
+                                                    date(2006, 12, 31):'-'})
                                                      
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyEffectsOfSpecialItemsOnIncomeTaxes("DD"), {date(2007, 12, 31):, \
-                                                           date(2007, 9, 30):, \
-                                                           date(2007, 6, 30):, \
-                                                           date(2007, 3, 31):, \
-                                                           date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyEffectsOfSpecialItemsOnIncomeTaxes("DD"), {date(2007, 12, 31):'-', \
+                                                           date(2007, 9, 30):'-', \
+                                                           date(2007, 6, 30):'-', \
+                                                           date(2007, 3, 31):'-', \
+                                                           date(2006, 12, 31):'-'})
                                                             
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyIncomeTaxesExSpecialItems("DD"), {date(2007, 12, 31):, \
-                                                  date(2007, 9, 30):, \
-                                                  date(2007, 6, 30):, \
-                                                  date(2007, 3, 31):, \
-                                                  date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyIncomeTaxesExSpecialItems("DD"), {date(2007, 12, 31):'-', \
+                                                  date(2007, 9, 30):'-', \
+                                                  date(2007, 6, 30):'-', \
+                                                  date(2007, 3, 31):'-', \
+                                                  date(2006, 12, 31):'-'})
                                                    
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyNormalizedIncomeAfterTaxes("DD"), {date(2007, 12, 31):, \
-                                                   date(2007, 9, 30):, \
-                                                   date(2007, 6, 30):, \
-                                                   date(2007, 3, 31):, \
-                                                   date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyNormalizedIncomeAfterTaxes("DD"), {date(2007, 12, 31):'-', \
+                                                   date(2007, 9, 30):'-', \
+                                                   date(2007, 6, 30):'-', \
+                                                   date(2007, 3, 31):'-', \
+                                                   date(2006, 12, 31):'-'})
                                                     
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyNormalizedIncomeAvailableCommon("DD"), {date(2007, 12, 31):, \
-                                                        date(2007, 9, 30):, \
-                                                        date(2007, 6, 30):, \
-                                                        date(2007, 3, 31):, \
-                                                        date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyNormalizedIncomeAvailableCommon("DD"), {date(2007, 12, 31):'-', \
+                                                        date(2007, 9, 30):'-', \
+                                                        date(2007, 6, 30):'-', \
+                                                        date(2007, 3, 31):'-', \
+                                                        date(2006, 12, 31):'-'})
                                                          
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyBasicNormalizedEPS("DD"), {date(2007, 12, 31):, \
-                                           date(2007, 9, 30):, \
-                                           date(2007, 6, 30):, \
-                                           date(2007, 3, 31):, \
-                                           date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyBasicNormalizedEPS("DD"), {date(2007, 12, 31):'-', \
+                                           date(2007, 9, 30):'-', \
+                                           date(2007, 6, 30):'-', \
+                                           date(2007, 3, 31):'-', \
+                                           date(2006, 12, 31):'-'})
                                             
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyDilutedNormalizedEPS("DD"), {date(2007, 12, 31):, \
-                                             date(2007, 9, 30):, \
-                                             date(2007, 6, 30):, \
-                                             date(2007, 3, 31):, \
-                                             date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyDilutedNormalizedEPS("DD"), {date(2007, 12, 31):0.60, \
+                                             date(2007, 9, 30):0.56, \
+                                             date(2007, 6, 30):1.04, \
+                                             date(2007, 3, 31):1.01, \
+                                             date(2006, 12, 31):0.92})
                                               
 assert res[0], res[1]
 
 #testing balance sheet
-res = compareDicts(totest.getQuarterlyCashAndEquivalents("DD"), {date(2007, 12, 31):, \
-                                           date(2007, 9, 30):, \
-                                           date(2007, 6, 30):, \
-                                           date(2007, 3, 31):, \
-                                           date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyCashAndEquivalents("DD"), {date(2007, 12, 31):1305.00, \
+                                           date(2007, 9, 30):1209.00, \
+                                           date(2007, 6, 30):987.00, \
+                                           date(2007, 3, 31):883.00, \
+                                           date(2006, 12, 31):1814.00})
                                             
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyShortTermInvestments("DD"), {date(2007, 12, 31):, \
-                                             date(2007, 9, 30):, \
-                                             date(2007, 6, 30):, \
-                                             date(2007, 3, 31):, \
-                                             date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyShortTermInvestments("DD"), {date(2007, 12, 31):131.00, \
+                                             date(2007, 9, 30):109.00, \
+                                             date(2007, 6, 30):102.00, \
+                                             date(2007, 3, 31):71.00, \
+                                             date(2006, 12, 31):79.00})
                                               
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyCashAndShortTermInvestments("DD"), {date(2007, 12, 31):, \
-                                                    date(2007, 9, 30):, \
-                                                    date(2007, 6, 30):, \
-                                                    date(2007, 3, 31):, \
-                                                    date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyCashAndShortTermInvestments("DD"), {date(2007, 12, 31):1436.00, \
+                                                    date(2007, 9, 30):1318.00, \
+                                                    date(2007, 6, 30):1089.00, \
+                                                    date(2007, 3, 31):954.00, \
+                                                    date(2006, 12, 31):1893.00})
                                                      
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyAccountsReceivableTrade("DD"), {date(2007, 12, 31):, \
-                                                date(2007, 9, 30):, \
-                                                date(2007, 6, 30):, \
-                                                date(2007, 3, 31):, \
-                                                date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyAccountsReceivableTrade("DD"), {date(2007, 12, 31):5683.00, \
+                                                date(2007, 9, 30):6990.00, \
+                                                date(2007, 6, 30):7370.00, \
+                                                date(2007, 3, 31):6813.00, \
+                                                date(2006, 12, 31):5198.00})
                                                 
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyReceivablesOther("DD"), {date(2007, 12, 31):, \
-                                         date(2007, 9, 30):, \
-                                         date(2007, 6, 30):, \
-                                         date(2007, 3, 31):, \
-                                         date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyReceivablesOther("DD"), {date(2007, 12, 31):'-', \
+                                         date(2007, 9, 30):'-', \
+                                         date(2007, 6, 30):'-', \
+                                         date(2007, 3, 31):'-', \
+                                         date(2006, 12, 31):'-'})
                                           
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyTotalReceivablesNet("DD"), {date(2007, 12, 31):, \
-                                            date(2007, 9, 30):, \
-                                            date(2007, 6, 30):, \
-                                            date(2007, 3, 31):, \
-                                            date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyTotalReceivablesNet("DD"), {date(2007, 12, 31):5683.00, \
+                                            date(2007, 9, 30):6990.00, \
+                                            date(2007, 6, 30):7370.00, \
+                                            date(2007, 3, 31):6813.00, \
+                                            date(2006, 12, 31):5198.00})
                                              
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyTotalInventory("DD"), {date(2007, 12, 31):, \
-                                       date(2007, 9, 30):, \
-                                       date(2007, 6, 30):, \
-                                       date(2007, 3, 31):, \
-                                       date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyTotalInventory("DD"), {date(2007, 12, 31):5278.00, \
+                                       date(2007, 9, 30):4963.00, \
+                                       date(2007, 6, 30):4481.00, \
+                                       date(2007, 3, 31):4855.00, \
+                                       date(2006, 12, 31):4941.00})
                                         
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyPrepaidExpenses("DD"), {date(2007, 12, 31):, \
-                                        date(2007, 9, 30):, \
-                                        date(2007, 6, 30):, \
-                                        date(2007, 3, 31):, \
-                                        date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyPrepaidExpenses("DD"), {date(2007, 12, 31):199.00, \
+                                        date(2007, 9, 30):195.00, \
+                                        date(2007, 6, 30):199.00, \
+                                        date(2007, 3, 31):213.00, \
+                                        date(2006, 12, 31):182.00})
                                          
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyOtherCurrentAssetsTotal("DD"), {date(2007, 12, 31):, \
-                                                date(2007, 9, 30):, \
-                                                date(2007, 6, 30):, \
-                                                date(2007, 3, 31):, \
-                                                date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyOtherCurrentAssetsTotal("DD"), {date(2007, 12, 31):564.00, \
+                                                date(2007, 9, 30):665.00, \
+                                                date(2007, 6, 30):675.00, \
+                                                date(2007, 3, 31):697.00, \
+                                                date(2006, 12, 31):656.00})
                                                  
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyTotalCurrentAssets("DD"), {date(2007, 12, 31):, \
-                                           date(2007, 9, 30):, \
-                                           date(2007, 6, 30):, \
-                                           date(2007, 3, 31):, \
-                                           date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyTotalCurrentAssets("DD"), {date(2007, 12, 31):13160.00, \
+                                           date(2007, 9, 30):14131.00, \
+                                           date(2007, 6, 30):13814.00, \
+                                           date(2007, 3, 31):13532.00, \
+                                           date(2006, 12, 31):12870.00})
                                             
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyPPE("DD"), {date(2007, 12, 31):, \
-                            date(2007, 9, 30):, \
-                            date(2007, 6, 30):, \
-                            date(2007, 3, 31):, \
-                            date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyPPE("DD"), {date(2007, 12, 31):26593.00, \
+                            date(2007, 9, 30):26302.00, \
+                            date(2007, 6, 30):26053.00, \
+                            date(2007, 3, 31):25876.00, \
+                            date(2006, 12, 31):25719.00})
                              
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyGoodwill("DD"), {date(2007, 12, 31):, \
-                                 date(2007, 9, 30):, \
-                                 date(2007, 6, 30):, \
-                                 date(2007, 3, 31):, \
-                                 date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyGoodwill("DD"), {date(2007, 12, 31):2074.00, \
+                                 date(2007, 9, 30):2110.00, \
+                                 date(2007, 6, 30):2108.00, \
+                                 date(2007, 3, 31):2108.00, \
+                                 date(2006, 12, 31):2108.00})
                                   
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyIntangibles("DD"), {date(2007, 12, 31):, \
-                                    date(2007, 9, 30):, \
-                                    date(2007, 6, 30):, \
-                                    date(2007, 3, 31):, \
-                                    date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyIntangibles("DD"), {date(2007, 12, 31):2856.00, \
+                                    date(2007, 9, 30):2904.00, \
+                                    date(2007, 6, 30):2381.00, \
+                                    date(2007, 3, 31):2436.00, \
+                                    date(2006, 12, 31):2479.00})
                                      
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyLongTermInvestments("DD"), {date(2007, 12, 31):, \
-                                            date(2007, 9, 30):, \
-                                            date(2007, 6, 30):, \
-                                            date(2007, 3, 31):, \
-                                            date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyLongTermInvestments("DD"), {date(2007, 12, 31):818.00, \
+                                            date(2007, 9, 30):791.00, \
+                                            date(2007, 6, 30):802.00, \
+                                            date(2007, 3, 31):790.00, \
+                                            date(2006, 12, 31):803.00})
                                              
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyOtherLongTermAssets("DD"), {date(2007, 12, 31):, \
-                                            date(2007, 9, 30):, \
-                                            date(2007, 6, 30):, \
-                                            date(2007, 3, 31):, \
-                                            date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyOtherLongTermAssets("DD"), {date(2007, 12, 31):4363.00, \
+                                            date(2007, 9, 30):3411.00, \
+                                            date(2007, 6, 30):3267.00, \
+                                            date(2007, 3, 31):3182.00, \
+                                            date(2006, 12, 31):3019.00})
                                             
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyTotalAssets("DD"), {date(2007, 12, 31):, \
-                                    date(2007, 9, 30):, \
-                                    date(2007, 6, 30):, \
-                                    date(2007, 3, 31):, \
-                                    date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyTotalAssets("DD"), {date(2007, 12, 31):34131.00, \
+                                    date(2007, 9, 30):33915.00, \
+                                    date(2007, 6, 30):32850.00, \
+                                    date(2007, 3, 31):32473.00, \
+                                    date(2006, 12, 31):31777.00})
                                      
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyAccountsPayable("DD"), {date(2007, 12, 31):, \
-                                        date(2007, 9, 30):, \
-                                        date(2007, 6, 30):, \
-                                        date(2007, 3, 31):, \
-                                        date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyAccountsPayable("DD"), {date(2007, 12, 31):3172.00, \
+                                        date(2007, 9, 30):2873.00, \
+                                        date(2007, 6, 30):2539.00, \
+                                        date(2007, 3, 31):2782.00, \
+                                        date(2006, 12, 31):2711.00})
                                          
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyAccruedExpenses("DD"), {date(2007, 12, 31):, \
-                                        date(2007, 9, 30):, \
-                                        date(2007, 6, 30):, \
-                                        date(2007, 3, 31):, \
-                                        date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyAccruedExpenses("DD"), {date(2007, 12, 31):3823.00, \
+                                        date(2007, 9, 30):2972.00, \
+                                        date(2007, 6, 30):2921.00, \
+                                        date(2007, 3, 31):3020.00, \
+                                        date(2006, 12, 31):3534.00})
                                          
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyNotesPayable("DD"), {date(2007, 12, 31):, \
-                                     date(2007, 9, 30):, \
-                                     date(2007, 6, 30):, \
-                                     date(2007, 3, 31):, \
-                                     date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyNotesPayable("DD"), {date(2007, 12, 31):1349.00, \
+                                     date(2007, 9, 30):3618.00, \
+                                     date(2007, 6, 30):1226.00, \
+                                     date(2007, 3, 31):429.00, \
+                                     date(2006, 12, 31):354.00})
                                       
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyCurrentPortLTDebtToCapital("DD"), {date(2007, 12, 31):, \
-                                                   date(2007, 9, 30):, \
-                                                   date(2007, 6, 30):, \
-                                                   date(2007, 3, 31):, \
-                                                   date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyCurrentPortLTDebtToCapital("DD"), {date(2007, 12, 31):21.00, \
+                                                   date(2007, 9, 30):'-', \
+                                                   date(2007, 6, 30):1149.00, \
+                                                   date(2007, 3, 31):1161.00, \
+                                                   date(2006, 12, 31):1163.00})
                                                     
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyOtherCurrentLiabilities("DD"), {date(2007, 12, 31):, \
-                                                date(2007, 9, 30):, \
-                                                date(2007, 6, 30):, \
-                                                date(2007, 3, 31):, \
-                                                date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyOtherCurrentLiabilities("DD"), {date(2007, 12, 31):176.00, \
+                                                date(2007, 9, 30):334.00, \
+                                                date(2007, 6, 30):369.00, \
+                                                date(2007, 3, 31):422.00, \
+                                                date(2006, 12, 31):178.00})
                                                  
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyTotalCurrentLiabilities("DD"), {date(2007, 12, 31):, \
-                                                date(2007, 9, 30):, \
-                                                date(2007, 6, 30):, \
-                                                date(2007, 3, 31):, \
-                                                date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyTotalCurrentLiabilities("DD"), {date(2007, 12, 31):8541.00, \
+                                                date(2007, 9, 30):9797.00, \
+                                                date(2007, 6, 30):8204.00, \
+                                                date(2007, 3, 31):7814.00, \
+                                                date(2006, 12, 31):7940.00})
                                                  
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyLongTermDebt("DD"), {date(2007, 12, 31):, \
-                                     date(2007, 9, 30):, \
-                                     date(2007, 6, 30):, \
-                                     date(2007, 3, 31):, \
-                                     date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyLongTermDebt("DD"), {date(2007, 12, 31):5955.00, \
+                                     date(2007, 9, 30):5367.00, \
+                                     date(2007, 6, 30):5664.00, \
+                                     date(2007, 3, 31):6010.00, \
+                                     date(2006, 12, 31):6013.00})
                                       
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyCapitalLeaseObligations("DD"), {date(2007, 12, 31):, \
-                                                date(2007, 9, 30):, \
-                                                date(2007, 6, 30):, \
-                                                date(2007, 3, 31):, \
-                                                date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyCapitalLeaseObligations("DD"), {date(2007, 12, 31):'-', \
+                                                date(2007, 9, 30):'-', \
+                                                date(2007, 6, 30):'-', \
+                                                date(2007, 3, 31):'-', \
+                                                date(2006, 12, 31):'-'})
                                                  
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyTotalLongTermDebt("DD"), {date(2007, 12, 31):, \
-                                          date(2007, 9, 30):, \
-                                          date(2007, 6, 30):, \
-                                          date(2007, 3, 31):, \
-                                          date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyTotalLongTermDebt("DD"), {date(2007, 12, 31):5955.00, \
+                                          date(2007, 9, 30):5367.00, \
+                                          date(2007, 6, 30):5664.00, \
+                                          date(2007, 3, 31):6010.00, \
+                                          date(2006, 12, 31):6013.00})
                                            
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyTotalDebt("DD"), {date(2007, 12, 31):, \
-                                  date(2007, 9, 30):, \
-                                  date(2007, 6, 30):, \
-                                  date(2007, 3, 31):, \
-                                  date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyTotalDebt("DD"), {date(2007, 12, 31):7325.00, \
+                                  date(2007, 9, 30):8985.00, \
+                                  date(2007, 6, 30):8039.00, \
+                                  date(2007, 3, 31):7600.00, \
+                                  date(2006, 12, 31):7530.00})
                                    
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyDeferredIncomeTax("DD"), {date(2007, 12, 31):, \
-                                          date(2007, 9, 30):, \
-                                          date(2007, 6, 30):, \
-                                          date(2007, 3, 31):, \
-                                          date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyDeferredIncomeTax("DD"), {date(2007, 12, 31):802.00, \
+                                          date(2007, 9, 30):404.00, \
+                                          date(2007, 6, 30):395.00, \
+                                          date(2007, 3, 31):402.00, \
+                                          date(2006, 12, 31):269.00})
                                            
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyMinorityInterest("DD"), {date(2007, 12, 31):, \
-                                         date(2007, 9, 30):, \
-                                         date(2007, 6, 30):, \
-                                         date(2007, 3, 31):, \
-                                         date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyMinorityInterest_Bal("DD"), {date(2007, 12, 31):442.00, \
+                                         date(2007, 9, 30):445.00, \
+                                         date(2007, 6, 30):442.00, \
+                                         date(2007, 3, 31):442.00, \
+                                         date(2006, 12, 31):441.00})
                                           
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyOtherLiabilities("DD"), {date(2007, 12, 31):, \
-                                         date(2007, 9, 30):, \
-                                         date(2007, 6, 30):, \
-                                         date(2007, 3, 31):, \
-                                         date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyOtherLiabilities("DD"), {date(2007, 12, 31):7255.00, \
+                                         date(2007, 9, 30):7984.00, \
+                                         date(2007, 6, 30):7455.00, \
+                                         date(2007, 3, 31):7629.00, \
+                                         date(2006, 12, 31):7692.00})
                                           
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyTotalLiabilities("DD"), {date(2007, 12, 31):, \
-                                         date(2007, 9, 30):, \
-                                         date(2007, 6, 30):, \
-                                         date(2007, 3, 31):, \
-                                         date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyTotalLiabilities("DD"), {date(2007, 12, 31):22995.00, \
+                                         date(2007, 9, 30):23997.00, \
+                                         date(2007, 6, 30):22160.00, \
+                                         date(2007, 3, 31):22297.00, \
+                                         date(2006, 12, 31):22355.00})
                                           
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyRedeemablePreferredStock("DD"), {date(2007, 12, 31):, \
-                                                 date(2007, 9, 30):, \
-                                                 date(2007, 6, 30):, \
-                                                 date(2007, 3, 31):, \
-                                                 date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyRedeemablePreferredStock("DD"), {date(2007, 12, 31):'-', \
+                                                 date(2007, 9, 30):'-', \
+                                                 date(2007, 6, 30):'-', \
+                                                 date(2007, 3, 31):'-', \
+                                                 date(2006, 12, 31):'-'})
                                                   
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyPreferredStockNonRedeemable("DD"), {date(2007, 12, 31):, \
-                                                    date(2007, 9, 30):, \
-                                                    date(2007, 6, 30):, \
-                                                    date(2007, 3, 31):, \
-                                                    date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyPreferredStockNonRedeemable("DD"), {date(2007, 12, 31):237.00, \
+                                                    date(2007, 9, 30):237.00, \
+                                                    date(2007, 6, 30):237.00, \
+                                                    date(2007, 3, 31):237.00, \
+                                                    date(2006, 12, 31):237.00})
                                                      
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyCommonStock("DD"), {date(2007, 12, 31):, \
-                                    date(2007, 9, 30):, \
-                                    date(2007, 6, 30):, \
-                                    date(2007, 3, 31):, \
-                                    date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyCommonStock("DD"), {date(2007, 12, 31):296.00, \
+                                    date(2007, 9, 30):296.00, \
+                                    date(2007, 6, 30):302.00, \
+                                    date(2007, 3, 31):303.00, \
+                                    date(2006, 12, 31):303.00})
                                      
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyAdditionalPaidInCapital("DD"), {date(2007, 12, 31):, \
-                                                date(2007, 9, 30):, \
-                                                date(2007, 6, 30):, \
-                                                date(2007, 3, 31):, \
-                                                date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyAdditionalPaidInCapital("DD"), {date(2007, 12, 31):8179.00, \
+                                                date(2007, 9, 30):8121.00, \
+                                                date(2007, 6, 30):8187.00, \
+                                                date(2007, 3, 31):8072.00, \
+                                                date(2006, 12, 31):7797.00})
                                                  
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyRetainedEarnings("DD"), {date(2007, 12, 31):, \
-                                         date(2007, 9, 30):, \
-                                         date(2007, 6, 30):, \
-                                         date(2007, 3, 31):, \
-                                         date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyRetainedEarnings("DD"), {date(2007, 12, 31):9945.00, \
+                                         date(2007, 9, 30):9772.00, \
+                                         date(2007, 6, 30):10516.00, \
+                                         date(2007, 3, 31):10142.00, \
+                                         date(2006, 12, 31):9679.00})
                                           
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyTreasuryStock("DD"), {date(2007, 12, 31):, \
-                                      date(2007, 9, 30):, \
-                                      date(2007, 6, 30):, \
-                                      date(2007, 3, 31):, \
-                                      date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyTreasuryStock("DD"), {date(2007, 12, 31):-6727.00, \
+                                      date(2007, 9, 30):-6727.00, \
+                                      date(2007, 6, 30):-6727.00, \
+                                      date(2007, 3, 31):-6727.00, \
+                                      date(2006, 12, 31):-6727.00})
                                        
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyOtherEquity("DD"), {date(2007, 12, 31):, \
-                                    date(2007, 9, 30):, \
-                                    date(2007, 6, 30):, \
-                                    date(2007, 3, 31):, \
-                                    date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyOtherEquity("DD"), {date(2007, 12, 31):-794.00, \
+                                    date(2007, 9, 30):-1781.00, \
+                                    date(2007, 6, 30):-1825.00, \
+                                    date(2007, 3, 31):-1851.00, \
+                                    date(2006, 12, 31):-1867.00})
                                      
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyTotalEquity("DD"), {date(2007, 12, 31):, \
-                                    date(2007, 9, 30):, \
-                                    date(2007, 6, 30):, \
-                                    date(2007, 3, 31):, \
-                                    date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyTotalEquity("DD"), {date(2007, 12, 31):11136.00, \
+                                    date(2007, 9, 30):9918.00, \
+                                    date(2007, 6, 30):10690.00, \
+                                    date(2007, 3, 31):10176.00, \
+                                    date(2006, 12, 31):9422.00})
                                      
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyTotalLiabilitiesAndShareholdersEquity("DD"), {date(2007, 12, 31):, \
-                                                              date(2007, 9, 30):, \
-                                                              date(2007, 6, 30):, \
-                                                              date(2007, 3, 31):, \
-                                                              date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyTotalLiabilitiesAndShareholdersEquity("DD"), {date(2007, 12, 31):34131.00, \
+                                                              date(2007, 9, 30):33915.00, \
+                                                              date(2007, 6, 30):32850.00, \
+                                                              date(2007, 3, 31):32473.00, \
+                                                              date(2006, 12, 31):31777.00})
                                                                
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlySharesOuts("DD"), {date(2007, 12, 31):, \
-                                   date(2007, 9, 30):, \
-                                   date(2007, 6, 30):, \
-                                   date(2007, 3, 31):, \
-                                   date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlySharesOuts("DD"), {date(2007, 12, 31):'-', \
+                                   date(2007, 9, 30):'-', \
+                                   date(2007, 6, 30):'-', \
+                                   date(2007, 3, 31):'-', \
+                                   date(2006, 12, 31):'-'})
                                     
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyTotalCommonSharesOutstanding("DD"), {date(2007, 12, 31):, \
-                                                     date(2007, 9, 30):, \
-                                                     date(2007, 6, 30):, \
-                                                     date(2007, 3, 31):, \
-                                                     date(2006, 12, 31):})
+res = compareDicts(totest.getQuarterlyTotalCommonSharesOutstanding("DD"), {date(2007, 12, 31):899.29, \
+                                                     date(2007, 9, 30):898.93, \
+                                                     date(2007, 6, 30):920.27, \
+                                                     date(2007, 3, 31):923.60, \
+                                                     date(2006, 12, 31):922.07}, prnt=True)
                                                       
 assert res[0], res[1]
 #cash flow
-res = compareDicts(totest.getQuarterlyNetIncomeStartingLine("DD"), {date(2007, 12, 31):, \
-                                              date(2007, 9, 30):, \
-                                              date(2007, 6, 30):, \
-                                              date(2007, 3, 30):})
+res = compareDicts(totest.getQuarterlyNetIncomeStartingLine("DD"), {date(2007, 12, 31):545.00, \
+                                              date(2007, 9, 30):526.00, \
+                                              date(2007, 6, 30):972.00, \
+                                              date(2007, 3, 31):945.00}, prnt=True)
                                               
                                               
 assert res[0], res[1] 
-res = compareDicts(totest.getQuarterlyDepreciationDepletion("DD"), {date(2007, 12, 31):, \
-                                              date(2007, 9, 30):, \
-                                              date(2007, 6, 30):, \
-                                              date(2007, 3, 30):})
+res = compareDicts(totest.getQuarterlyDepreciationDepletion("DD"), {date(2007, 12, 31):292.00, \
+                                              date(2007, 9, 30):287.00, \
+                                              date(2007, 6, 30):289.00, \
+                                              date(2007, 3, 31):290.00})
                                               
                                               
 assert res[0], res[1] 
-res = compareDicts(totest.getQuarterlyAmortization("DD"), {date(2007, 12, 31):, \
-                                     date(2007, 9, 30):, \
-                                     date(2007, 6, 30):, \
-                                     date(2007, 3, 30):})
+res = compareDicts(totest.getQuarterlyAmortization("DD"), {date(2007, 12, 31):50.00, \
+                                     date(2007, 9, 30):53.00, \
+                                     date(2007, 6, 30):54.00, \
+                                     date(2007, 3, 31):56.00})
                                      
                                       
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyDeferredTaxes("DD"), {date(2007, 12, 31):, \
-                                      date(2007, 9, 30):, \
-                                      date(2007, 6, 30):, \
-                                      date(2007, 3, 30):})
+res = compareDicts(totest.getQuarterlyDeferredTaxes("DD"), {date(2007, 12, 31):'-', \
+                                      date(2007, 9, 30):'-', \
+                                      date(2007, 6, 30):'-', \
+                                      date(2007, 3, 31):'-'})
                                       
                                        
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyNonCashItems("DD"), {date(2007, 12, 31):, \
-                                     date(2007, 9, 30):, \
-                                     date(2007, 6, 30):, \
-                                     date(2007, 3, 30):})
+res = compareDicts(totest.getQuarterlyNonCashItems("DD"), {date(2007, 12, 31):164.00, \
+                                     date(2007, 9, 30):-32.00, \
+                                     date(2007, 6, 30):-33.00, \
+                                     date(2007, 3, 31):-11.00})
                                      
                                       
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyChangesInWorkingCapital("DD"), {date(2007, 12, 31):, \
-                                                date(2007, 9, 30):, \
-                                                date(2007, 6, 30):, \
-                                                date(2007, 3, 30):})
+res = compareDicts(totest.getQuarterlyChangesInWorkingCapital("DD"), {date(2007, 12, 31):1814.00, \
+                                                date(2007, 9, 30):209.00, \
+                                                date(2007, 6, 30):-659.00, \
+                                                date(2007, 3, 31):-1520.00})
                                                 
                                                  
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyCashFromOperatingActivities("DD"), {date(2007, 12, 31):, \
-                                                    date(2007, 9, 30):, \
-                                                    date(2007, 6, 30):, \
-                                                    date(2007, 3, 30):})
+res = compareDicts(totest.getQuarterlyCashFromOperatingActivities("DD"), {date(2007, 12, 31):2864.00, \
+                                                    date(2007, 9, 30):1043.00, \
+                                                    date(2007, 6, 30):623.00, \
+                                                    date(2007, 3, 31):-240.00})
                                                     
                                                     
 assert res[0], res[1] 
-res = compareDicts(totest.getQuarterlyCapitalExpenditures("DD"), {date(2007, 12, 31):, \
-                                            date(2007, 9, 30):, \
-                                            date(2007, 6, 30):, \
-                                            date(2007, 3, 30):})
+res = compareDicts(totest.getQuarterlyCapitalExpenditures("DD"), {date(2007, 12, 31):-566.00, \
+                                            date(2007, 9, 30):-398.00, \
+                                            date(2007, 6, 30):-348.00, \
+                                            date(2007, 3, 31):-273.00})
                                             
                                              
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyOtherInvestingCashFlow("DD"), {date(2007, 12, 31):, \
-                                               date(2007, 9, 30):, \
-                                               date(2007, 6, 30):, \
-                                               date(2007, 3, 30):})
+res = compareDicts(totest.getQuarterlyOtherInvestingCashFlow("DD"), {date(2007, 12, 31):-164.00, \
+                                               date(2007, 9, 30):50.00, \
+                                               date(2007, 6, 30):-55.00, \
+                                               date(2007, 3, 31):4.00})
                                                
                                                 
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyCashFromInvestingActivities("DD"), {date(2007, 12, 31):, \
-                                                    date(2007, 9, 30):, \
-                                                    date(2007, 6, 30):, \
-                                                    date(2007, 3, 30):})
+res = compareDicts(totest.getQuarterlyCashFromInvestingActivities("DD"), {date(2007, 12, 31):-730.00, \
+                                                    date(2007, 9, 30):-348.00, \
+                                                    date(2007, 6, 30):-403.00, \
+                                                    date(2007, 3, 31):-269.00})
                                                     
                                                      
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyFinancingCashFlowItems("DD"), {date(2007, 12, 31):, \
-                                               date(2007, 9, 30):, \
-                                               date(2007, 6, 30):, \
-                                               date(2007, 3, 30):})
+res = compareDicts(totest.getQuarterlyFinancingCashFlowItems("DD"), {date(2007, 12, 31):5.00, \
+                                               date(2007, 9, 30):8.00, \
+                                               date(2007, 6, 30):-11.00, \
+                                               date(2007, 3, 31):-69.00})
                                                
                                                 
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyTotalCashDividendsPaid("DD"), {date(2007, 12, 31):, \
-                                               date(2007, 9, 30):, \
-                                               date(2007, 6, 30):, \
-                                               date(2007, 3, 30):})
+res = compareDicts(totest.getQuarterlyTotalCashDividendsPaid("DD"), {date(2007, 12, 31):-372.00, \
+                                               date(2007, 9, 30):-345.00, \
+                                               date(2007, 6, 30):-345.00, \
+                                               date(2007, 3, 31):-347.00})
                                                
                                                 
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyIssuanceOfStock("DD"), {date(2007, 12, 31):, \
-                                        date(2007, 9, 30):, \
-                                        date(2007, 6, 30):, \
-                                        date(2007, 3, 30):})
+res = compareDicts(totest.getQuarterlyIssuanceOfStock("DD"), {date(2007, 12, 31):14.00, \
+                                        date(2007, 9, 30):-1029.00, \
+                                        date(2007, 6, 30):-185.00, \
+                                        date(2007, 3, 31):-50.00})
                                         
                                          
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyIssuanceOfDebt("DD"), {date(2007, 12, 31):, \
-                                       date(2007, 9, 30):, \
-                                       date(2007, 6, 30):, \
-                                       date(2007, 3, 30):})
+res = compareDicts(totest.getQuarterlyIssuanceOfDebt("DD"), {date(2007, 12, 31):-1673.00, \
+                                       date(2007, 9, 30):858.00, \
+                                       date(2007, 6, 30):431.00, \
+                                       date(2007, 3, 31):41.00})
                                        
                                         
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyCashFromFinancingActivities("DD"), {date(2007, 12, 31):, \
-                                                    date(2007, 9, 30):, \
-                                                    date(2007, 6, 30):, \
-                                                    date(2007, 3, 30):})
+res = compareDicts(totest.getQuarterlyCashFromFinancingActivities("DD"), {date(2007, 12, 31):-2026.00, \
+                                                    date(2007, 9, 30):-508.00, \
+                                                    date(2007, 6, 30):-110.00, \
+                                                    date(2007, 3, 31):-425.00})
                                                     
                                                      
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyForeignExchangeEffects("DD"), {date(2007, 12, 31):, \
-                                               date(2007, 9, 30):, \
-                                               date(2007, 6, 30):, \
-                                               date(2007, 3, 30):})
+res = compareDicts(totest.getQuarterlyForeignExchangeEffects("DD"), {date(2007, 12, 31):-12.00, \
+                                               date(2007, 9, 30):35.00, \
+                                               date(2007, 6, 30):-6.00, \
+                                               date(2007, 3, 31):3.00})
                                                
                                                 
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyNetChangeInCash("DD"), {date(2007, 12, 31):, \
-                                        date(2007, 9, 30):, \
-                                        date(2007, 6, 30):, \
-                                        date(2007, 3, 30):})
+res = compareDicts(totest.getQuarterlyNetChangeInCash("DD"), {date(2007, 12, 31):96.00, \
+                                        date(2007, 9, 30):222.00, \
+                                        date(2007, 6, 30):104.00, \
+                                        date(2007, 3, 31):-931.00})
                                         
                                          
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyCashInterestPaid("DD"), {date(2007, 12, 31):, \
-                                         date(2007, 9, 30):, \
-                                         date(2007, 6, 30):, \
-                                         date(2007, 3, 30):})
+res = compareDicts(totest.getQuarterlyCashInterestPaid("DD"), {date(2007, 12, 31):'-', \
+                                         date(2007, 9, 30):'-', \
+                                         date(2007, 6, 30):'-', \
+                                         date(2007, 3, 31):'-'})
                                          
                                           
 assert res[0], res[1]
-res = compareDicts(totest.getQuarterlyCashTaxesPaid("DD"), {date(2007, 12, 31):, \
-                                      date(2007, 9, 30):, \
-                                      date(2007, 6, 30):, \
-                                      date(2007, 3, 30):})
+res = compareDicts(totest.getQuarterlyCashTaxesPaid("DD"), {date(2007, 12, 31):'-', \
+                                      date(2007, 9, 30):'-', \
+                                      date(2007, 6, 30):'-', \
+                                      date(2007, 3, 31):'-'})
                                       
                                        
 assert res[0], res[1]

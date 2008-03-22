@@ -8,7 +8,7 @@ def assertClose(x,y,message="Assert Close Failed", e=0.05, prnt=False, reverse=F
     if prnt:
         print x, ",", y, ",", diff
         
-def compareDicts(x,y, compareFunc = lambda x,y: x - y < 0.05 and x - y > -0.05, prnt=False):
+def compareDicts(x,y, compareFunc = lambda x,y: (x - y < 0.05 and x - y > -0.05) if isinstance(x,float) else x==y, prnt=False):
     """ Compares two dicts to ensure they are equal in every way """
     xkeys = x.keys()
     ykeys = y.keys()
