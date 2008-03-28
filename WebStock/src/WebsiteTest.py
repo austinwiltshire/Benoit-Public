@@ -56,7 +56,8 @@ res = compareDicts(x.getAnnualShortTermInvestments("CVX"), {date(2007,12,31):732
                                                             date(2002,12,31):824.0})
 assert res[0], res[1]
 
-res = compareDicts(x.getAnnualDeferredTaxes("RDS.A"), {date(2006,12,31):1833.0,\
+res = compareDicts(x.getAnnualDeferredTaxes("RDS.A"), {date(2007,12,31):-773.00,\
+                                                       date(2006,12,31):1833.0,\
                                                        date(2005,12,31):-1515.0,\
                                                        date(2004,12,31):-1007.0})
 assert res[0], res[1]
@@ -400,7 +401,7 @@ assert checkForError(x.__myGetAttr__, ("dumbname","symbol",date(2001,1,1),"tooma
 assert isinstance(x.__myGetAttr__("getQuarterlyRevenue","FDX"),dict), "Failed on return type"
 
 #check for proper return type
-assert isinstance(x.__myGetAttr__("getQuarterlyRevenue","FDX",date(2006,11,30)),float), "Failed on return type"
+assert isinstance(x.__myGetAttr__("getQuarterlyRevenue","FDX",date(2007,2,28)),float), "Failed on return type"
 
 #check type in cached pages
 assert isinstance(x.cachedPages["FDX"], Website.GoogleSoup)
@@ -450,6 +451,13 @@ assert isinstance(y.webparse("quarterlyShortTermInvestments",re.compile("Short T
 
 #check getDates
 assert isinstance(y.getDates(div),list) and isinstance(y.getDates(div)[0],date), "Failed on getDates return value"
+
+#check for name error
+assert checkForError(x.getQuarterlyRevenue, ("EFHG"), Website.SymbolNotFound), "Did not get name error"
+
+
+#check for no sec docs
+assert checkForError(x.getQuarterlyRevenue, ("SATR"), Website.SymbolHasNoFinancials), "Did not get has no financials error"
 
 print "Done white box testing"
                   

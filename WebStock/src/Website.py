@@ -4,6 +4,23 @@ import re
 import datetime
 import FinancialXML
 
+class SymbolNotFound(Exception):
+    def __init__(self, symbol, *args, **kwargs):
+        self.symbol = symbol
+        super(SymbolNotFound,self).__init__(*args, **kwargs)
+        
+        
+    def __repr__(self):
+        return "Could not find symbol : %s \n%s" % (self.symbol, super(SymbolNotFound,self).__repr__())
+    
+class SymbolHasNoFinancials(Exception):
+    def __init__(self, symbol, *args, **kwargs):
+        self.symbol = symbol
+        super(SymbolHasNoFinancials,self).__init__(*args, **kwargs)
+        
+    def __repr__(self):
+        return "Symbol does not support financials: %s \n%s"  % (self.symbol, super(SymbolHasNoFinancials,self).__repr__())
+
 class Bloomberg(object):
     """ A Bloomberg is a stock information service provider.  It can host any number of "
     " services depending on what is available, such as price, volume, etc. information for "
@@ -161,6 +178,9 @@ class Google(Website):
         page = urllib2.urlopen(baseURL)
         page = BeautifulSoup(page)
         
+        if page.findAll(text=lambda x: "produced no matches" in x):
+            raise SymbolNotFound(symbol)
+        
         inc = re.compile("Income.*Statement")
         links = page.findAll('a')
         
@@ -173,6 +193,9 @@ class Google(Website):
                 continue
             suffix = link['href']
             break
+        
+        if not suffix:
+            raise SymbolHasNoFinancials(symbol)
 #        suffix = [x for x in inc.searchiter(x.string) if ]
         
  #       suffix = filter(lambda x: x.string != None\
