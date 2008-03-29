@@ -126,6 +126,9 @@ class GoogleSoup(object):
         else: #didn't break out of the loop at all
             raise Exception("Couldn't find searchRe")
         
+        #TODO: Why aren't you just using the regex over the whole damn thing instead of trying to narrow down whether its inside of 
+        #a bold or a span?
+        
         
         values = []
         for result in tds[1:]:
