@@ -1,3 +1,7 @@
+<!-- The term 'MinorityInterest' appears twice.  It is both in the Income Statement and the -->
+<!-- Balance sheet.  In this xml file, they are differentiated by appending _Inc to the -->
+<!-- version on the income statement and _Bal to the version on the balance sheet. -->
+
 <sec_document_definitions>
 	<sec_doc name='IncomeStatement'>
 		<value>Revenue</value> <!-- Revenue -->
@@ -18,7 +22,7 @@
 		<value>OtherNet</value> <!-- Other, Net -->
 		<value>IncomeBeforeTax</value> <!-- Income Before Tax -->
 		<value>IncomeAfterTax</value> <!-- Income After Tax -->
-		<value>MinorityInterest_Inc</value> <!-- Minority Interest -->
+		<value>MinorityInterest_Inc</value> <!-- Minority Interest on the Income Statement -->
 		<value>EquityInAffiliates</value> <!-- Equity In Affiliates -->
 		<value>NetIncomeBeforeExtraItems</value> <!-- Net Income Before Extraordinary Items -->
 		<value>AccountingChange</value> <!-- Accounting Change -->
@@ -78,7 +82,7 @@
 		<value>TotalLongTermDebt</value> <!-- Total Long Term Debt -->
 		<value>TotalDebt</value> <!-- Total Debt -->
 		<value>DeferredIncomeTax</value> <!-- Deferred Income Tax -->
-		<value>MinorityInterest_Bal</value> <!-- Minority Interest -->
+		<value>MinorityInterest_Bal</value> <!-- Minority Interest on the Balance Sheet -->
 		<value>OtherLiabilities</value> <!-- Other Liabilities, Total -->
 		<value>TotalLiabilities</value> <!-- Total Liabilities -->
 		<value>RedeemablePreferredStock</value> <!-- Redeemable Preferred Stock, Total -->
