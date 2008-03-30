@@ -8,6 +8,21 @@ def assertClose(x,y,message="Assert Close Failed", e=0.05, prnt=False, reverse=F
     if prnt:
         print x, ",", y, ",", diff
         
+def failUnlessRaises(excClass, callableObj, *args, **kwargs):
+		"""Fail unless an exception of class excClass is thrown
+		   by callableObj when invoked with arguments args and keyword
+		   arguments kwargs. If a different type of exception is
+		   thrown, it will not be caught, and the test case will be
+		   deemed to have suffered an error, exactly as for an
+		   unexpected exception.
+		"""
+		try:
+			callableObj(*args, **kwargs)
+		except excClass:
+			return
+		else:
+			assert False
+        
 def compareDicts(x,y, compareFunc = lambda x,y: (x - y < 0.05 and x - y > -0.05) if isinstance(x,float) else x==y, prnt=False):
     """ Compares two dicts to ensure they are equal in every way """
     xkeys = x.keys()

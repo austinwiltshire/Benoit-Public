@@ -20,6 +20,15 @@ class SymbolHasNoFinancials(Exception):
 		
 	def __repr__(self):
 		return "Symbol does not support financials: %s \n%s"  % (self.symbol, super(SymbolHasNoFinancials,self).__repr__())
+	
+class DateNotFound(Exception):
+	def __init__(self, symbol, date, *args, **kwargs):
+		self.symbol = symbol
+		self.date = date
+		super(DateNotFound,self).__init__(*args, **kwargs)
+		
+	def __repr__(self):
+		return "Symbol %s does not support date : %s \n%s" % (self.symbol, self.date, super(DateNotFound,self).__repr__())
 
 class Bloomberg(object):
 	""" A Bloomberg is a stock information service provider.  It can host any number of "
@@ -269,6 +278,10 @@ class Google(Website):
 	def __myGetAttr__(self, name, *args):
 		#do some type checking here
 		
+		#TODO: due to my new implementation of this classes interface(i no longer use __getattr__)
+		# this function might be able to do better type checking and be more integrated into
+		# the rest of the class
+		
 		symbol=None
 		date=None
 		
@@ -290,7 +303,11 @@ class Google(Website):
 		if not self.cachedPages.has_key(symbol):
 			self.cachedPages[symbol] = GoogleSoup(self.buildSoup(symbol))
 			
+		results = getattr(self.cachedPages[symbol], name)()	
+			
 		if date:
-			return getattr(self.cachedPages[symbol], name)()[date]
-		else:
-			return getattr(self.cachedPages[symbol], name)()
+			try:
+				results = results[date]
+			except KeyError, e:
+				raise DateNotFound(symbol,date)
+		return results

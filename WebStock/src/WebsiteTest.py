@@ -1,8 +1,9 @@
 import Website
 from datetime import date
-from TestTools import assertClose, compareDicts, checkForError
+from TestTools import assertClose, compareDicts, checkForError, failUnlessRaises
 import BeautifulSoup
 import re
+
 
 x = Website.Google()
 
@@ -13,6 +14,11 @@ assertClose(x.getQuarterlyChangesInWorkingCapital("SBUX", date(2007,07,01)), -4.
 
 #fail above
 assertClose(x.getQuarterlyChangesInWorkingCapital("SBUX", date(2007,07,01)), -5.09, "Failed on SBUX quarterly changes in working capital", reverse=True)
+
+
+	
+
+print "got thru"
 
 #test to make sure that all SEC docs and periods exist and can be accessed
 
@@ -461,8 +467,13 @@ assert checkForError(x.getQuarterlyRevenue, ("SATR"), Website.SymbolHasNoFinanci
 
 print "Done white box testing"
                   
-                  
-
+trial=False
+try:
+	x.getQuarterlyRevenue("IRBT", date(2007,12,30))
+except Website.DateNotFound:
+	trial = True
+	
+assert trial, "Date not found error not raise properly"                  
 
 
 
