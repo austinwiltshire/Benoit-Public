@@ -63,6 +63,7 @@ class GoogleSoup(object):
 		self.quarterlyDates = []
 		self.annualDates = []
 		self.supportedInformation = []
+		self.datesCache = {}
 		#assumes that across balance sheet, cash flows, etc... same dates are used.
 		for name,_ in self.regexs.items():
 			self.declareAttribute(name)
@@ -126,13 +127,16 @@ class GoogleSoup(object):
 		
 		annualDiv = self.labels[secDoc]['Annual']
 		quarterlyDiv = self.labels[secDoc]['Quarterly']
+		
+		annualDateKey = "annual%s" % secDoc
+		quarterlyDateKey = "quarterly%s" % secDoc
 			
 		searchRe = re.compile(regEx)
 		
 		annualMethod = lambda : self.webparse(annualVariableName, searchRe\
-											  , annualDiv, self.getDates(annualDiv))
+											  , annualDiv, self.getDates(annualDiv, annualDateKey))
 		quarterlyMethod = lambda : self.webparse(quarterlyVariableName, searchRe\
-											  , quarterlyDiv, self.getDates(quarterlyDiv))
+											  , quarterlyDiv, self.getDates(quarterlyDiv, quarterlyDateKey))
 		
 		self.__setattr__(annualMethodName, annualMethod)
 		self.__setattr__(quarterlyMethodName, quarterlyMethod)
@@ -206,11 +210,25 @@ class GoogleSoup(object):
 				self.__setattr__(variableName, self.getRows(division, searchRe))
 		return dict(zip(dates, self.__getattribute__(variableName)))
 	 
-	def getDates(self, div):
+	def getDates(self, div, key=None):
+		if not key:
+			return self.getDatesFromDiv(div)
+				
+		if not self.datesCache.has_key(key):
+			tds = div.findAll('td')
+			tds = [self.dateRe.search(str(td)) for td in tds if self.dateRe.search(str(td))]
+			dates = [datetime.date(int(td.group('year')), int(td.group('month')), int(td.group('day'))) for td in tds]
+			self.datesCache[key] = dates
+			
+		return self.datesCache[key]
+	
+	def getDatesFromDiv(self, div):
 		tds = div.findAll('td')
 		tds = [self.dateRe.search(str(td)) for td in tds if self.dateRe.search(str(td))]
 		dates = [datetime.date(int(td.group('year')), int(td.group('month')), int(td.group('day'))) for td in tds]
 		return dates
+		
+		
 
 class Google(Website):
 	def __init__(self):
