@@ -364,16 +364,16 @@ assert checkForError(x.cachedPages.__getitem__,'FDX',KeyError), "Cached pages fa
 
 trial = False
 try:
-    x.__getattr__("dumbname")
+    x.dumbname
 except AttributeError, e:
     trial = True
 
-assert trial, "Attribute error in calling __getattr__"
+assert trial, "Attribute error in calling dumbname"
 
-y = x.__getattr__("getQuarterlyRevenue")
+y = x.getQuarterlyRevenue
 
-assert hasattr(y,"__call__"), "Failed to get __call__ from __getattr__"
-assert y.func_code.co_name=='<lambda>', "Failed to get lambda from __getattr__"
+assert hasattr(y,"__call__"), "Failed to get __call__ from one of my attributes"
+assert y.func_code.co_name=='<lambda>', "Failed to get lambda from one of my attributes"
 
 trial = False
 try:
