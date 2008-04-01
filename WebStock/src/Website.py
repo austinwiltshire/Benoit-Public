@@ -1,3 +1,65 @@
+""" Used to download SEC financial information from finance.google.org
+
+Examples:
+>>> from datetime import date
+>>> scraper = Google()
+>>> round(scraper.getQuarterlyRevenue("MRK", datetime.date(2007,12,31)))
+6243.0
+
+>>> round(scraper.getQuarterlyGoodwill("IBM", date(2007,9,30)))
+13843.0
+
+>> round(scraper.getQuarterlyChangesInWorkingCapital("SBUX", date(2007,07,01)))
+-4.00
+
+Or, leave off the date and get whole dicts:
+
+>>> scraper.getAnnualOtherRevenue("XOM") == {date(2007,12,31):14224.0,\
+                                             date(2006,12,31):12168.0,\
+                                             date(2005,12,31):11725.0,\
+                                             date(2004,12,31):6783.0,\
+                                             date(2003,12,31):9684.0,\
+                                             date(2002,12,31):3557.0}
+True
+
+>>> scraper.getAnnualShortTermInvestments("CVX") == {date(2007,12,31):732.0,\
+                                           date(2006,12,31):953.0,\
+                                           date(2005,12,31):1101.0,\
+                                           date(2004,12,31):1451.0,\
+                                           date(2003,12,31):1001.0,\
+                                           date(2002,12,31):824.0}
+True
+
+>>> scraper.getAnnualDeferredTaxes("RDS.A") == {date(2007,12,31):-773.00,\
+                                                date(2006,12,31):1833.0,\
+                                                date(2005,12,31):-1515.0,\
+                                                date(2004,12,31):-1007.0}
+True
+
+Only difference between annual and quarterly data is in the name:
+
+>>> scraper.getQuarterlyOtherRevenue("BP") == {date(2007,12,31):3938.0,\
+                                               date(2007,6,30):1610.0,\
+                                               date(2007,3,31):1076.0,\
+                                               date(2006,12,31):602.0,\
+                                               date(2006,9,30):2584.0}
+True
+
+>>> scraper.getQuarterlyShortTermInvestments("MSFT") == {date(2007,12,31):13616.0,\
+                                                         date(2007,9,30):14937.0,\
+                                                         date(2007,6,30):17300.0,\
+                                                         date(2007,3,31):20625.0,\
+                                                         date(2006,12,31):22014.0}
+True
+
+>>> scraper.getQuarterlyDeferredTaxes("YHOO") == {date(2007,12,31):-78.16,\
+                                                  date(2007,9,30):-43.75,\
+                                                  date(2007,6,30):-48.54,\
+                                                  date(2007,3,31):-42.30}
+True
+
+"""
+
 from BeautifulSoup import BeautifulSoup
 import urllib2
 import re
@@ -41,7 +103,17 @@ class Website(Bloomberg):
 	pass
 
 class GoogleSoup(object):
-	""" Helper for Google website """
+	""" Helper for Google website. After passing a beautifulSoup object, 
+	the GoogleSoup object encapsulates the instance of BeautifulSoup 
+	and the parsing know-how to get	different peices of information, such 
+	as SEC financials, out.
+
+	The behavior thereafter is similar to the Google Object, but it is not
+	optimized for heavy use and can only 'look' at one stock symbol at a time.
+	
+	It should generally only be used by the Google interface object.
+	
+	"""
 	
 	otherKW = FinancialXML.xml_to_dict("google.xml")
 	regexs = otherKW['regular_expressions']
@@ -231,6 +303,127 @@ class GoogleSoup(object):
 		
 
 class Google(Website):
+	""" Google is the main class in this module, and supports a Bloomberg like use.
+	Currently supports the retrieval of most SEC document information for the past 
+	five years.
+	
+	You can get particular quarterlies:
+	
+	>>> from datetime import date
+	>>> scraper = Google()
+	>>> round(scraper.getQuarterlyOtherNet("CSCO", date(2008,01,26)))
+	-28.0
+	
+	>>> round(scraper.getQuarterlyRetainedEarnings("CSCO", date(2008,01,26)))
+	-1073.0
+	
+	>>> round(scraper.getQuarterlyIssuanceOfStock("CSCO", date(2008,01,26)))
+	-3501.0
+	
+	Or annuals, simply switching a the name of the function:
+	
+	>>> round(scraper.getAnnualOtherNet("CSCO", date(2006,07,29)))
+	-94.0
+	
+	>>> round(scraper.getAnnualRetainedEarnings("CSCO", date(2006,7,29)))
+	-617.0
+	
+	>>> round(scraper.getAnnualIssuanceOfStock("CSCO", date(2005,07,30)))
+	-9148.0
+	
+	If you leave out the date, you get a dict of all available information.
+
+	>>> scraper.getQuarterlyTotalRevenue('S') == {date(2007,12,31):9847.0,\
+												  date(2007,9,30):10044.0,\
+	  										      date(2007,6,30):20255.0,\
+												  date(2007,3,31):10091.0,\
+												  date(2006,12,31):10438.0}
+	True
+	
+	When information is unavailable to Google itself, a character dash is reported:
+	
+	>>> scraper.getQuarterlyOtherRevenue('S') == {date(2007,12,31):'-',\
+                                                  date(2007,9,30):'-',\
+                                                  date(2007,6,30):'-',\
+                                                  date(2007,3,31):'-',\
+                                                  date(2006,12,31):'-'}
+	True
+
+    These can sometimes be mixed:
+
+	>>> scraper.getQuarterlyDilutionAdjustment('S') == {date(2007,12,31):0.00,\
+                                                     	date(2007,9,30):'-',\
+                                                     	date(2007,6,30):0.00,\
+                                                     	date(2007,3,31):0.00,\
+                                                     	date(2006,12,31):'-'}
+	True
+	
+	A dash does not necesarilly mean zero, though.  Simply a lack of data.
+    In fact, all data could exist, and still be zero!
+    
+	>>> scraper.getQuarterlyDividendsPerShare("IRBT") == {date(2007,12,29):0.0,\
+                                                     	  date(2007,9,29):0.0,\
+                                                     	  date(2007,6,30):0.0,\
+                                                     	  date(2007,3,31):0.0,\
+                                                     	  date(2006,12,30):0.0}
+	True
+    
+    The data is accurate down to the hundredth, or at least as accurate as the 
+    reporting company.
+    
+	>>> scraper.getQuarterlyDilutedNormalizedEPS('S') == {date(2007,12,31):-3.55,\
+                                                     	  date(2007,9,30):0.05,\
+                                                     	  date(2007,6,30):0.0,\
+                                                     	  date(2007,3,31):-0.03,\
+                                                     	  date(2006,12,31):0.11}
+	True
+    
+    When searching for a stock that has no SEC data, an exception is raised:
+    
+    >>> scraper.getAnnualForeignExchangeEffects("NTDOY")
+    Traceback (most recent call last):
+    	...
+    SymbolHasNoFinancials
+    
+    Or, when searching for a symbol that does not exist at all:
+    
+    >>> scraper.getAnnualCashInterestPaid("CHEESE")
+    Traceback (most recent call last):
+    	...
+    SymbolNotFound
+    
+    Or, when looking for information on a stock that DOES exist, but a date 
+    that doesnt:
+    
+	>>> scraper.getAnnualDeferredTaxes("CFC", date(2007,12,30))
+	Traceback (most recent call last):
+		...
+	DateNotFound
+	
+    The scraper supports any stock that Google can search, including foreign stocks:
+    
+	>>> scraper.getAnnualNotesPayable("PIF.UN") == {date(2007,12,31):0.00,\
+                                                    date(2006,12,31):0.00,\
+                                                    date(2005,12,31):7.31,\
+                                                    date(2004,12,31):2.97,\
+                                                    date(2003,12,31):0.00,\
+                                                    date(2002,12,31):0.00}
+	True
+    
+    Or ADR's
+    
+	>>> scraper.getAnnualTotalAssets("IBN") == {date(2007,3,31):3943347.0,\
+                                                date(2006,3,31):2772295.0,\
+                                                date(2005,3,31):1784337.0,\
+                                                date(2004,3,31):1409131.0,\
+                                                date(2003,3,31):1180263.0,\
+                                                date(2002,3,31):743362.0}
+	True
+	
+	Beware though, stocks like these are not always reported in US Dollars!
+	
+	"""                                                
+
 	def __init__(self):
 		self.cachedPages = {}
 		prototype = GoogleSoup()

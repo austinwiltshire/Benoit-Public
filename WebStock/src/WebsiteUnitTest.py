@@ -2,6 +2,11 @@ import Website
 #making a change.
 from TestTools import assertClose, compareDicts
 from datetime import date
+import doctest
+
+val = doctest.testmod(Website)
+print val, "VALUE"
+assert val = (0,25)
 
 totest = Website.Google()
 
