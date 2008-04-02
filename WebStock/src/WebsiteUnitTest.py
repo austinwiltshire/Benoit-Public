@@ -5,7 +5,8 @@ from datetime import date
 import doctest
 
 val = doctest.testmod(Website)
-assert val == (0,28)
+print val, "VALuE"
+assert val == (0,40)
 
 totest = Website.Google()
 

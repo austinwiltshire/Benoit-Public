@@ -67,6 +67,7 @@ import datetime
 import FinancialXML
 
 class SymbolNotFound(Exception):
+	""" Raised when a symbol is not found or information for it cannot be found """
 	def __init__(self, symbol, *args, **kwargs):
 		self.symbol = symbol
 		super(SymbolNotFound,self).__init__(*args, **kwargs)
@@ -76,6 +77,10 @@ class SymbolNotFound(Exception):
 		return "Could not find symbol : %s \n%s" % (self.symbol, super(SymbolNotFound,self).__repr__())
 	
 class SymbolHasNoFinancials(Exception):
+	""" Raised when a symbol is a tracked company, but the company has no SEC documents
+	available.
+	"""
+	
 	def __init__(self, symbol, *args, **kwargs):
 		self.symbol = symbol
 		super(SymbolHasNoFinancials,self).__init__(*args, **kwargs)
@@ -84,6 +89,9 @@ class SymbolHasNoFinancials(Exception):
 		return "Symbol does not support financials: %s \n%s"  % (self.symbol, super(SymbolHasNoFinancials,self).__repr__())
 	
 class DateNotFound(Exception):
+	""" Raised when a requested date is not available for a peice of information on
+	a stock. """
+	
 	def __init__(self, symbol, date, *args, **kwargs):
 		self.symbol = symbol
 		self.date = date
@@ -158,6 +166,9 @@ class GoogleSoup(object):
 			self.addAttribute(name,searchRe)
 			
 	def declareAttribute(self, name):
+		""" Helper private function to build up this objects interface.  Loads 
+		what properties this Bloomberg can view from an XML file, who's names are
+		then sent in here."""
 
 		annualMethodName = "getAnnual%s" % name
 		quarterlyMethodName = "getQuarterly%s" % name
@@ -176,6 +187,18 @@ class GoogleSoup(object):
 		return self.supportedInformation
 			
 	def getSecDoc(self, name):
+		""" Returns the name of the SEC document that any particular financial keyword
+		is found in.  Generally only used as a private, helper function.
+		
+		Example: #For testing purposes only
+		
+		>>> example = GoogleSoup()
+		>>> example.getSecDoc("Revenue")
+		'IncomeStatement'
+		
+		"""
+		
+		
 		if name in self.sec_docs['BalanceSheet']:
 			return 'BalanceSheet'
 		elif name in self.sec_docs['IncomeStatement']:
@@ -187,7 +210,10 @@ class GoogleSoup(object):
 		
 	def addAttribute(self, name, regEx):
 		""" Adds a new method, assuming this new method supports the retrieval of some stock
-			information.  Also appends this new method to the list of supported information """
+			information.  Also appends this new method to the list of supported information.
+			Generally used as a private, helper function.  Used in conjunction with 
+			declareAttribute.
+		"""
 		
 		secDoc = self.getSecDoc(name)
 		
@@ -219,7 +245,8 @@ class GoogleSoup(object):
 		self.supportedInformation.append(quarterlyMethodName)
 		
 	def getRows(self, div, searchRe):
-		""" Get the rows associated with the regular expression searchRe """
+		""" Get the rows associated with the regular expression searchRe.  Generally used
+		as a private, helper function. """
 		
 		trs = div.findAll('tr')[1:]
 		#get all trs, except the first because its just the dates.
@@ -278,11 +305,19 @@ class GoogleSoup(object):
 		return values
 	
 	def webparse(self, variableName, searchRe, division, dates):
+		""" Used as a private helper function to be called by delegation via a 
+		lambda.  Also cache's any attribute that's been looked up in the GoogleSoup
+		object such that look up does not have to occur again. """
+		
 		if not self.__getattribute__(variableName):
 				self.__setattr__(variableName, self.getRows(division, searchRe))
 		return dict(zip(dates, self.__getattribute__(variableName)))
 	 
 	def getDates(self, div, key=None):
+		""" Returns dates found in a BeautifulSoup division.  If key is not provided, 
+		the function simply returns dates found.  If a key is provided, the function 
+		cache's the dates on that key as an optimization. """
+		
 		if not key:
 			return self.getDatesFromDiv(div)
 				
@@ -290,11 +325,16 @@ class GoogleSoup(object):
 			tds = div.findAll('td')
 			tds = [self.dateRe.search(str(td)) for td in tds if self.dateRe.search(str(td))]
 			dates = [datetime.date(int(td.group('year')), int(td.group('month')), int(td.group('day'))) for td in tds]
+			#TODO: replace this with getDatesFromDiv!
 			self.datesCache[key] = dates
 			
 		return self.datesCache[key]
 	
 	def getDatesFromDiv(self, div):
+		""" Helper private function for the getDates function.  Actually does the physical
+		parsing of a BeautifulSoup object.
+		"""
+		  
 		tds = div.findAll('td')
 		tds = [self.dateRe.search(str(td)) for td in tds if self.dateRe.search(str(td))]
 		dates = [datetime.date(int(td.group('year')), int(td.group('month')), int(td.group('day'))) for td in tds]
@@ -435,9 +475,52 @@ class Google(Website):
 		#TODO: this sort of 'information' stuff should be formalized in the bloomberg concept.
 		
 	def defineAttribute(self, name):
+		""" Helper private function to add a new attribute to Google, based on the current
+		interface of GoogleSoup.  Can't use inheritance there because I do not know at 
+		'compile' what GoogleSoup's attributes are.
+		
+		TODO: Investigate whether class inheritance interfaces are resolved at runtime
+		or compile time.
+		
+		Example Usage: #For testing purposes only
+		
+		>>> example = Google()
+		>>> example.defineAttribute("myattribute")
+		>>> hasattr(example, "myattribute")
+		True
+		
+		"""
+		
 		self.__setattr__(name, lambda *args : self.__myGetAttr__(name, *args))
 		
 	def buildURL(self, symbol):
+		""" Private helper function that builds website URL's for different
+		symbols looked up.
+		
+		Example: #For testing purposes only
+		
+		>>> example = Google()
+		>>> example.buildURL('FDX')
+		u'http://finance.google.com/finance?fstype=ii&q=NYSE:FDX'
+		
+		Function can throw exceptions in two cases.
+		1. Function is given a symbol that flat out does not exist.
+		
+		>>> example.getQuarterlyRevenue("fart")
+		Traceback (most recent call last):
+			...
+		SymbolNotFound
+		
+		2. Function is given a symbol that returns search results
+		and does not exist directly.
+		
+		>>> example.getQuarterlyRevenue("happy")
+		Traceback (most recent call last):
+			...
+		SymbolNotFound
+    	
+    	"""
+		
 		baseURL = "http://finance.google.com/finance?q=%s" % symbol
 		page = urllib2.urlopen(baseURL)
 		page = BeautifulSoup(page)
@@ -476,6 +559,8 @@ class Google(Website):
 		#TODO: might be able to put this all in the page.findAll method call
 		
 	def buildSoup(self, symbol):
+		""" Helper private function that turns a symbol string into a BeautifulSoup object 
+		"""
 		url = self.buildURL(symbol)
 		return BeautifulSoup(urllib2.urlopen(url))
 	
@@ -492,6 +577,24 @@ class Google(Website):
 #			raise AttributeError()
 		
 	def __myGetAttr__(self, name, *args):
+		""" Helper private function that turns a function call on Google to a call on
+		an underlying GoogleSoup object.  It's used in lambdas as a delegated function.
+		It expects a name argument that is a property that can be queried on the 
+		underlying GoogleSoup, and then a symbol argument and a date argument, based
+		on placement.  The date argument is optional, and if not given, this 
+		function returns a dictionary of possible values.  
+		
+		Example: #For testing purposes only
+		
+		>>> from datetime import date
+		>>> example = Google()
+		>>> round(example.__myGetAttr__("getQuarterlyRevenue", "IRBT", date(2007,12,29)))
+		99.0
+		
+		#TODO: DBC
+		
+		"""
+		
 		#do some type checking here
 		
 		#TODO: due to my new implementation of this classes interface(i no longer use __getattr__)
@@ -519,6 +622,7 @@ class Google(Website):
 		if not self.cachedPages.has_key(symbol):
 			self.cachedPages[symbol] = GoogleSoup(self.buildSoup(symbol))
 			
+		#TODO: check to see if there's a valid name here
 		results = getattr(self.cachedPages[symbol], name)()	
 			
 		if date:
