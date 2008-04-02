@@ -421,6 +421,12 @@ print url, type(url)
 assert isinstance(url,str) or isinstance(url,unicode), "Google build URL failed type check" 
 assert url=="http://finance.google.com/finance?fstype=ii&q=NYSE:FDX", "Google.buildURL type check and value check failed"
 
+try:
+	x.getQuarterlyRevenue("efge")
+except Website.SymbolNotFound:
+	pass
+	
+
 #check GoogleSoup
 y = x.cachedPages["FDX"]
 assert isinstance(y,Website.GoogleSoup)

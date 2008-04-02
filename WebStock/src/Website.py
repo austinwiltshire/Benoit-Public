@@ -444,8 +444,10 @@ class Google(Website):
 		
 		if page.findAll(text=lambda x: "produced no matches" in x):
 			raise SymbolNotFound(symbol)
+		#for symbols that return nothing whatsoever
 		
 		inc = re.compile("Income.*Statement")
+		invalidResultRe = re.compile("Show all [0-9]+ (companies|(mutual funds))")
 		links = page.findAll('a')
 		
 		suffix=None
@@ -453,6 +455,9 @@ class Google(Website):
 			if not link.string:
 				continue
 			finding = inc.search(link.string)
+			if invalidResultRe.search(link.string):
+				raise SymbolNotFound(symbol)
+			#for symbols that return a search page
 			if not finding:
 				continue
 			suffix = link['href']
