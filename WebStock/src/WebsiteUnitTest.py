@@ -3,6 +3,10 @@ import Website
 from TestTools import assertClose, compareDicts
 from datetime import date
 import doctest
+import contract
+
+contract.checkmod(Website)
+
 
 val = doctest.testmod(Website)
 print val, "VALuE"

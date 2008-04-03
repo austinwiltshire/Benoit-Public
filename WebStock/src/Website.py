@@ -121,6 +121,8 @@ class GoogleSoup(object):
 	
 	It should generally only be used by the Google interface object.
 	
+	
+	
 	"""
 	
 	otherKW = FinancialXML.xml_to_dict("google.xml")
@@ -140,6 +142,16 @@ class GoogleSoup(object):
 
 	
 	def __init__(self, soup=None):
+		""" General constructor.  soup is an optional keyword, and if it is left out, 
+		we simply return a prototype to get access to GoogleSoup's interface.
+		
+		post[self]:
+			#do a check to make sure I've added my attributes correctly
+			#but only in the case that this isn't a prototype
+			hasattr(self,"getAnnualRevenue") if soup else True
+		
+		"""
+			
 		self.quarterlyDates = []
 		self.annualDates = []
 		self.supportedInformation = []
@@ -196,6 +208,15 @@ class GoogleSoup(object):
 		>>> example.getSecDoc("Revenue")
 		'IncomeStatement'
 		
+		pre:
+			#ensure I'm passing in a valid name
+			any([name in self.sec_docs['BalanceSheet'],\
+				 name in self.sec_docs['IncomeStatement'],\
+				 name in self.sec_docs['CashFlowStatement']])
+		
+		post[]:
+			isinstance(__return__,str)
+		
 		"""
 		
 		
@@ -205,14 +226,36 @@ class GoogleSoup(object):
 			return 'IncomeStatement'
 		elif name in self.sec_docs['CashFlowStatement']:
 			return 'CashFlowStatement'
-		else:
-			raise Exception("Not a valid SEC identifier")
 		
 	def addAttribute(self, name, regEx):
 		""" Adds a new method, assuming this new method supports the retrieval of some stock
 			information.  Also appends this new method to the list of supported information.
 			Generally used as a private, helper function.  Used in conjunction with 
 			declareAttribute.
+			
+			pre:
+				#ensure I'm only getting class defined regex's
+				regEx in self.regexs.values()
+				
+				#ensure that the methods and variables I'm about to define are not already
+				#defined
+				not callable(getattr(self,"getAnnual%s" % name))
+				not callable(getattr(self,"getQuarterly%s" % name))
+				
+				#ensure that the variable names are not declared
+				not hasattr(self,"annual%s" % name)
+				not hasattr(self,"quarterly%s" % name)
+			
+			post[self]:
+				#ensure that the methods have been properly defined
+				callable(getattr(self,"getAnnual%s" % name))
+				callable(getattr(self,"getQuarterly%s" % name))
+				
+				#ensure that the variable names are declared now
+				hasattr(self,"annual%s" % name)
+				hasattr(self,"quarterly%s" % name)
+				
+			
 		"""
 		
 		secDoc = self.getSecDoc(name)
@@ -246,7 +289,11 @@ class GoogleSoup(object):
 		
 	def getRows(self, div, searchRe):
 		""" Get the rows associated with the regular expression searchRe.  Generally used
-		as a private, helper function. """
+		as a private, helper function. 
+		
+		post[]:
+			isinstance(__return__,list)
+		"""
 		
 		trs = div.findAll('tr')[1:]
 		#get all trs, except the first because its just the dates.
@@ -307,7 +354,11 @@ class GoogleSoup(object):
 	def webparse(self, variableName, searchRe, division, dates):
 		""" Used as a private helper function to be called by delegation via a 
 		lambda.  Also cache's any attribute that's been looked up in the GoogleSoup
-		object such that look up does not have to occur again. """
+		object such that look up does not have to occur again. 
+		
+		post[]:
+			isinstance(__return__,dict)
+		"""
 		
 		if not self.__getattribute__(variableName):
 				self.__setattr__(variableName, self.getRows(division, searchRe))
@@ -316,7 +367,13 @@ class GoogleSoup(object):
 	def getDates(self, div, key=None):
 		""" Returns dates found in a BeautifulSoup division.  If key is not provided, 
 		the function simply returns dates found.  If a key is provided, the function 
-		cache's the dates on that key as an optimization. """
+		cache's the dates on that key as an optimization. 
+		
+		post[]:
+			#type check return value
+			isinstance(__return__,list)
+			all([isinstance(x,datetime.date) for x in __return__])
+		"""
 		
 		if not key:
 			return self.getDatesFromDiv(div)
@@ -518,6 +575,9 @@ class Google(Website):
 		Traceback (most recent call last):
 			...
 		SymbolNotFound
+		
+		post[]:
+			isinstance(__return__,str) or isinstance(__return__,unicode)
     	
     	"""
 		
@@ -559,8 +619,14 @@ class Google(Website):
 		#TODO: might be able to put this all in the page.findAll method call
 		
 	def buildSoup(self, symbol):
-		""" Helper private function that turns a symbol string into a BeautifulSoup object 
+		""" Helper private function that turns a symbol string into a BeautifulSoup object
+		
+		
+		post[]:
+			#ensure type of returned object
+			isinstance(__return__,BeautifulSoup) 
 		"""
+		
 		url = self.buildURL(symbol)
 		return BeautifulSoup(urllib2.urlopen(url))
 	
@@ -591,7 +657,26 @@ class Google(Website):
 		>>> round(example.__myGetAttr__("getQuarterlyRevenue", "IRBT", date(2007,12,29)))
 		99.0
 		
-		#TODO: DBC
+		pre:
+			#ensure arguments are well formed
+			len(args) == 1 or len(args) == 2
+			
+			#first argument must be a string 
+			isinstance(args[0],str)
+			
+			#second argument, if it exists, must be a datetime.date
+			isinstance(args[1],datetime.date) if len(args) == 2 else True
+		
+		post[self.cachedPages]:
+		
+			#ensure that the page has been cached
+			self.cachedPages.has_key(args[0])
+			
+			#ensure type of cache'ed object
+			isinstance(self.cachedPages[args[0]], GoogleSoup)
+			
+			#proper return type, depending on the arguments provided
+			isinstance(__return__,dict) if len(args) == 1 else isinstance(__return__,float)
 		
 		"""
 		
@@ -605,18 +690,18 @@ class Google(Website):
 		date=None
 		
 		#should have one/two arguments, one is a symbol string, one is a date 
-		if(len(args) == 0 or len(args) > 2):
-			raise AttributeError()
+#		if(len(args) == 0 or len(args) > 2):
+#			raise AttributeError()
 		
 		#first should be a string
-		if not isinstance(args[0], str):
-			raise AttributeError()
+#		if not isinstance(args[0], str):
+#			raise AttributeError()
 		symbol = args[0]
 		
 		#second should be a date
 		if(len(args) == 2):
-			if not isinstance(args[1], datetime.date):
-				raise AttributeError()
+#			if not isinstance(args[1], datetime.date):
+#				raise AttributeError()
 			date = args[1]
 			
 		if not self.cachedPages.has_key(symbol):

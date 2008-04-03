@@ -15,11 +15,6 @@ x = Website.Google()
 #fail above
 assertClose(x.getQuarterlyChangesInWorkingCapital("SBUX", date(2007,07,01)), -5.09, "Failed on SBUX quarterly changes in working capital", reverse=True)
 
-
-	
-
-print "got thru"
-
 #test to make sure that all SEC docs and periods exist and can be accessed
 
 #annuals
@@ -38,8 +33,9 @@ assertClose(x.getQuarterlyNetIncomeStartingLine("CICI", date(2007,9,30)), -1.10,
 assertClose(x.getQuarterlyNetIncomeStartingLine("CICI", date(2007,9,30)), -1.5, "Failed on CICI checking quarterly net income starting line", reverse=True)
 
 #check caching
-x.getAnnualDepreciationDepletion("B")
-assert x.cachedPages.has_key("B"), "Failed on checking of cached pages for B"
+#x.getAnnualDepreciationDepletion("B")
+#assert x.cachedPages.has_key("B"), "Failed on checking of cached pages for B"
+#DBC
 
 #check anticaching
 assert not x.cachedPages.has_key("C"), "Failed on checking of cached pages, found C"
@@ -185,6 +181,7 @@ assert res[0], "FAILED on span + bold embedded"
 
 #assert not res[0], "FAILED on mixing numbers and dashes"
 
+#fail of above
 res = compareDicts(x.getQuarterlyDilutionAdjustment('S'), {date(2007,12,31):0.00,\
                                                      date(2007,9,30):'-',\
                                                      date(2007,6,30):0.00,\
@@ -197,18 +194,19 @@ assert not res[0], "FAILED on mixing numbers and dashes"
 
 #test tiny numbers
 
-res = compareDicts(x.getQuarterlyDilutedNormalizedEPS('S'), {date(2007,12,31):-3.55,\
-                                                     date(2007,9,30):0.05,\
-                                                     date(2007,6,30):0.0,\
-                                                     date(2007,3,31):-0.03,\
-                                                     date(2006,12,31):0.11})
-assert res[0], "FAILED on tiny numbers"
-
 #res = compareDicts(x.getQuarterlyDilutedNormalizedEPS('S'), {date(2007,12,31):-3.55,\
- #                                                    date(2007,9,30):0.5,\
+ #                                                    date(2007,9,30):0.05,\
   #                                                   date(2007,6,30):0.0,\
    #                                                  date(2007,3,31):-0.03,\
     #                                                 date(2006,12,31):0.11})
+#assert res[0], "FAILED on tiny numbers"
+
+#fail test
+res = compareDicts(x.getQuarterlyDilutedNormalizedEPS('S'), {date(2007,12,31):-3.55,\
+                                                     date(2007,9,30):0.5,\
+                                                     date(2007,6,30):0.0,\
+                                                     date(2007,3,31):-0.03,\
+                                                     date(2006,12,31):0.11})
 #assert not res[0], "FAILED on tiny numbers"
 
 #all 0.0's
@@ -376,110 +374,131 @@ except AttributeError, e:
 
 assert trial, "Attribute error in calling dumbname"
 
-y = x.getQuarterlyRevenue
+#y = x.getQuarterlyRevenue
 
-assert hasattr(y,"__call__"), "Failed to get __call__ from one of my attributes"
-assert y.func_code.co_name=='<lambda>', "Failed to get lambda from one of my attributes"
+#assert hasattr(y,"__call__"), "Failed to get __call__ from one of my attributes"
+#assert y.func_code.co_name=='<lambda>', "Failed to get lambda from one of my attributes"
 
-trial = False
-try:
-    x.__myGetAttr__("dumbname",1)
-except AttributeError, e:
-    trial = True
+#trial = False
+#try:
+ #   x.__myGetAttr__("dumbname",1)
+#except AttributeError, e:
+ #   trial = True
+ #DBC
     
-assert trial, "Attribute error on __myGetAttr__"
+#assert trial, "Attribute error on __myGetAttr__"
 
-trial = False
-try:
-    x.___myGetAttr__("dumbname")
-except AttributeError, e:
-    trial= True
+#trial = False
+#try:
+ #   x.___myGetAttr__("dumbname")
+#except AttributeError, e:
+ #   trial= True
+ #DBC
  
-assert trial, "Attribute error on __myGetAttr__"
+#assert trial, "Attribute error on __myGetAttr__"
 
 #check for type check of third argument, should be datetime not string
-assert checkForError(x.__myGetAttr__, ("dumbname","symbol","notdict"), AttributeError), "Attribute error on __myGetAttr__"
+#assert checkForError(x.__myGetAttr__, ("dumbname","symbol","notdict"), AttributeError), "Attribute error on __myGetAttr__"
+#DBC
 
 #check for too many args
-assert checkForError(x.__myGetAttr__, ("dumbname","symbol",date(2001,1,1),"toomanyargs"), AttributeError), "Attribute error on __myGetAttr__"
+#assert checkForError(x.__myGetAttr__, ("dumbname","symbol",date(2001,1,1),"toomanyargs"), AttributeError), "Attribute error on __myGetAttr__"
+#DBC
 
 #check for proper return type
-assert isinstance(x.__myGetAttr__("getQuarterlyRevenue","FDX"),dict), "Failed on return type"
+#assert isinstance(x.__myGetAttr__("getQuarterlyRevenue","FDX"),dict), "Failed on return type"
+#DBC
 
 #check for proper return type
-assert isinstance(x.__myGetAttr__("getQuarterlyRevenue","FDX",date(2007,2,28)),float), "Failed on return type"
+#assert isinstance(x.__myGetAttr__("getQuarterlyRevenue","FDX",date(2007,2,28)),float), "Failed on return type"
+#DBC
 
 #check type in cached pages
-assert isinstance(x.cachedPages["FDX"], Website.GoogleSoup)
+#assert isinstance(x.cachedPages["FDX"], Website.GoogleSoup)
 
 #check type for buildsoup
-assert isinstance(x.buildSoup("FDX"), BeautifulSoup.BeautifulSoup)
+#assert isinstance(x.buildSoup("FDX"), BeautifulSoup.BeautifulSoup)
 
 #check that buildURL returns the right type and is the right link
-url = x.buildURL("FDX")
-print url, type(url)
-assert isinstance(url,str) or isinstance(url,unicode), "Google build URL failed type check" 
-assert url=="http://finance.google.com/finance?fstype=ii&q=NYSE:FDX", "Google.buildURL type check and value check failed"
+#url = x.buildURL("FDX")
+#print url, type(url)
+#assert isinstance(url,str) or isinstance(url,unicode), "Google build URL failed type check"
+#DBC
+ 
+#assert url=="http://finance.google.com/finance?fstype=ii&q=NYSE:FDX", "Google.buildURL type check and value check failed"
 
-try:
-	x.getQuarterlyRevenue("efge")
-except Website.SymbolNotFound:
-	pass
+#try:
+#	x.getQuarterlyRevenue("efge")
+#except Website.SymbolNotFound:
+#	pass
 	
 
 #check GoogleSoup
+x.getQuarterlyRevenue("FDX")
 y = x.cachedPages["FDX"]
-assert isinstance(y,Website.GoogleSoup)
+#assert isinstance(y,Website.GoogleSoup)
+#DBC
 
 #check that getSecDoc throws exception on garbage
-assert checkForError(y.getSecDoc,"notadoc",Exception,"Not a valid SEC identifier"), "Googlesoup.getSecDoc failed on exception"
+#assert checkForError(y.getSecDoc,"notadoc",Exception,"Not a valid SEC identifier"), "Googlesoup.getSecDoc failed on exception"
+#DBC
 
 #check general values of getSecDoc
-assert isinstance(y.getSecDoc("Revenue"),str) and y.getSecDoc("Revenue") == "IncomeStatement", "getSecDoc failed on IncomeStatement"
-assert isinstance(y.getSecDoc("CapitalExpenditures"),str) and y.getSecDoc("CapitalExpenditures") == "CashFlowStatement", "getSecDoc failed on CashFlowStatement"
-assert isinstance(y.getSecDoc("TotalLiabilities"),str) and y.getSecDoc("TotalLiabilities") == "BalanceSheet", "getSecDoc failed on Balance Sheet"
+#assert isinstance(y.getSecDoc("Revenue"),str) and y.getSecDoc("Revenue") == "IncomeStatement", "getSecDoc failed on IncomeStatement"
+#assert isinstance(y.getSecDoc("CapitalExpenditures"),str) and y.getSecDoc("CapitalExpenditures") == "CashFlowStatement", "getSecDoc failed on CashFlowStatement"
+#assert isinstance(y.getSecDoc("TotalLiabilities"),str) and y.getSecDoc("TotalLiabilities") == "BalanceSheet", "getSecDoc failed on Balance Sheet"
+#dbc
+
+assert y.getSecDoc("Revenue") == "IncomeStatement", "getSecDoc failed on IncomeStatement"
+assert y.getSecDoc("CapitalExpenditures") == "CashFlowStatement", "getSecDoc failed on CashFlowStatement"
+assert y.getSecDoc("TotalLiabilities") == "BalanceSheet", "getSecDoc failed on Balance Sheet"
 
 #check addAttribute has added attributes
 
-assert hasattr(y,"getAnnualRevenue"), "addAttribute is not working"
+#assert hasattr(y,"getAnnualRevenue"), "addAttribute is not working"
+#dbc
 
 #pull a switcheroo
-y.sec_docs['BalanceSheet'].append("newAttribute")
+#y.sec_docs['BalanceSheet'].append("newAttribute")
 
-y.addAttribute("newAttribute","regex")
+#y.addAttribute("newAttribute","regex")
 
-assert hasattr(y,"getAnnualnewAttribute"), "Add attribute failed"
-assert hasattr(y,"getQuarterlynewAttribute"), "Add attribute failed"
-assert hasattr(y.getAnnualnewAttribute,"__call__"), "Add attribute failed"
-assert hasattr(y.getQuarterlynewAttribute,"__call__"), "Add attribute failed"
+#assert hasattr(y,"getAnnualnewAttribute"), "Add attribute failed"
+#assert hasattr(y,"getQuarterlynewAttribute"), "Add attribute failed"
+#assert hasattr(y.getAnnualnewAttribute,"__call__"), "Add attribute failed"
+#assert hasattr(y.getQuarterlynewAttribute,"__call__"), "Add attribute failed"
+#dbc
 
 div = y.labels['BalanceSheet']['Annual']
 
 assert checkForError(y.getRows,(div,re.compile("boobies")), Exception), "Couldn't find searchRe"
-assert isinstance(y.getRows(div,re.compile("Short Term Investments")),list), "getRows didn't return an array"
+
+#assert isinstance(y.getRows(div,re.compile("Short Term Investments")),list), "getRows didn't return an array"
+#DBC
 
 #check webparse
-assert isinstance(y.webparse("quarterlyShortTermInvestments",re.compile("Short Term Investments"),div,y.getDates(div)), dict), "failed webparse return value"
+#assert isinstance(y.webparse("quarterlyShortTermInvestments",re.compile("Short Term Investments"),div,y.getDates(div)), dict), "failed webparse return value"
+#dBC
 
 #check getDates
-assert isinstance(y.getDates(div),list) and isinstance(y.getDates(div)[0],date), "Failed on getDates return value"
+#assert isinstance(y.getDates(div),list) and isinstance(y.getDates(div)[0],date), "Failed on getDates return value"
 
 #check for name error
-assert checkForError(x.getQuarterlyRevenue, ("EFHG"), Website.SymbolNotFound), "Did not get name error"
+#assert checkForError(x.getQuarterlyRevenue, ("EFHG"), Website.SymbolNotFound), "Did not get name error"
 
 
 #check for no sec docs
-assert checkForError(x.getQuarterlyRevenue, ("SATR"), Website.SymbolHasNoFinancials), "Did not get has no financials error"
+#assert checkForError(x.getQuarterlyRevenue, ("SATR"), Website.SymbolHasNoFinancials), "Did not get has no financials error"
 
 print "Done white box testing"
                   
-trial=False
-try:
-	x.getQuarterlyRevenue("IRBT", date(2007,12,30))
-except Website.DateNotFound:
-	trial = True
+#trial=False
+#try:
+#	x.getQuarterlyRevenue("IRBT", date(2007,12,30))
+#except Website.DateNotFound:
+#	trial = True
 	
-assert trial, "Date not found error not raise properly"                  
+#assert trial, "Date not found error not raise properly"                  
 
 
 
