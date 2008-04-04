@@ -60,15 +60,29 @@ True
 
 """
 
-from BeautifulSoup import BeautifulSoup
+#from BeautifulSoup import BeautifulSoup
+import BeautifulSoup
 import urllib2
 import re
 import datetime
 import FinancialXML
 
 class SymbolNotFound(Exception):
-	""" Raised when a symbol is not found or information for it cannot be found """
+	""" Raised when a symbol is not found or information for it cannot be found "
+	
+	inv:
+		#typechecking
+		self.symbol != None
+		isinstance(self.symbol,str)
+	"""
 	def __init__(self, symbol, *args, **kwargs):
+		"""
+		
+		pre:
+			#typechecking
+			isinstance(symbol,str)
+		"""
+		
 		self.symbol = symbol
 		super(SymbolNotFound,self).__init__(*args, **kwargs)
 		
@@ -79,9 +93,22 @@ class SymbolNotFound(Exception):
 class SymbolHasNoFinancials(Exception):
 	""" Raised when a symbol is a tracked company, but the company has no SEC documents
 	available.
+	
+	inv:
+		#typechecking
+		self.symbol != None
+		isinstance(self.symbol,str)
+	
 	"""
 	
 	def __init__(self, symbol, *args, **kwargs):
+		"""
+		
+		pre:
+			#typechecking
+			isinstance(symbol,str)
+		
+		"""
 		self.symbol = symbol
 		super(SymbolHasNoFinancials,self).__init__(*args, **kwargs)
 		
@@ -90,9 +117,25 @@ class SymbolHasNoFinancials(Exception):
 	
 class DateNotFound(Exception):
 	""" Raised when a requested date is not available for a peice of information on
-	a stock. """
+	a stock. 
+	
+	inv:
+		#typechecking
+		self.symbol != None
+		isinstance(self.symbol,str)
+		self.date != None
+		isinstance(self.date,datetime.date)
+	"""
 	
 	def __init__(self, symbol, date, *args, **kwargs):
+		"""
+		
+		pre:
+			#typechecking
+			isinstance(symbol,str)
+			isinstance(date,datetime.date)
+		"""
+		
 		self.symbol = symbol
 		self.date = date
 		super(DateNotFound,self).__init__(*args, **kwargs)
@@ -122,7 +165,54 @@ class GoogleSoup(object):
 	It should generally only be used by the Google interface object.
 	
 	
-	
+	inv:
+		#these should be constant class variables
+		self.otherKW != None
+		self.regexs != None
+		self.divs != None
+		self.sec_docs != None
+		self.numberRe != None
+		self.dateRe != None
+		
+		self.otherKW == GoogleSoup.otherKW
+		self.regexs == GoogleSoup.regexs
+		self.divs == GoogleSoup.divs
+		self.sec_docs == GoogleSoup.sec_docs
+		self.numberRe == GoogleSoup.numberRe
+		self.dateRe == GoogleSoup.dateRe
+		
+		isinstance(self.otherKW, dict)
+		isinstance(self.regexs, dict)
+		isinstance(self.divs, dict)
+		isinstance(self.sec_docs, dict)
+		isinstance(self.numberRe,type(re.compile(""))) #finding the type of a regex seems to be difficult...
+		isinstance(self.dateRe,type(re.compile("")))
+		
+		#check to make sure regexs always work right
+		self.numberRe.match("-1234567890.12") != None
+		self.dateRe.match("12 months Ending 2006-12-12") != None
+		
+		#ensure that class variables always exist
+		self.quarterlyDates != None
+		self.annualDates != None
+		self.supportedInformation != None
+		self.datesCache != None
+		
+		isinstance(self.quarterlyDates,list)
+		isinstance(self.annualDates,list)
+		isinstance(self.supportedInformation,list)
+		isinstance(self.datesCache, dict)
+		
+		hasattr(self,"labels") if not self.isPrototype else True
+		self.labels.has_key("BalanceSheet") if hasattr(self,"labels") else True 
+		self.labels.has_key("IncomeStatement") if hasattr(self,"labels") else True
+		self.labels.has_key("CashFlowStatement") if hasattr(self,"labels") else True
+		self.labels.has_key("Dates") if hasattr(self,"labels") else True
+		
+		self.sec_docs.has_key("BalanceSheet")
+		self.sec_docs.has_key("CashFlowStatement")
+		self.sec_docs.has_key("IncomeStatement")
+		
 	"""
 	
 	otherKW = FinancialXML.xml_to_dict("google.xml")
@@ -145,10 +235,18 @@ class GoogleSoup(object):
 		""" General constructor.  soup is an optional keyword, and if it is left out, 
 		we simply return a prototype to get access to GoogleSoup's interface.
 		
+		pre:
+			#type check
+			isinstance(soup,BeautifulSoup.BeautifulSoup) if soup != None else True
+		
 		post[self]:
 			#do a check to make sure I've added my attributes correctly
 			#but only in the case that this isn't a prototype
+			
 			hasattr(self,"getAnnualRevenue") if soup else True
+			callable(self.getAnnualRevenue) if (hasattr(self,"getAnnualRevenue") and not self.isPrototype) else True
+			not hasattr(self,"labels") if self.isPrototype else True
+			
 		
 		"""
 			
@@ -157,11 +255,16 @@ class GoogleSoup(object):
 		self.supportedInformation = []
 		self.datesCache = {}
 		#assumes that across balance sheet, cash flows, etc... same dates are used.
+		
+		self.isPrototype = True
+		
 		for name,_ in self.regexs.items():
 			self.declareAttribute(name)
 		
 		if not soup:
+			self.isPrototype = True
 			return #used to get a prototype
+		self.isPrototype = False
         #TODO: move prototype functionality out into a class method - the class itself should have these methods declared, not just
         #the objects!
 		
@@ -180,7 +283,27 @@ class GoogleSoup(object):
 	def declareAttribute(self, name):
 		""" Helper private function to build up this objects interface.  Loads 
 		what properties this Bloomberg can view from an XML file, who's names are
-		then sent in here."""
+		then sent in here.
+		
+		pre:
+			#typechecking
+			isinstance(name,BeautifulSoup.NavigableString) or isinstance(name,str) or isinstance(str,unicode)
+			
+			#make sure the name i'm declaring is NOT already declared
+			not hasattr(self,"getAnnual"+name)
+			not hasattr(self,"getQuarterly"+name)
+			("getAnnual"+name) not in self.supportedInformation
+			("getQuarterly"+name) not in self.supportedInformation
+			
+		post[self,name]:
+		
+			#make sure class has been mutated
+			hasattr(self,"getAnnual"+name)
+			hasattr(self,"getQuarterly"+name)
+			("getAnnual"+name) in self.supportedInformation
+			("getQuarterly"+name) in self.supportedInformation
+		
+		"""
 
 		annualMethodName = "getAnnual%s" % name
 		quarterlyMethodName = "getQuarterly%s" % name
@@ -194,7 +317,13 @@ class GoogleSoup(object):
 			
 	def getSupportedInformation(self):
 		""" Returns the information that this class provides, such as SEC data, in the form of 
-			functions that can be called on it. """
+			functions that can be called on it. 
+			
+		post[]:
+			isinstance(__return__,list)
+			all([isinstance(x,str) or isinstance(x,unicode) for x in __return__]) 
+			
+		"""
 			
 		return self.supportedInformation
 			
@@ -209,6 +338,9 @@ class GoogleSoup(object):
 		'IncomeStatement'
 		
 		pre:
+			#typecheck
+			isinstance(name,str) or isinstance(name, unicode)
+			
 			#ensure I'm passing in a valid name
 			any([name in self.sec_docs['BalanceSheet'],\
 				 name in self.sec_docs['IncomeStatement'],\
@@ -234,6 +366,10 @@ class GoogleSoup(object):
 			declareAttribute.
 			
 			pre:
+				#TYPECHECK
+				isinstance(name,str) or isinstance(name,unicode)
+				isinstance(regEx,str) or isinstance(regEx,unicode)
+			
 				#ensure I'm only getting class defined regex's
 				regEx in self.regexs.values()
 				
@@ -291,9 +427,17 @@ class GoogleSoup(object):
 		""" Get the rows associated with the regular expression searchRe.  Generally used
 		as a private, helper function. 
 		
+		pre:
+			#typecheck
+			div != None
+			isinstance(searchRe,type(re.compile("")))
+		
 		post[]:
+			#typecheck
 			isinstance(__return__,list)
+			all([x == '-' or isinstance(x,float) for x in __return__])
 		"""
+		
 		
 		trs = div.findAll('tr')[1:]
 		#get all trs, except the first because its just the dates.
@@ -356,8 +500,19 @@ class GoogleSoup(object):
 		lambda.  Also cache's any attribute that's been looked up in the GoogleSoup
 		object such that look up does not have to occur again. 
 		
+		pre:
+			#typecheck
+			isinstance(variableName,str) or isinstance(variableName,unicode)
+			isinstance(searchRe,type(re.compile("")))
+			division != None
+			isinstance(dates,list)
+			all([isinstance(x,datetime.date) for x in dates])
+		
 		post[]:
+			#typecheck
 			isinstance(__return__,dict)
+			all([isinstance(x,datetime.date) for x in __return__.keys()])
+			all([isinstance(x,float) or x=='-' for x in __return__.values()])
 		"""
 		
 		if not self.__getattribute__(variableName):
@@ -369,10 +524,16 @@ class GoogleSoup(object):
 		the function simply returns dates found.  If a key is provided, the function 
 		cache's the dates on that key as an optimization. 
 		
-		post[]:
+		pre:
+			#typecheck
+			div != None
+			(isinstance(key,str) or isinstance(key,unicode)) if key != None else True
+		
+		post[key,self]:
 			#type check return value
 			isinstance(__return__,list)
 			all([isinstance(x,datetime.date) for x in __return__])
+			self.datesCache.has_key(key)
 		"""
 		
 		if not key:
@@ -390,6 +551,13 @@ class GoogleSoup(object):
 	def getDatesFromDiv(self, div):
 		""" Helper private function for the getDates function.  Actually does the physical
 		parsing of a BeautifulSoup object.
+		
+		pre:
+			div != None
+		
+		post[]:
+			isinstance(__return__,list)
+			all([isinstance(x,datetime.date) for x in __return__])
 		"""
 		  
 		tds = div.findAll('td')
@@ -519,9 +687,21 @@ class Google(Website):
 	
 	Beware though, stocks like these are not always reported in US Dollars!
 	
+	inv:
+		isinstance(self.cachedPages,dict)
+		isinstance(self.keywordRe,type(re.compile("")))
+		self.keywordRe is Google.keywordRe
+		self.keywordRe.match("getQuarterlyRevenue") != None
 	"""                                                
 
 	def __init__(self):
+		""" Object's constructor.
+		
+		post[self]:
+			#check to make sure attributes are added
+			all([hasattr(self,x) for x in GoogleSoup().getSupportedInformation()])
+			
+		"""
 		self.cachedPages = {}
 		prototype = GoogleSoup()
 		
@@ -546,9 +726,24 @@ class Google(Website):
 		>>> hasattr(example, "myattribute")
 		True
 		
+		pre:
+			#typechecking
+			isinstance(name,str) or isinstance(name,unicode)
+			
+			#make sure i don't already have the attribute
+			not hasattr(self,name)
+			
+		post[self]:
+			#ensure that i've added the attribute
+			hasattr(self,name)
+			callable(getattr(self,name))
+		
 		"""
 		
 		self.__setattr__(name, lambda *args : self.__myGetAttr__(name, *args))
+		
+		#TODO: can get rid of "args", lambda's take default arguments.  even better would be having an explicit function creating 
+		#function
 		
 	def buildURL(self, symbol):
 		""" Private helper function that builds website URL's for different
@@ -576,14 +771,18 @@ class Google(Website):
 			...
 		SymbolNotFound
 		
+		pre:
+			isinstance(symbol,str) or isinstance(symbol,unicode)
+		
 		post[]:
+			#typechecking
 			isinstance(__return__,str) or isinstance(__return__,unicode)
     	
     	"""
 		
 		baseURL = "http://finance.google.com/finance?q=%s" % symbol
 		page = urllib2.urlopen(baseURL)
-		page = BeautifulSoup(page)
+		page = BeautifulSoup.BeautifulSoup(page)
 		
 		if page.findAll(text=lambda x: "produced no matches" in x):
 			raise SymbolNotFound(symbol)
@@ -621,14 +820,17 @@ class Google(Website):
 	def buildSoup(self, symbol):
 		""" Helper private function that turns a symbol string into a BeautifulSoup object
 		
+		pre:
+			#typechecking
+			isinstance(symbol,str) or isinstance(symbol,unicode)
 		
 		post[]:
 			#ensure type of returned object
-			isinstance(__return__,BeautifulSoup) 
+			isinstance(__return__,BeautifulSoup.BeautifulSoup) 
 		"""
 		
 		url = self.buildURL(symbol)
-		return BeautifulSoup(urllib2.urlopen(url))
+		return BeautifulSoup.BeautifulSoup(urllib2.urlopen(url))
 	
 	keywordRe = re.compile(r"get(Quarterly|Annual)(?P<keyword>[A-z]*)")
 	
@@ -677,6 +879,9 @@ class Google(Website):
 			
 			#proper return type, depending on the arguments provided
 			isinstance(__return__,dict) if len(args) == 1 else isinstance(__return__,float)
+			
+			#make sure i haven't corrupted cache
+			len(self.cachedPages) >= len(__old__.self.cachedPages)
 		
 		"""
 		
