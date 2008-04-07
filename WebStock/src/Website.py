@@ -638,7 +638,7 @@ class Google(Website):
     
 	>>> scraper.getQuarterlyDilutedNormalizedEPS('S') == {date(2007,12,31):-3.55,\
                                                      	  date(2007,9,30):0.05,\
-                                                     	  date(2007,6,30):0.0,\
+                                                     	  date(2007,6,30):-0.01,\
                                                      	  date(2007,3,31):-0.03,\
                                                      	  date(2006,12,31):0.11}
 	True
