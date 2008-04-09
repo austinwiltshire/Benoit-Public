@@ -81,14 +81,24 @@ class SymbolNotFound(Exception):
 		pre:
 			#typechecking
 			isinstance(symbol,str)
+		
+		post:
+			#typechecking
+			isinstance(self.message, str) or isinstance(self.message, unicode)
 		"""
 		
 		self.symbol = symbol
 		super(SymbolNotFound,self).__init__(*args, **kwargs)
 		
+		self.myMessage = "Could not find symbol : \"%s\"" % self.symbol
 		
-	def __repr__(self):
-		return "Could not find symbol : %s \n%s" % (self.symbol, super(SymbolNotFound,self).__repr__())
+		if not self.message:
+			self.message = self.myMessage
+		else:
+			self.message = "\n".join([self.myMessage,self.message])
+		
+	def __str__(self):
+		return self.message
 	
 class SymbolHasNoFinancials(Exception):
 	""" Raised when a symbol is a tracked company, but the company has no SEC documents
@@ -108,12 +118,22 @@ class SymbolHasNoFinancials(Exception):
 			#typechecking
 			isinstance(symbol,str)
 		
+		post:
+			#typechecking
+			isinstance(self.message, str) or isinstance(self.message, unicode)
 		"""
 		self.symbol = symbol
 		super(SymbolHasNoFinancials,self).__init__(*args, **kwargs)
 		
-	def __repr__(self):
-		return "Symbol does not support financials: %s \n%s"  % (self.symbol, super(SymbolHasNoFinancials,self).__repr__())
+		self.myMessage = "Symbol does not support financials: \"%s\""  % (self.symbol)
+		
+		if not self.message:
+			self.message = self.myMessage
+		else:
+			self.message = "\n".join([self.myMessage,self.message])
+		
+	def __str__(self):
+		return self.message
 	
 class DateNotFound(Exception):
 	""" Raised when a requested date is not available for a peice of information on
@@ -134,15 +154,26 @@ class DateNotFound(Exception):
 			#typechecking
 			isinstance(symbol,str)
 			isinstance(date,datetime.date)
+			
+		post:
+			#typechecking
+			isinstance(self.message, str) or isinstance(self.message, unicode)
 		"""
 		
 		self.symbol = symbol
 		self.date = date
 		super(DateNotFound,self).__init__(*args, **kwargs)
 		
-	def __repr__(self):
-		return "Symbol %s does not support date : %s \n%s" % (self.symbol, self.date, super(DateNotFound,self).__repr__())
-
+		self.myMessage = "Symbol \"%s\" does not support date : %s" % (self.symbol, str(self.date))
+		
+		if not self.message:
+			self.message = self.myMessage
+		else:
+			self.message = "\n".join([self.myMessage,self.message])
+		
+	def __str__(self):
+		return self.message
+	
 class Bloomberg(object):
 	""" A Bloomberg is a stock information service provider.  It can host any number of "
 	" services depending on what is available, such as price, volume, etc. information for "
@@ -427,10 +458,14 @@ class GoogleSoup(object):
 		""" Get the rows associated with the regular expression searchRe.  Generally used
 		as a private, helper function. 
 		
+		We're assuming that searchRe is a regex found within our established regex's from our XML file
+		because the only thing that should call this function is another GoogleSoup function.
+		
 		pre:
 			#typecheck
 			div != None
 			isinstance(searchRe,type(re.compile("")))
+			
 		
 		post[]:
 			#typecheck
@@ -648,14 +683,14 @@ class Google(Website):
     >>> scraper.getAnnualForeignExchangeEffects("NTDOY")
     Traceback (most recent call last):
     	...
-    SymbolHasNoFinancials
+    SymbolHasNoFinancials: Symbol does not support financials: \"NTDOY\"
     
     Or, when searching for a symbol that does not exist at all:
     
     >>> scraper.getAnnualCashInterestPaid("CHEESE")
     Traceback (most recent call last):
     	...
-    SymbolNotFound
+    SymbolNotFound: Could not find symbol : \"CHEESE\"
     
     Or, when looking for information on a stock that DOES exist, but a date 
     that doesnt:
@@ -663,7 +698,7 @@ class Google(Website):
 	>>> scraper.getAnnualDeferredTaxes("CFC", date(2007,12,30))
 	Traceback (most recent call last):
 		...
-	DateNotFound
+	DateNotFound: Symbol \"CFC\" does not support date : 2007-12-30
 	
     The scraper supports any stock that Google can search, including foreign stocks:
     
@@ -761,7 +796,7 @@ class Google(Website):
 		>>> example.getQuarterlyRevenue("fart")
 		Traceback (most recent call last):
 			...
-		SymbolNotFound
+		SymbolNotFound: Could not find symbol : \"fart\"
 		
 		2. Function is given a symbol that returns search results
 		and does not exist directly.
@@ -769,7 +804,7 @@ class Google(Website):
 		>>> example.getQuarterlyRevenue("happy")
 		Traceback (most recent call last):
 			...
-		SymbolNotFound
+		SymbolNotFound: Could not find symbol : \"happy\"
 		
 		pre:
 			isinstance(symbol,str) or isinstance(symbol,unicode)
@@ -860,6 +895,9 @@ class Google(Website):
 		99.0
 		
 		pre:
+			#ensure GoogleSoup has this name
+			hasattr(GoogleSoup(),name)
+			
 			#ensure arguments are well formed
 			len(args) == 1 or len(args) == 2
 			
