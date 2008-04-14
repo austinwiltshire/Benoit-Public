@@ -15,47 +15,47 @@ Examples:
 Or, leave off the date and get whole dicts:
 
 >>> scraper.getAnnualOtherRevenue("XOM") == {date(2007,12,31):14224.0,\
-                                             date(2006,12,31):12168.0,\
-                                             date(2005,12,31):11725.0,\
-                                             date(2004,12,31):6783.0,\
-                                             date(2003,12,31):9684.0,\
-                                             date(2002,12,31):3557.0}
+											 date(2006,12,31):12168.0,\
+											 date(2005,12,31):11725.0,\
+											 date(2004,12,31):6783.0,\
+											 date(2003,12,31):9684.0,\
+											 date(2002,12,31):3557.0}
 True
 
 >>> scraper.getAnnualShortTermInvestments("CVX") == {date(2007,12,31):732.0,\
-                                           date(2006,12,31):953.0,\
-                                           date(2005,12,31):1101.0,\
-                                           date(2004,12,31):1451.0,\
-                                           date(2003,12,31):1001.0,\
-                                           date(2002,12,31):824.0}
+										   date(2006,12,31):953.0,\
+										   date(2005,12,31):1101.0,\
+										   date(2004,12,31):1451.0,\
+										   date(2003,12,31):1001.0,\
+										   date(2002,12,31):824.0}
 True
 
 >>> scraper.getAnnualDeferredTaxes("RDS.A") == {date(2007,12,31):-773.00,\
-                                                date(2006,12,31):1833.0,\
-                                                date(2005,12,31):-1515.0,\
-                                                date(2004,12,31):-1007.0}
+												date(2006,12,31):1833.0,\
+												date(2005,12,31):-1515.0,\
+												date(2004,12,31):-1007.0}
 True
 
 Only difference between annual and quarterly data is in the name:
 
 >>> scraper.getQuarterlyOtherRevenue("BP") == {date(2007,12,31):3938.0,\
-                                               date(2007,6,30):1610.0,\
-                                               date(2007,3,31):1076.0,\
-                                               date(2006,12,31):602.0,\
-                                               date(2006,9,30):2584.0}
+											   date(2007,6,30):1610.0,\
+											   date(2007,3,31):1076.0,\
+											   date(2006,12,31):602.0,\
+											   date(2006,9,30):2584.0}
 True
 
 >>> scraper.getQuarterlyShortTermInvestments("MSFT") == {date(2007,12,31):13616.0,\
-                                                         date(2007,9,30):14937.0,\
-                                                         date(2007,6,30):17300.0,\
-                                                         date(2007,3,31):20625.0,\
-                                                         date(2006,12,31):22014.0}
+														 date(2007,9,30):14937.0,\
+														 date(2007,6,30):17300.0,\
+														 date(2007,3,31):20625.0,\
+														 date(2006,12,31):22014.0}
 True
 
 >>> scraper.getQuarterlyDeferredTaxes("YHOO") == {date(2007,12,31):-78.16,\
-                                                  date(2007,9,30):-43.75,\
-                                                  date(2007,6,30):-48.54,\
-                                                  date(2007,3,31):-42.30}
+												  date(2007,9,30):-43.75,\
+												  date(2007,6,30):-48.54,\
+												  date(2007,3,31):-42.30}
 True
 
 """
@@ -294,10 +294,11 @@ class GoogleSoup(object):
 		
 		if not soup:
 			self.isPrototype = True
-			return #used to get a prototype
+			return #used to get a prototype
+
 		self.isPrototype = False
-        #TODO: move prototype functionality out into a class method - the class itself should have these methods declared, not just
-        #the objects!
+		#TODO: move prototype functionality out into a class method - the class itself should have these methods declared, not just
+		#the objects!
 		
 		self.labels = {"BalanceSheet":{"Annual":soup.find('div', id=self.divs['BalanceSheet']['Annual']),\
 									  "Quarterly":soup.find('div', id=self.divs['BalanceSheet']['Quarterly'])},\
@@ -635,7 +636,7 @@ class Google(Website):
 
 	>>> scraper.getQuarterlyTotalRevenue('S') == {date(2007,12,31):9847.0,\
 												  date(2007,9,30):10044.0,\
-	  										      date(2007,6,30):20255.0,\
+													date(2007,6,30):20255.0,\
 												  date(2007,3,31):10091.0,\
 												  date(2006,12,31):10438.0}
 	True
@@ -643,81 +644,81 @@ class Google(Website):
 	When information is unavailable to Google itself, a character dash is reported:
 	
 	>>> scraper.getQuarterlyOtherRevenue('S') == {date(2007,12,31):'-',\
-                                                  date(2007,9,30):'-',\
-                                                  date(2007,6,30):'-',\
-                                                  date(2007,3,31):'-',\
-                                                  date(2006,12,31):'-'}
+												  date(2007,9,30):'-',\
+												  date(2007,6,30):'-',\
+												  date(2007,3,31):'-',\
+												  date(2006,12,31):'-'}
 	True
 
-    These can sometimes be mixed:
+	These can sometimes be mixed:
 
 	>>> scraper.getQuarterlyDilutionAdjustment('S') == {date(2007,12,31):0.00,\
-                                                     	date(2007,9,30):'-',\
-                                                     	date(2007,6,30):0.00,\
-                                                     	date(2007,3,31):0.00,\
-                                                     	date(2006,12,31):'-'}
+														 date(2007,9,30):'-',\
+														 date(2007,6,30):0.00,\
+														 date(2007,3,31):0.00,\
+														 date(2006,12,31):'-'}
 	True
 	
 	A dash does not necesarilly mean zero, though.  Simply a lack of data.
-    In fact, all data could exist, and still be zero!
-    
+	In fact, all data could exist, and still be zero!
+	
 	>>> scraper.getQuarterlyDividendsPerShare("IRBT") == {date(2007,12,29):0.0,\
-                                                     	  date(2007,9,29):0.0,\
-                                                     	  date(2007,6,30):0.0,\
-                                                     	  date(2007,3,31):0.0,\
-                                                     	  date(2006,12,30):0.0}
+														   date(2007,9,29):0.0,\
+														   date(2007,6,30):0.0,\
+														   date(2007,3,31):0.0,\
+														   date(2006,12,30):0.0}
 	True
-    
-    The data is accurate down to the hundredth, or at least as accurate as the 
-    reporting company.
-    
+	
+	The data is accurate down to the hundredth, or at least as accurate as the 
+	reporting company.
+	
 	>>> scraper.getQuarterlyDilutedNormalizedEPS('S') == {date(2007,12,31):-3.55,\
-                                                     	  date(2007,9,30):0.05,\
-                                                     	  date(2007,6,30):-0.01,\
-                                                     	  date(2007,3,31):-0.03,\
-                                                     	  date(2006,12,31):0.11}
+														   date(2007,9,30):0.05,\
+														   date(2007,6,30):-0.01,\
+														   date(2007,3,31):-0.03,\
+														   date(2006,12,31):0.11}
 	True
-    
-    When searching for a stock that has no SEC data, an exception is raised:
-    
-    >>> scraper.getAnnualForeignExchangeEffects("NTDOY")
-    Traceback (most recent call last):
-    	...
-    SymbolHasNoFinancials: Symbol does not support financials: \"NTDOY\"
-    
-    Or, when searching for a symbol that does not exist at all:
-    
-    >>> scraper.getAnnualCashInterestPaid("CHEESE")
-    Traceback (most recent call last):
-    	...
-    SymbolNotFound: Could not find symbol : \"CHEESE\"
-    
-    Or, when looking for information on a stock that DOES exist, but a date 
-    that doesnt:
-    
+	
+	When searching for a stock that has no SEC data, an exception is raised:
+	
+	>>> scraper.getAnnualForeignExchangeEffects("NTDOY")
+	Traceback (most recent call last):
+		...
+	SymbolHasNoFinancials: Symbol does not support financials: \"NTDOY\"
+	
+	Or, when searching for a symbol that does not exist at all:
+	
+	>>> scraper.getAnnualCashInterestPaid("CHEESE")
+	Traceback (most recent call last):
+		...
+	SymbolNotFound: Could not find symbol : \"CHEESE\"
+	
+	Or, when looking for information on a stock that DOES exist, but a date 
+	that doesnt:
+	
 	>>> scraper.getAnnualDeferredTaxes("CFC", date(2007,12,30))
 	Traceback (most recent call last):
 		...
 	DateNotFound: Symbol \"CFC\" does not support date : 2007-12-30
 	
-    The scraper supports any stock that Google can search, including foreign stocks:
-    
+	The scraper supports any stock that Google can search, including foreign stocks:
+	
 	>>> scraper.getAnnualNotesPayable("PIF.UN") == {date(2007,12,31):0.00,\
-                                                    date(2006,12,31):0.00,\
-                                                    date(2005,12,31):7.31,\
-                                                    date(2004,12,31):2.97,\
-                                                    date(2003,12,31):0.00,\
-                                                    date(2002,12,31):0.00}
+													date(2006,12,31):0.00,\
+													date(2005,12,31):7.31,\
+													date(2004,12,31):2.97,\
+													date(2003,12,31):0.00,\
+													date(2002,12,31):0.00}
 	True
-    
-    Or ADR's
-    
+	
+	Or ADR's
+	
 	>>> scraper.getAnnualTotalAssets("IBN") == {date(2007,3,31):3943347.0,\
-                                                date(2006,3,31):2772295.0,\
-                                                date(2005,3,31):1784337.0,\
-                                                date(2004,3,31):1409131.0,\
-                                                date(2003,3,31):1180263.0,\
-                                                date(2002,3,31):743362.0}
+												date(2006,3,31):2772295.0,\
+												date(2005,3,31):1784337.0,\
+												date(2004,3,31):1409131.0,\
+												date(2003,3,31):1180263.0,\
+												date(2002,3,31):743362.0}
 	True
 	
 	Beware though, stocks like these are not always reported in US Dollars!
@@ -727,8 +728,193 @@ class Google(Website):
 		isinstance(self.keywordRe,type(re.compile("")))
 		self.keywordRe is Google.keywordRe
 		self.keywordRe.match("getQuarterlyRevenue") != None
-	"""                                                
-
+	""" 
+	
+	class Metadata:
+		def __init__(self):
+			pass
+		
+		def getCurrencyReported(self, symbol):
+			""" Returns a unicode character string that signifies the currency 
+			that this stock is reported to the SEC in.
+			
+			For example:
+			
+			>>> scraper = Metadata()
+			>>> scraper.getCurrencyReported("IRBT")
+			u'USD'
+			
+			#US dollar
+			
+			>>> scraper.getCurrencyReported("MTU")
+			u'JPY'
+			
+			#japanese yen
+		
+			Throws a symbol not found error if the symbol is void:
+			>>> scraper.getCurrencyReported("SCRAPP")
+			Traceback (most recent call last):
+				...
+			SymbolNotFound: Could not find symbol : \"SCRAPP\"
+			
+			Throws a SEC documents not found error if the symbol does not have
+			SEC data.
+			>>> scraper.getCurrencyReported("SATR")
+			Traceback (most recent call last):
+				...
+			SymbolHasNoFinancials: Symbol does not support financials: \"SATR\"
+			
+			
+			pre:
+				#typechecking
+				isinstance(symbol,str) or isinstance(symbol,unicode)
+				
+			post[]:
+				#typechecking
+				isinstance(__return__,unicode)
+			
+			"""
+			pass
+		
+		def getExchange(self, symbol):
+			""" Returns the name of the exchange this symbol is traded upon
+			or list of exchanges if the symbol returns multiple exchanges.
+			
+			For example:
+			>>> scraper = Metadata()
+			>>> scraper.getExchange("IRBT")
+			u'NASDAQ'
+			
+			>>> scraper.getExchange("NTDOY")
+			u'OTC'
+			
+			>>> scraper.getExchange("IBM")
+			u'NYSE'
+			
+			Throws an exception if a symbol is searched for that does not exist:
+			>>> scraper.getExchange("XKA")
+			Traceback (most recent call last):
+				...
+			SymbolNotFound: Could not find symbol : \"XKA\"
+			
+			pre:
+				isinstance(symbol,str) or isinstance(symbol,unicode)
+			
+			post[]:
+				isinstance(__return__,unicode)
+				
+			"""
+			pass
+		
+		def getCompetitors(self, symbol):
+			""" Returns a list of symbols that are competitors to the
+			company the passed in symbol represents.
+			
+			For example:
+			>>> scraper = Metadata()
+			>>> scraper.getCompetitors("MSFT")
+			[u'GOOG',u'NOVL',u'IBM',u'YHOO',u'ADBE',u'HPQ',u'AAPL',u'JAVA',u'ORCL',u'SYMC']
+			
+			Throws an exception if an invalid symbol is passed in:
+			>>> scraper.getCompetitors("XKA")
+			Traceback (most recent call last):
+				...
+			SymbolNotFound: Could not find symbol : \"XKA\"
+			
+			pre:
+				#typechecking
+				isinstance(symbol,str) or isinstance(symbol,unicode)
+				
+			post[]:
+				#typechecking
+				isinstance(__return__,list)
+				all([isinstance(x,unicode) for x in __return])
+			"""			   
+			pass
+		
+		def getSector(self, symbol):
+			""" Returns the name of the sector that the company represented
+			by this symbol is considered a part of.
+			
+			For example:
+			>>> scraper = Metadata()
+			>>> scraper.getSector("GOOG")
+			u"Technology"
+			
+			>>> scraper.getSector("DOW")
+			u"Basic Materials"
+			
+			Throws an exception if an invalid symbol is passed in:
+			>>> scraper.getCompetitors("XKA")
+			Traceback (most recent call last):
+				...
+			SymbolNotFound: Could not find symbol : \"XKA\"
+			
+			pre:
+				#typechecking
+				isinstance(symbol,str) or isinstance(symbol,unicode)
+				
+			post[]:
+				#typechecking
+				isinstance(symbol,unicode)
+			"""
+			pass
+		
+		def getIndustry(self, symbol):
+			""" Returns the name of the industry that the company represented
+			by this symbol is considered a part of.
+			
+			For example:
+			>>> scraper = Metadata()
+			>>> scraper.getIndustry("GOOG")
+			u"Computer Services"
+			
+			>>> scraper.getIndustry("DOW")
+			u"Chemicals - Plastics & Rubber"
+			
+			Throws an exception if an invalid symbol is passed in:
+			>>> scraper.getIndustry("XKA")
+			Traceback (most recent call last):
+				...
+			SymbolNotFound: Could not find symbol : \"XKA\"
+			
+			pre:
+				isinstance(symbol,str) or isinstance(symbol,unicode)
+				
+			post[]:
+				isinstance(__return__,unicode)
+				
+			"""
+			
+		def getProperName(self, symbol):
+			""" Returns the proper name of the company represented by this 
+			symbol.
+			
+			For example:
+			>>> scraper = Metadata()
+			>>> scraper.getProperName("GOOG")
+			u"Google Inc."
+			
+			>>> scraper.getProperName("DOW")
+			u"The Dow Chemical Company"
+			
+			Throws an exception if an invalid symbol is passed in:
+			>>> scraper.getProperName("XKA")
+			Traceback (most recent call last):
+				...
+			SymbolNotFound: Could not find symbol : \"XKA\"
+			
+			pre:
+				#typechecking
+				isinstance(symbol,str) or isinstance(symbol,unicode)
+				
+			post[]:
+				#typechecking
+				isinstance(__return__,unicode)
+				
+			"""
+			pass
+			
 	def __init__(self):
 		""" Object's constructor.
 		
@@ -812,8 +998,8 @@ class Google(Website):
 		post[]:
 			#typechecking
 			isinstance(__return__,str) or isinstance(__return__,unicode)
-    	
-    	"""
+		
+		"""
 		
 		baseURL = "http://finance.google.com/finance?q=%s" % symbol
 		page = urllib2.urlopen(baseURL)
@@ -870,7 +1056,7 @@ class Google(Website):
 	keywordRe = re.compile(r"get(Quarterly|Annual)(?P<keyword>[A-z]*)")
 	
 #	def __getattr__(self, name):
-#   	""" Deprecated """
+#	   """ Deprecated """
 		#get the keyword - strip off 'get' and 'quarterly' or 'annual'
 #		keyword = self.keywordRe.search(name).group('keyword') 
 		
