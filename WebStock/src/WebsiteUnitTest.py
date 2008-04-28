@@ -7,7 +7,7 @@ import unittest
 
 contract.checkmod(Website)
 
-class testCase(unittest.TestSuite):
+class DoctestWrapper(unittest.TestSuite):
 	def __init__(self):
 		unittest.TestSuite.__init__(self, doctest.DocTestSuite(Website))
 
@@ -18,6 +18,72 @@ class WebsiteTestCase(unittest.TestCase):
     def tearDown(self):
         del self.google
         self.google = None
+        
+class SoupFactoryTestCase(unittest.TestCase):
+    def setUp(self):
+        self.factory = Website.Google.SoupFactory()
+        self.meta = Website.Google.Metadata
+        self.sec = Website.Google.SECData
+        
+    def tearDown(self):
+        del self.factory
+        del self.meta
+        del self.sec
+        self.factory = None
+        self.meta = None
+        self.sec = None
+        
+    def testBasicSoup(self):
+    	""" Test that I can build/see stuff from a basicSoup """
+    	metasoup = self.meta(self.factory.buildBasicSoup("MMM"), self.factory)
+    	self.assertEqual(metasoup.getIndustry(), u"Conglomerates")
+    	self.assertEqual(metasoup.getCurrencyReported(), u"USD")
+    	self.assertEqual(metasoup.getExchange(), u"NYSE")
+    	
+    def testMetaSoup(self):
+    	""" Test that I can build and see stuff from a MetaSoup """
+    	metasoup = self.meta(self.factory.buildMetaSoup("XRAY"), self.factory)
+    	competitors = set(metasoup.getCompetitors())
+    	self.assertEqual(competitors, set([u"YDNT",u"ALGN",u"BLTI",u"MLSS",u"PDEX",u"NADX",u"SIRO",u"BSML",u"IART",u"MMM"]))
+    	self.assertEqual(metasoup.getSector(), u"Healthcare")
+    	self.assertEqual(metasoup.getProperName(), u"DENTSPLY International Inc.")
+    	
+    def testSECSoup(self):
+    	""" Test that I can build and see things from an SEC soup """
+    	secsoup = self.sec(self.factory.buildSECSoup("YDNT"))
+    	self.assertEqual(secsoup.getQuarterlyRevenue()[date(2007,12,31)], 25.04)
+    	self.assertEqual(secsoup.getQuarterlyTotalCurrentAssets()[date(2007,12,31)], 32.86)
+    	self.assertEqual(secsoup.getQuarterlyCashFromOperatingActivities()[date(2007,12,31)], 3.77)
+    	
+    def testIsSECSoupTrue(self):
+    	""" Test that I can detect an SEC soup """
+    	secsoup = self.factory.buildBasicSoup("YDNT")
+    	self.assertTrue(self.factory._isSECSoup(secsoup))
+    
+    def testIsSECSoupFalse(self):
+    	""" Test that I can detect an SEC soup when I don't have one """
+    	secsoup = self.factory.buildBasicSoup("NTDOY")
+    	self.assertFalse(self.factory._isSECSoup(secsoup))
+    	
+    def testIsBasicSoupTrue(self):
+    	""" Test that I can detect a Basic Soup """
+    	basicsoup = self.factory.buildBasicSoup("IRBT")
+    	self.assertTrue(self.factory._isBasicSoup(basicsoup))
+        
+	def testIsBasicSoupFalse(self):
+		""" Test that I can detect a basic soup when I don't have one """
+		basicsoup = self.factory.buildBasicSoup("FARX")
+		self.assertFalse(self.factory._isBasicSoup(basicsoup))
+    
+    def testIsMetaSoupTrue(self):
+    	""" Test that I can detect a meta soup """
+    	metasoup = self.factory.buildBasicSoup("GOOG")
+    	self.assertTrue(self.factory._isMetaSoup(metasoup))
+    	
+    def testIsMetaSoupFalse(self):
+    	""" Test that I can detect a meta soup when I don't have one """
+    	metasoup = self.factory.buildBasicSoup("CSCA")
+    	self.assertFalse(self.factory._isMetaSoup(metasoup))        
         
 class WebsiteTestCase_FailureTests(WebsiteTestCase):
 	""" None of these should pass! """
