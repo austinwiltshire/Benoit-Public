@@ -209,10 +209,10 @@ class WebsiteTestCase_WebpageFormat(WebsiteTestCase):
 	def testBoldedKeyword(self):
 		""" Tests results that rely on a bolded keyword """
 		self.assertEqual(self.google.getQuarterlyTotalRevenue("IRBT"), {date(2007,12,29):98.74,\
-                                                     date(2007,9,29):150.34,\
+                                                     date(2007,9,29):110.85,\
                                                      date(2007,6,30):47.01,\
                                                      date(2007,3,31):39.49,\
-                                                     date(2006,12,30):61.14})
+                                                     date(2008,3,29):57.30})
  
 	def testSpannedKeyword(self):
 		""" Tests results that rely on a spanned keyword """
@@ -220,7 +220,7 @@ class WebsiteTestCase_WebpageFormat(WebsiteTestCase):
                                                      date(2007,9,29):23.20,\
                                                      date(2007,6,30):10.26,\
                                                      date(2007,3,31):9.40,\
-                                                     date(2006,12,30):5.58})
+                                                     date(2008,3,29):22.86})
     
 	def testMixedDashesAndNotZeros(self):
 		""" Tests that dashes can be mixed with non-zero numbers """
@@ -689,7 +689,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                              date(2007, 9, 30):6675.00, \
                                              date(2007, 6, 30):7875.00, \
                                              date(2007, 3, 31):7845.00, \
-                                             date(2006, 12, 31):6276.00})
+                                             date(2008, 3, 31):8575.00})
                                              
     def testQuarterlyOtherRevenue(self):
         """ Test that I find Quarterly Other Revenue""" 
@@ -697,7 +697,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                      date(2007, 9, 30):365.00, \
                                      date(2007, 6, 30):364.00, \
                                      date(2007, 3, 31):316.00, \
-                                     date(2006, 12, 31):559.00})
+                                     date(2008, 3, 31):195.00})
                                         
     def testQuarterlyTotalRevenue(self):
         """ Test that I find Quarterly Total Revenue"""                                          
@@ -705,31 +705,31 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                      date(2007, 9, 30):7040.00, \
                                      date(2007, 6, 30):8239.00, \
                                      date(2007, 3, 31):8161.00, \
-                                     date(2006, 12, 31):6835.00})
+                                     date(2008, 3, 31):8770.00})
                                       
     def testQuarterlyCostOfRevenue(self):
         """ Test that I find Quarterly Cost Of Revenue"""
         self.assertEquals(self.google.getQuarterlyCostOfRevenue("DD"), {date(2007, 12, 31):5349.00, \
                                       date(2007, 9, 30):5115.00, \
                                       date(2007, 6, 30):5555.00, \
-                                      date(2007, 3, 31):5546.00, \
-                                      date(2006, 12, 31):5114.00})
+                                      date(2007, 3, 31):5594.00, \
+                                      date(2008, 3, 31):5956.00})
                                        
     def testQuarterlyGrossProfit(self):
         """ Test that I find Quarterly Gross Profit"""
         self.assertEquals(self.google.getQuarterlyGrossProfit("DD"), {date(2007, 12, 31):1634.00, \
                                     date(2007, 9, 30):1560.00, \
                                     date(2007, 6, 30):2320.00, \
-                                    date(2007, 3, 31):2299.00, \
-                                    date(2006, 12, 31):1162.00})
+                                    date(2007, 3, 31):2251.00, \
+                                    date(2008, 3, 31):2619.00})
                                     
     def testQuarterlySGAExpenses(self):
         """ Test that I find Quarterly SGA Expenses"""
         self.assertEquals(self.google.getQuarterlySGAExpenses("DD"), {date(2007, 12, 31):852.00, \
                                     date(2007, 9, 30):797.00, \
                                     date(2007, 6, 30):877.00, \
-                                    date(2007, 3, 31):838.00, \
-                                    date(2006, 12, 31):824.00})
+                                    date(2007, 3, 31):846.00, \
+                                    date(2008, 3, 31):934.00})
                                     
     def testQuarterlyResearchAndDevelopment(self):
         """ Test that I find Quarterly Research And Development"""
@@ -737,15 +737,15 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                                date(2007, 9, 30):332.00, \
                                                date(2007, 6, 30):337.00, \
                                                date(2007, 3, 31):310.00, \
-                                               date(2006, 12, 31):341.00})
+                                               date(2008, 3, 31):330.00})
                                                 
     def testQuarterlyDepreciationAmortization(self):
         """ Test that I find Quarterly Depreciation Amortization"""
         self.assertEquals(self.google.getQuarterlyDepreciationAmortization("DD"), {date(2007, 12, 31):50.00, \
                                                  date(2007, 9, 30):53.00, \
                                                  date(2007, 6, 30):54.00, \
-                                                 date(2007, 3, 31):56.00, \
-                                                 date(2006, 12, 31):55.00})
+                                                 date(2007, 3, 31):'-', \
+                                                 date(2008, 3, 31):'-'})
                                                   
     def testQuarterlyInterestNetOperating(self):
         """ Test that I find Quarterly Interest Net Operating"""
@@ -753,7 +753,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                              date(2007, 9, 30):113.00, \
                                              date(2007, 6, 30):108.00, \
                                              date(2007, 3, 31):99.00, \
-                                             date(2006, 12, 31):113.00})
+                                             date(2008, 3, 31):80.00})
                                              
     def testQuarterlyUnusualExpense(self):
         """ Test that I find Quarterly Unusual Expense""" 
@@ -761,7 +761,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                        date(2007, 9, 30):'-', \
                                        date(2007, 6, 30):'-', \
                                        date(2007, 3, 31):'-', \
-                                       date(2006, 12, 31):0.00})
+                                       date(2008, 3, 31):0.00})
                                        
     def testQuarterlyOtherOperatingExpenses(self):
         """ Test that I find Quarterly Other Operating Expenses"""
@@ -769,7 +769,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                                date(2007, 9, 30):'-', \
                                                date(2007, 6, 30):'-', \
                                                date(2007, 3, 31):'-', \
-                                               date(2006, 12, 31):'-'})
+                                               date(2008, 3, 31):'-'})
                                                
     def testQuarterlyTotalOperatingExpense(self):
         """ Test that I find Quarterly Total Operating Expense"""
@@ -777,7 +777,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                               date(2007, 9, 30):6410.00, \
                                               date(2007, 6, 30):6931.00, \
                                               date(2007, 3, 31):6849.00, \
-                                              date(2006, 12, 31):6447.00})
+                                              date(2008, 3, 31):7300.00})
                                                
     def testQuarterlyOperatingIncome(self):
         """ Test that I find Quarterly Operating Income"""
@@ -785,7 +785,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                         date(2007, 9, 30):630.00, \
                                         date(2007, 6, 30):1308.00, \
                                         date(2007, 3, 31):1312.00, \
-                                        date(2006, 12, 31):388.00})
+                                        date(2008, 3, 31):1470.00})
                                          
     def testQuarterlyInterestIncome(self):
         """ Test that I find Quarterly Interest Income"""
@@ -793,7 +793,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                        date(2007, 9, 30):'-', \
                                        date(2007, 6, 30):'-', \
                                        date(2007, 3, 31):'-', \
-                                       date(2006, 12, 31):'-'})
+                                       date(2008, 3, 31):'-'})
                                         
     def testQuarterlyGainOnSaleOfAssets(self):
         """ Test that I find Quarterly Gain On Sale Of Assets"""
@@ -801,7 +801,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                            date(2007, 9, 30):'-', \
                                            date(2007, 6, 30):'-', \
                                            date(2007, 3, 31):'-', \
-                                           date(2006, 12, 31):'-'})
+                                           date(2008, 3, 31):'-'})
                                             
     def testQuarterlyOtherNet(self):
         """ Test that I find Quarterly Other Net"""
@@ -809,7 +809,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                  date(2007, 9, 30):'-', \
                                  date(2007, 6, 30):'-', \
                                  date(2007, 3, 31):'-', \
-                                 date(2006, 12, 31):'-'})
+                                 date(2008, 3, 31):'-'})
                                   
     def testQuarterlyIncomeBeforeTax(self):
         """ Test that I find Quarterly Income Before Tax"""
@@ -817,7 +817,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                         date(2007, 9, 30):630.00, \
                                         date(2007, 6, 30):1308.00, \
                                         date(2007, 3, 31):1312.00, \
-                                        date(2006, 12, 31):388.00})
+                                        date(2008, 3, 31):1470.00})
                                          
     def testQuarterlyIncomeAfterTax(self):
         """ Test that I find Quarterly Income After Tax"""
@@ -825,7 +825,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                        date(2007, 9, 30):528.00, \
                                        date(2007, 6, 30):973.00, \
                                        date(2007, 3, 31):947.00, \
-                                       date(2006, 12, 31):853.00})
+                                       date(2008, 3, 31):1197.00})
                                         
     def testQuarterlyMinorityInterest_Inc(self):
         """ Test that I find Quarterly Minority Interest(Income Statement)"""
@@ -833,7 +833,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                          date(2007, 9, 30):-2.00, \
                                          date(2007, 6, 30):-1.00, \
                                          date(2007, 3, 31):-2.00, \
-                                         date(2006, 12, 31):18.00})
+                                         date(2008, 3, 31):-6.00})
                                           
     def testQuarterlyEquityInAffiliates(self):
         """ Test that I find Quarterly Equity In Affiliates"""
@@ -841,7 +841,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                            date(2007, 9, 30):'-', \
                                            date(2007, 6, 30):'-', \
                                            date(2007, 3, 31):'-', \
-                                           date(2006, 12, 31):'-'})
+                                           date(2008, 3, 31):'-'})
                                             
     def testQuarterlyNetIncomeBeforeExtraItems(self):
         """ Test that I find Quarterly Net Income Before Extra Items"""
@@ -849,7 +849,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                                   date(2007, 9, 30):526.00, \
                                                   date(2007, 6, 30):972.00, \
                                                   date(2007, 3, 31):945.00, \
-                                                  date(2006, 12, 31):871.00})
+                                                  date(2008, 3, 31):1191.00})
                                                    
     def testQuarterlyAccountingChange(self):
         """ Test that I find Quarterly Accounting Change"""
@@ -857,7 +857,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                          date(2007, 9, 30):'-', \
                                          date(2007, 6, 30):'-', \
                                          date(2007, 3, 31):'-', \
-                                         date(2006, 12, 31):'-'})
+                                         date(2008, 3, 31):'-'})
                                           
     def testQuarterlyDiscontinuedOperations(self):
         """ Test that I find Quarterly Discontinued Operations"""
@@ -865,7 +865,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                                date(2007, 9, 30):'-', \
                                                date(2007, 6, 30):'-', \
                                                date(2007, 3, 31):'-', \
-                                               date(2006, 12, 31):'-'})
+                                               date(2008, 3, 31):'-'})
                                                 
     def testQuarterlyExtraordinaryItem(self):
         """ Test that I find Quarterly Extraordinary Item"""
@@ -873,7 +873,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                           date(2007, 9, 30):'-', \
                                           date(2007, 6, 30):'-', \
                                           date(2007, 3, 31):'-', \
-                                          date(2006, 12, 31):'-'})
+                                          date(2008, 3, 31):'-'})
                                            
     def testQuarterlyNetIncome(self):
         """ Test that I find Quarterly Net Income"""
@@ -881,7 +881,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                   date(2007, 9, 30):526.00, \
                                   date(2007, 6, 30):972.00, \
                                   date(2007, 3, 31):945.00, \
-                                  date(2006, 12, 31):871.00})
+                                  date(2008, 3, 31):1191.00})
                                    
     def testQuarterlyPreferredDividends(self):
         """ Test that I find Quarterly Preferred Dividends"""
@@ -889,7 +889,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                            date(2007, 9, 30):'-', \
                                            date(2007, 6, 30):'-', \
                                            date(2007, 3, 31):'-', \
-                                           date(2006, 12, 31):'-'})
+                                           date(2008, 3, 31):'-'})
                                             
     def testQuarterlyIncomeAvailToCommonExclExtraItems(self):
         """ Test that I find Quarterly Income Avail To Common Excl Extra Items""" 
@@ -897,7 +897,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                                           date(2007, 9, 30):524.00, \
                                                           date(2007, 6, 30):969.00, \
                                                           date(2007, 3, 31):942.00, \
-                                                          date(2006, 12, 31):869.00})
+                                                          date(2008, 3, 31):1188.00})
                                                            
     def testQuarterlyIncomeAvailToCommonInclExtraItems(self):
         """ Test that I find Quarterly Income Avail To Common Incl Extra Items""" 
@@ -905,7 +905,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                                           date(2007, 9, 30):524.00, \
                                                           date(2007, 6, 30):969.00, \
                                                           date(2007, 3, 31):942.00, \
-                                                          date(2006, 12, 31):869.00})
+                                                          date(2008, 3, 31):1188.00})
                                                            
     def testQuarterlyBasicWeightedAverageShares(self):
         """ Test that I find Quarterly Basic Weighted Average Shares""" 
@@ -913,7 +913,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                                    date(2007, 9, 30):'-', \
                                                    date(2007, 6, 30):'-', \
                                                    date(2007, 3, 31):'-', \
-                                                   date(2006, 12, 31):'-'})
+                                                   date(2008, 3, 31):'-'})
                                                     
     def testQuarterlyBasicEPSExclExtraItems(self):
         """ Test that I find Quarterly Basic EPS Excl Extra Items""" 
@@ -921,7 +921,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                                date(2007, 9, 30):'-', \
                                                date(2007, 6, 30):'-', \
                                                date(2007, 3, 31):'-', \
-                                               date(2006, 12, 31):'-'})
+                                               date(2008, 3, 31):'-'})
                                                 
     def testQuarterlyBasicEPSInclExtraItems(self):
         """ Test that I find Quarterly Basic EPS Incl Extra Items""" 
@@ -929,7 +929,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                                date(2007, 9, 30):'-', \
                                                date(2007, 6, 30):'-', \
                                                date(2007, 3, 31):'-', \
-                                               date(2006, 12, 31):'-'})
+                                               date(2008, 3, 31):'-'})
                                                 
     def testQuarterlyDilutionAdjustment(self):
         """ Test that I find Quarterly Dilution Adjustment"""
@@ -937,7 +937,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                            date(2007, 9, 30):'-', \
                                            date(2007, 6, 30):'-', \
                                            date(2007, 3, 31):'-', \
-                                           date(2006, 12, 31):'-'})
+                                           date(2008, 3, 31):'-'})
                                             
     def testQuarterlyDilutedWeightedAverageShares(self):
         """ Test that I find Quarterly Diluted Weighted Average Shares"""
@@ -945,7 +945,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                                      date(2007, 9, 30):929.32, \
                                                      date(2007, 6, 30):932.81, \
                                                      date(2007, 3, 31):933.27, \
-                                                     date(2006, 12, 31):941.43})
+                                                     date(2008, 3, 31):906.19})
                                                       
     def testQuarterlyDilutedEPSExclExtraItems(self):
         """ Test that I find Quarterly Diluted EPS Excl Extra Items""" 
@@ -953,7 +953,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                                  date(2007, 9, 30):0.56, \
                                                  date(2007, 6, 30):1.04, \
                                                  date(2007, 3, 31):1.01, \
-                                                 date(2006, 12, 31):0.92})
+                                                 date(2008, 3, 31):1.31})
                                                   
     def testQuarterlyDilutedEPSInclExtraItems(self):
         """ Test that I find Quarterly Diluted EPS Incl Extra Items""" 
@@ -961,7 +961,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                                  date(2007, 9, 30):'-', \
                                                  date(2007, 6, 30):'-', \
                                                  date(2007, 3, 31):'-', \
-                                                 date(2006, 12, 31):'-'})
+                                                 date(2008, 3, 31):'-'})
                                                   
     def testQuarterlyDividendsPerShare(self):
         """ Test that I find Quarterly Dividends Per Share""" 
@@ -969,7 +969,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                           date(2007, 9, 30):0.37, \
                                           date(2007, 6, 30):0.37, \
                                           date(2007, 3, 31):0.37, \
-                                          date(2006, 12, 31):0.37})
+                                          date(2008, 3, 31):0.41})
                                            
     def testQuarterlyGrossDividends(self):
         """ Test that I find Quarterly Gross Dividends""" 
@@ -977,7 +977,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                        date(2007, 9, 30):'-', \
                                        date(2007, 6, 30):'-', \
                                        date(2007, 3, 31):'-', \
-                                       date(2006, 12, 31):'-'})
+                                       date(2008, 3, 31):'-'})
                                         
     def testQuarterlyNetIncomeAfterCompExp(self):
         """ Test that I find Quarterly Net Income After Comp Exp"""
@@ -985,7 +985,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                               date(2007, 9, 30):'-', \
                                               date(2007, 6, 30):'-', \
                                               date(2007, 3, 31):'-', \
-                                              date(2006, 12, 31):'-'})
+                                              date(2008, 3, 31):'-'})
                                                
     def testQuarterlyBasicEPSAfterCompExp(self):
         """ Test that I find Quarterly Basic EPS After Comp Exp"""
@@ -993,7 +993,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                              date(2007, 9, 30):'-', \
                                              date(2007, 6, 30):'-', \
                                              date(2007, 3, 31):'-', \
-                                             date(2006, 12, 31):'-'})
+                                             date(2008, 3, 31):'-'})
                                               
     def testQuarterlyDilutedEPSAfterCompExp(self):
         """ Test that I find Quarterly Diluted EPS After Comp Exp"""
@@ -1001,7 +1001,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                                date(2007, 9, 30):'-', \
                                                date(2007, 6, 30):'-', \
                                                date(2007, 3, 31):'-', \
-                                               date(2006, 12, 31):'-'})
+                                               date(2008, 3, 31):'-'})
                                                 
     def testQuarterlyDepreciationSupplemental(self):
         """ Test that I find Quarterly Depreciation Supplemental""" 
@@ -1009,7 +1009,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                                  date(2007, 9, 30):'-', \
                                                  date(2007, 6, 30):'-', \
                                                  date(2007, 3, 31):'-', \
-                                                 date(2006, 12, 31):'-'})
+                                                 date(2008, 3, 31):'-'})
                                                   
     def testQuarterlyTotalSpecialItems(self):
         """ Test that I find Quarterly Total Special Items""" 
@@ -1017,7 +1017,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                           date(2007, 9, 30):'-', \
                                           date(2007, 6, 30):'-', \
                                           date(2007, 3, 31):'-', \
-                                          date(2006, 12, 31):'-'})
+                                          date(2008, 3, 31):'-'})
                                            
     def testQuarterlyNormalizedIncomeBeforeTaxes(self):
         """ Test that I find Quarterly Normalized Income Before Taxes""" 
@@ -1025,7 +1025,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                                     date(2007, 9, 30):'-', \
                                                     date(2007, 6, 30):'-', \
                                                     date(2007, 3, 31):'-', \
-                                                    date(2006, 12, 31):'-'})
+                                                    date(2008, 3, 31):'-'})
                                                      
     def testQuarterlyEffectsOfSpecialItemsOnIncomeTaxes(self):
         """ Test that I find Quarterly EffectsOf Special Items On Income Taxes"""
@@ -1033,7 +1033,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                                            date(2007, 9, 30):'-', \
                                                             date(2007, 6, 30):'-', \
                                                            date(2007, 3, 31):'-', \
-                                                           date(2006, 12, 31):'-'})
+                                                           date(2008, 3, 31):'-'})
                                                             
     def testQuarterlyIncomeTaxesExSpecialItems(self):
         """ Test that I find Quarterly Income Taxes Ex Special Items""" 
@@ -1041,7 +1041,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                                   date(2007, 9, 30):'-', \
                                                   date(2007, 6, 30):'-', \
                                                   date(2007, 3, 31):'-', \
-                                                  date(2006, 12, 31):'-'})
+                                                  date(2008, 3, 31):'-'})
                                                    
     def testQuarterlyNormalizedIncomeAfterTaxes(self):
         """ Test that I find Quarterly Normalized Income After Taxes"""
@@ -1049,7 +1049,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                                    date(2007, 9, 30):'-', \
                                                    date(2007, 6, 30):'-', \
                                                    date(2007, 3, 31):'-', \
-                                                   date(2006, 12, 31):'-'})
+                                                   date(2008, 3, 31):'-'})
                                                     
     def testQuarterlyNormalizedIncomeAvailableCommon(self):
         """ Test that I find Quarterly Normalized Income Available Common"""
@@ -1057,7 +1057,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                                         date(2007, 9, 30):'-', \
                                                         date(2007, 6, 30):'-', \
                                                         date(2007, 3, 31):'-', \
-                                                        date(2006, 12, 31):'-'})
+                                                        date(2008, 3, 31):'-'})
                                                          
     def testQuarterlyBasicNormalizedEPS(self):
         """ Test that I find Quarterly Basic Normalized EPS"""
@@ -1065,7 +1065,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                            date(2007, 9, 30):'-', \
                                            date(2007, 6, 30):'-', \
                                            date(2007, 3, 31):'-', \
-                                           date(2006, 12, 31):'-'})
+                                           date(2008, 3, 31):'-'})
                                             
     def testQuarterlyDilutedNormalizedEPS(self):
         """ Test that I find Quarterly Diluted Normalized EPS""" 
@@ -1073,7 +1073,7 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
                                              date(2007, 9, 30):0.56, \
                                              date(2007, 6, 30):1.04, \
                                              date(2007, 3, 31):1.01, \
-                                             date(2006, 12, 31):0.92})
+                                             date(2008, 3, 31):1.31})
  
         
 class WebsiteTestCase_BalanceSheet(WebsiteTestCase):    
@@ -1426,7 +1426,9 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                                      date(2005, 12, 31):919.61, \
                                                      date(2004, 12, 31):994.34, \
                                                      date(2003, 12, 31):997.28, \
-                                                     date(2002, 12, 31):993.94}) 
+                                                     date(2002, 12, 31):993.94})
+         
+ #Quarterly
  
     def testQuarterlyCashAndEquivalents(self):
         """ Test that I find Quarterly Cash And Equivalents"""
@@ -1434,7 +1436,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                            date(2007, 9, 30):1209.00, \
                                            date(2007, 6, 30):987.00, \
                                            date(2007, 3, 31):883.00, \
-                                           date(2006, 12, 31):1814.00})
+                                           date(2008, 3, 31):1094.00})
                                             
     def testQuarterlyShortTermInvestments(self):
         """ Test that I find Quarterly Short Term Investments""" 
@@ -1442,7 +1444,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                              date(2007, 9, 30):109.00, \
                                              date(2007, 6, 30):102.00, \
                                              date(2007, 3, 31):71.00, \
-                                             date(2006, 12, 31):79.00})
+                                             date(2008, 3, 31):33.00})
                                               
     def testQuarterlyCashAndShortTermInvestments(self):
         """ Test that I find Quarterly Cash And Short Term Investments""" 
@@ -1450,7 +1452,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                                     date(2007, 9, 30):1318.00, \
                                                     date(2007, 6, 30):1089.00, \
                                                     date(2007, 3, 31):954.00, \
-                                                    date(2006, 12, 31):1893.00})
+                                                    date(2008, 3, 31):1127.00})
                                                      
     def testQuarterlyAccountsReceivableTrade(self):
         """ Test that I find Quarterly Accounts Receivable Trade"""
@@ -1458,7 +1460,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                                 date(2007, 9, 30):6990.00, \
                                                 date(2007, 6, 30):7370.00, \
                                                 date(2007, 3, 31):6813.00, \
-                                                date(2006, 12, 31):5198.00})
+                                                date(2008, 3, 31):7645.00})
                                                 
     def testQuarterlyReceivablesOther(self):
         """ Test that I find Quarterly Receivables Other"""
@@ -1466,7 +1468,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                          date(2007, 9, 30):'-', \
                                          date(2007, 6, 30):'-', \
                                          date(2007, 3, 31):'-', \
-                                         date(2006, 12, 31):'-'})
+                                         date(2008, 3, 31):'-'})
                                           
     def testQuarterlyTotalReceivablesNet(self):
         """ Test that I find Quarterly Total Receivables Net""" 
@@ -1474,7 +1476,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                             date(2007, 9, 30):6990.00, \
                                             date(2007, 6, 30):7370.00, \
                                             date(2007, 3, 31):6813.00, \
-                                            date(2006, 12, 31):5198.00})
+                                            date(2008, 3, 31):7645.00})
                                              
     def testQuarterlyTotalInventory(self):
         """ Test that I find Quarterly Total Inventory"""
@@ -1482,7 +1484,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                        date(2007, 9, 30):4963.00, \
                                        date(2007, 6, 30):4481.00, \
                                        date(2007, 3, 31):4855.00, \
-                                       date(2006, 12, 31):4941.00})
+                                       date(2008, 3, 31):5310.00})
                                         
     def testQuarterlyPrepaidExpenses(self):
         """ Test that I find Quarterly Prepaid Expenses""" 
@@ -1490,7 +1492,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                         date(2007, 9, 30):195.00, \
                                         date(2007, 6, 30):199.00, \
                                         date(2007, 3, 31):213.00, \
-                                        date(2006, 12, 31):182.00})
+                                        date(2008, 3, 31):212.00})
                                          
     def testQuarterlyOtherCurrentAssetsTotal(self):
         """ Test that I find Quarterly Other Current Assets Total"""
@@ -1498,7 +1500,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                                 date(2007, 9, 30):665.00, \
                                                 date(2007, 6, 30):675.00, \
                                                 date(2007, 3, 31):697.00, \
-                                                date(2006, 12, 31):656.00})
+                                                date(2008, 3, 31):567.00})
                                                  
     def testQuarterlyTotalCurrentAssets(self):
         """ Test that I find Quarterly Total Current Assets"""
@@ -1506,7 +1508,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                            date(2007, 9, 30):14131.00, \
                                            date(2007, 6, 30):13814.00, \
                                            date(2007, 3, 31):13532.00, \
-                                           date(2006, 12, 31):12870.00})
+                                           date(2008, 3, 31):14861.00})
                                             
     def testQuarterlyPPE(self):
         """ Test that I find Quarterly PPE"""
@@ -1514,7 +1516,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                             date(2007, 9, 30):26302.00, \
                             date(2007, 6, 30):26053.00, \
                             date(2007, 3, 31):25876.00, \
-                            date(2006, 12, 31):25719.00})
+                            date(2008, 3, 31):26941.00})
                              
     def testQuarterlyGoodwill(self):
         """ Test that I find Quarterly Goodwill"""
@@ -1522,7 +1524,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                  date(2007, 9, 30):2110.00, \
                                  date(2007, 6, 30):2108.00, \
                                  date(2007, 3, 31):2108.00, \
-                                 date(2006, 12, 31):2108.00})
+                                 date(2008, 3, 31):2074.00})
                                   
     def testQuarterlyIntangibles(self):
         """ Test that I find Quarterly Intangibles"""
@@ -1530,7 +1532,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                     date(2007, 9, 30):2904.00, \
                                     date(2007, 6, 30):2381.00, \
                                     date(2007, 3, 31):2436.00, \
-                                    date(2006, 12, 31):2479.00})
+                                    date(2008, 3, 31):2781.00})
                                      
     def testQuarterlyLongTermInvestments(self):
         """ Test that I find Quarterly Long Term Investments"""
@@ -1538,7 +1540,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                             date(2007, 9, 30):791.00, \
                                             date(2007, 6, 30):802.00, \
                                             date(2007, 3, 31):790.00, \
-                                            date(2006, 12, 31):803.00})
+                                            date(2008, 3, 31):818.00})
                                              
     def testQuarterlyOtherLongTermAssets(self):
         """ Test that I find Quarterly Other Long Term Assets"""
@@ -1546,7 +1548,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                             date(2007, 9, 30):3411.00, \
                                             date(2007, 6, 30):3267.00, \
                                             date(2007, 3, 31):3182.00, \
-                                            date(2006, 12, 31):3019.00})
+                                            date(2008, 3, 31):4789.00})
                                             
     def testQuarterlyTotalAssets(self):
         """ Test that I find Quarterly Total Assets"""
@@ -1554,7 +1556,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                     date(2007, 9, 30):33915.00, \
                                     date(2007, 6, 30):32850.00, \
                                     date(2007, 3, 31):32473.00, \
-                                    date(2006, 12, 31):31777.00})
+                                    date(2008, 3, 31):36228.00})
                                      
     def testQuarterlyAccountsPayable(self):
         """ Test that I find Quarterly Accounts Payable""" 
@@ -1562,7 +1564,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                         date(2007, 9, 30):2873.00, \
                                         date(2007, 6, 30):2539.00, \
                                         date(2007, 3, 31):2782.00, \
-                                        date(2006, 12, 31):2711.00})
+                                        date(2008, 3, 31):3061.00})
                                          
     def testQuarterlyAccruedExpenses(self):
         """ Test that I find Quarterly Accrued Expenses"""
@@ -1570,7 +1572,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                         date(2007, 9, 30):2972.00, \
                                         date(2007, 6, 30):2921.00, \
                                         date(2007, 3, 31):3020.00, \
-                                        date(2006, 12, 31):3534.00})
+                                        date(2008, 3, 31):3360.00})
                                          
     def testQuarterlyNotesPayable(self):
         """ Test that I find Quarterly Notes Payable"""
@@ -1578,7 +1580,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                      date(2007, 9, 30):3618.00, \
                                      date(2007, 6, 30):1226.00, \
                                      date(2007, 3, 31):429.00, \
-                                     date(2006, 12, 31):354.00})
+                                     date(2008, 3, 31):3196.00})
                                       
     def testQuarterlyCurrentPortLTDebtToCapital(self):
         """ Test that I find Quarterly Current Port LT Debt To Capital"""
@@ -1586,7 +1588,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                                    date(2007, 9, 30):'-', \
                                                    date(2007, 6, 30):1149.00, \
                                                    date(2007, 3, 31):1161.00, \
-                                                   date(2006, 12, 31):1163.00})
+                                                   date(2008, 3, 31):'-'})
                                                     
     def testQuarterlyOtherCurrentLiabilities(self):
         """ Test that I find Quarterly Other Current Liabilities"""
@@ -1594,7 +1596,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                                 date(2007, 9, 30):334.00, \
                                                 date(2007, 6, 30):369.00, \
                                                 date(2007, 3, 31):422.00, \
-                                                date(2006, 12, 31):178.00})
+                                                date(2008, 3, 31):177.00})
                                                  
     def testQuarterlyTotalCurrentLiabilities(self):
         """ Test that I find Quarterly Total Current Liabilities"""
@@ -1602,7 +1604,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                                 date(2007, 9, 30):9797.00, \
                                                 date(2007, 6, 30):8204.00, \
                                                 date(2007, 3, 31):7814.00, \
-                                                date(2006, 12, 31):7940.00})
+                                                date(2008, 3, 31):9794.00})
                                                  
     def testQuarterlyLongTermDebt(self):
         """ Test that I find Quarterly Long Term Debt"""
@@ -1610,7 +1612,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                      date(2007, 9, 30):5367.00, \
                                      date(2007, 6, 30):5664.00, \
                                      date(2007, 3, 31):6010.00, \
-                                     date(2006, 12, 31):6013.00})
+                                     date(2008, 3, 31):5784.00})
                                       
     def testQuarterlyCapitalLeaseObligations(self):
         """ Test that I find Quarterly Capital Lease Obligations"""
@@ -1618,7 +1620,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                                 date(2007, 9, 30):'-', \
                                                 date(2007, 6, 30):'-', \
                                                 date(2007, 3, 31):'-', \
-                                                date(2006, 12, 31):'-'})
+                                                date(2008, 3, 31):'-'})
                                                  
     def testQuarterlyTotalLongTermDebt(self):
         """ Test that I find Quarterly Total Long Term Debt"""
@@ -1626,7 +1628,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                           date(2007, 9, 30):5367.00, \
                                           date(2007, 6, 30):5664.00, \
                                           date(2007, 3, 31):6010.00, \
-                                          date(2006, 12, 31):6013.00})
+                                          date(2008, 3, 31):5784.00})
                                            
     def testQuarterlyTotalDebt(self):
         """ Test that I find Quarterly Total Debt"""
@@ -1634,7 +1636,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                   date(2007, 9, 30):8985.00, \
                                   date(2007, 6, 30):8039.00, \
                                   date(2007, 3, 31):7600.00, \
-                                  date(2006, 12, 31):7530.00})
+                                  date(2008, 3, 31):8980.00})
                                    
     def testQuarterlyDeferredIncomeTax(self):
         """ Test that I find Quarterly Deferred Income Tax"""
@@ -1642,7 +1644,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                           date(2007, 9, 30):404.00, \
                                           date(2007, 6, 30):395.00, \
                                           date(2007, 3, 31):402.00, \
-                                          date(2006, 12, 31):269.00})
+                                          date(2008, 3, 31):894.00})
                                            
     def testQuarterlyMinorityInterest_Bal(self):
         """ Test that I find Quarterly Minority Interest(Balance Sheet)"""
@@ -1650,7 +1652,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                          date(2007, 9, 30):445.00, \
                                          date(2007, 6, 30):442.00, \
                                          date(2007, 3, 31):442.00, \
-                                         date(2006, 12, 31):441.00})
+                                         date(2008, 3, 31):443.00})
                                           
     def testQuarterlyOtherLiabilities(self):
         """ Test that I find Quarterly Other Liabilities"""
@@ -1658,7 +1660,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                          date(2007, 9, 30):7984.00, \
                                          date(2007, 6, 30):7455.00, \
                                          date(2007, 3, 31):7629.00, \
-                                         date(2006, 12, 31):7692.00})
+                                         date(2008, 3, 31):7191.00})
                                           
     def testQuarterlyTotalLiabilities(self):
         """ Test that I find Quarterly Total Liabilities"""
@@ -1666,7 +1668,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                          date(2007, 9, 30):23997.00, \
                                          date(2007, 6, 30):22160.00, \
                                          date(2007, 3, 31):22297.00, \
-                                         date(2006, 12, 31):22355.00})
+                                         date(2008, 3, 31):24106.00})
                                           
     def testQuarterlyRedeemablePreferredStock(self):
         """ Test that I find Quarterly Redeemable Preferred Stock"""
@@ -1674,7 +1676,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                                  date(2007, 9, 30):'-', \
                                                  date(2007, 6, 30):'-', \
                                                  date(2007, 3, 31):'-', \
-                                                 date(2006, 12, 31):'-'})
+                                                 date(2008, 3, 31):'-'})
                                                   
     def testQuarterlyPreferredStockNonRedeemable(self):
         """ Test that I find Quarterly Preferred Stock Non Redeemable"""
@@ -1682,7 +1684,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                                     date(2007, 9, 30):237.00, \
                                                     date(2007, 6, 30):237.00, \
                                                     date(2007, 3, 31):237.00, \
-                                                    date(2006, 12, 31):237.00})
+                                                    date(2008, 3, 31):237.00})
                                                      
     def testQuarterlyCommonStock(self):
         """ Test that I find Quarterly Common Stock"""
@@ -1690,7 +1692,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                     date(2007, 9, 30):296.00, \
                                     date(2007, 6, 30):302.00, \
                                     date(2007, 3, 31):303.00, \
-                                    date(2006, 12, 31):303.00})
+                                    date(2008, 3, 31):296.00})
                                      
     def testQuarterlyAdditionalPaidInCapital(self):
         """ Test that I find Quarterly Additional Paid In Capital"""
@@ -1698,7 +1700,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                                 date(2007, 9, 30):8121.00, \
                                                 date(2007, 6, 30):8187.00, \
                                                 date(2007, 3, 31):8072.00, \
-                                                date(2006, 12, 31):7797.00})
+                                                date(2008, 3, 31):8220.00})
                                                  
     def testQuarterlyRetainedEarnings(self):
         """ Test that I find Quarterly Retained Earnings"""
@@ -1706,7 +1708,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                          date(2007, 9, 30):9772.00, \
                                          date(2007, 6, 30):10516.00, \
                                          date(2007, 3, 31):10142.00, \
-                                         date(2006, 12, 31):9679.00})
+                                         date(2008, 3, 31):10764.00})
                                           
     def testQuarterlyTreasuryStock(self):
         """ Test that I find Quarterly Treasury Stock"""
@@ -1714,7 +1716,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                       date(2007, 9, 30):-6727.00, \
                                       date(2007, 6, 30):-6727.00, \
                                       date(2007, 3, 31):-6727.00, \
-                                      date(2006, 12, 31):-6727.00})
+                                      date(2008, 3, 31):-6727.00})
                                        
     def testQuarterlyOtherEquity(self):
         """ Test that I find Quarterly Other Equity"""
@@ -1722,7 +1724,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                     date(2007, 9, 30):-1781.00, \
                                     date(2007, 6, 30):-1825.00, \
                                     date(2007, 3, 31):-1851.00, \
-                                    date(2006, 12, 31):-1867.00})
+                                    date(2008, 3, 31):-668.00})
                                      
     def testQuarterlyTotalEquity(self):
         """ Test that I find Quarterly Total Equity"""
@@ -1730,7 +1732,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                     date(2007, 9, 30):9918.00, \
                                     date(2007, 6, 30):10690.00, \
                                     date(2007, 3, 31):10176.00, \
-                                    date(2006, 12, 31):9422.00})
+                                    date(2008, 3, 31):12122.00})
                                      
     def testQuarterlyTotalLiabilitiesAndShareholdersEquity(self):
         """ Test that I find Quarterly Total Liabilities And Shareholders Equity"""
@@ -1738,7 +1740,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                                               date(2007, 9, 30):33915.00, \
                                                               date(2007, 6, 30):32850.00, \
                                                               date(2007, 3, 31):32473.00, \
-                                                              date(2006, 12, 31):31777.00})
+                                                              date(2008, 3, 31):36228.00})
                                                                
     def testQuarterlySharesOuts(self):
         """ Test that I find Quarterly Shares Outs"""
@@ -1746,7 +1748,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                    date(2007, 9, 30):'-', \
                                    date(2007, 6, 30):'-', \
                                    date(2007, 3, 31):'-', \
-                                   date(2006, 12, 31):'-'})
+                                   date(2008, 3, 31):'-'})
                                     
     def testQuarterlyTotalCommonSharesOutstanding(self):
         """ Test that I find Quarterly Total Common Shares Outstanding"""
@@ -1754,7 +1756,7 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
                                                      date(2007, 9, 30):898.93, \
                                                      date(2007, 6, 30):920.27, \
                                                      date(2007, 3, 31):923.60, \
-                                                     date(2006, 12, 31):922.07})
+                                                     date(2008, 3, 31):900.52})
  
 class WebsiteTestCase_CashFlow(WebsiteTestCase):    
     """ Test all the information that comes from an SEC Cash Flow Statement """
@@ -1915,7 +1917,8 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
         
     def testQuarterlyNetIncomeStartingLine(self):
         """ Test that I find Quarterly Net Income or Starting Line"""
-        self.assertEquals(self.google.getQuarterlyNetIncomeStartingLine("DD"), {date(2007, 12, 31):545.00, \
+        self.assertEquals(self.google.getQuarterlyNetIncomeStartingLine("DD"), {date(2008, 3, 31): 1191.00,\
+																			    date(2007, 12, 31):545.00, \
                                               date(2007, 9, 30):526.00, \
                                               date(2007, 6, 30):972.00, \
                                               date(2007, 3, 31):945.00})
@@ -1923,7 +1926,8 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                               
     def testQuarterlyDepreciationDepletion(self):
         """ Test that I find Quarterly Depreciation Depletion"""
-        self.assertEquals(self.google.getQuarterlyDepreciationDepletion("DD"), {date(2007, 12, 31):292.00, \
+        self.assertEquals(self.google.getQuarterlyDepreciationDepletion("DD"), {date(2008, 3, 31): 287.0,\
+																			    date(2007, 12, 31):292.00, \
                                               date(2007, 9, 30):287.00, \
                                               date(2007, 6, 30):289.00, \
                                               date(2007, 3, 31):290.00})
@@ -1931,7 +1935,8 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                               
     def testQuarterlyAmortization(self):
         """ Test that I find Quarterly Amortization""" 
-        self.assertEquals(self.google.getQuarterlyAmortization("DD"), {date(2007, 12, 31):50.00, \
+        self.assertEquals(self.google.getQuarterlyAmortization("DD"), {date(2008, 3, 31): 93.00,\
+																	   date(2007, 12, 31):50.00, \
                                      date(2007, 9, 30):53.00, \
                                      date(2007, 6, 30):54.00, \
                                      date(2007, 3, 31):56.00})
@@ -1939,7 +1944,8 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                       
     def testQuarterlyDeferredTaxes(self):
         """ Test that I find Quarterly Deferred Taxes"""
-        self.assertEquals(self.google.getQuarterlyDeferredTaxes("DD"), {date(2007, 12, 31):'-', \
+        self.assertEquals(self.google.getQuarterlyDeferredTaxes("DD"), {date(2008, 3, 31): '-',\
+																	    date(2007, 12, 31):'-', \
                                       date(2007, 9, 30):'-', \
                                       date(2007, 6, 30):'-', \
                                       date(2007, 3, 31):'-'})
@@ -1947,7 +1953,8 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                        
     def testQuarterlyNonCashItems(self):
         """ Test that I find Quarterly Non Cash Items"""
-        self.assertEquals(self.google.getQuarterlyNonCashItems("DD"), {date(2007, 12, 31):164.00, \
+        self.assertEquals(self.google.getQuarterlyNonCashItems("DD"), {date(2008, 3, 31): -9.00,\
+																	   date(2007, 12, 31):164.00, \
                                      date(2007, 9, 30):-32.00, \
                                      date(2007, 6, 30):-33.00, \
                                      date(2007, 3, 31):-11.00})
@@ -1955,7 +1962,8 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                       
     def testQuarterlyChangesInWorkingCapital(self):
         """ Test that I find Quarterly Changes In Working Capital"""
-        self.assertEquals(self.google.getQuarterlyChangesInWorkingCapital("DD"), {date(2007, 12, 31):1814.00, \
+        self.assertEquals(self.google.getQuarterlyChangesInWorkingCapital("DD"), {date(2008, 3, 31): -2513.00,\
+																				  date(2007, 12, 31):1814.00, \
                                                 date(2007, 9, 30):209.00, \
                                                 date(2007, 6, 30):-659.00, \
                                                 date(2007, 3, 31):-1520.00})
@@ -1963,7 +1971,8 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                                  
     def testQuarterlyCashFromOperatingActivities(self):
         """ Test that I find Quarterly Cash From Operating Activities"""
-        self.assertEquals(self.google.getQuarterlyCashFromOperatingActivities("DD"), {date(2007, 12, 31):2864.00, \
+        self.assertEquals(self.google.getQuarterlyCashFromOperatingActivities("DD"), {date(2008, 3, 31): -951.00,\
+																					  date(2007, 12, 31):2864.00, \
                                                     date(2007, 9, 30):1043.00, \
                                                     date(2007, 6, 30):623.00, \
                                                     date(2007, 3, 31):-240.00})
@@ -1971,7 +1980,8 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                                     
     def testQuarterlyCapitalExpenditures(self):
         """ Test that I find Quarterly Capital Expenditures"""
-        self.assertEquals(self.google.getQuarterlyCapitalExpenditures("DD"), {date(2007, 12, 31):-566.00, \
+        self.assertEquals(self.google.getQuarterlyCapitalExpenditures("DD"), {date(2008, 3, 31): -410.00,\
+																			  date(2007, 12, 31):-566.00, \
                                             date(2007, 9, 30):-398.00, \
                                             date(2007, 6, 30):-348.00, \
                                             date(2007, 3, 31):-273.00})
@@ -1979,7 +1989,8 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                              
     def testQuarterlyOtherInvestingCashFlow(self):
         """ Test that I find Quarterly Other Investing Cash Flow"""
-        self.assertEquals(self.google.getQuarterlyOtherInvestingCashFlow("DD"), {date(2007, 12, 31):-164.00, \
+        self.assertEquals(self.google.getQuarterlyOtherInvestingCashFlow("DD"), {date(2008, 3, 31): -110.00,\
+																				 date(2007, 12, 31):-164.00, \
                                                date(2007, 9, 30):50.00, \
                                                date(2007, 6, 30):-55.00, \
                                                date(2007, 3, 31):4.00})
@@ -1987,7 +1998,8 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                                 
     def testQuarterlyCashFromInvestingActivities(self):
         """ Test that I find Quarterly Cash From Investing Activities"""
-        self.assertEquals(self.google.getQuarterlyCashFromInvestingActivities("DD"), {date(2007, 12, 31):-730.00, \
+        self.assertEquals(self.google.getQuarterlyCashFromInvestingActivities("DD"), {date(2008, 3, 31): -520.00,\
+																					  date(2007, 12, 31):-730.00, \
                                                     date(2007, 9, 30):-348.00, \
                                                     date(2007, 6, 30):-403.00, \
                                                     date(2007, 3, 31):-269.00})
@@ -1995,7 +2007,8 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                                      
     def testQuarterlyFinancingCashFlowItems(self):
         """ Test that I find Quarterly Financing Cash Flow Items"""
-        self.assertEquals(self.google.getQuarterlyFinancingCashFlowItems("DD"), {date(2007, 12, 31):5.00, \
+        self.assertEquals(self.google.getQuarterlyFinancingCashFlowItems("DD"), {date(2008, 3, 31): 4.00,\
+																				 date(2007, 12, 31):5.00, \
                                                date(2007, 9, 30):8.00, \
                                                date(2007, 6, 30):-11.00, \
                                                date(2007, 3, 31):-69.00})
@@ -2003,7 +2016,8 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                                 
     def testQuarterlyTotalCashDividendsPaid(self):
         """ Test that I find Quarterly Total Cash Dividends Paid"""
-        self.assertEquals(self.google.getQuarterlyTotalCashDividendsPaid("DD"), {date(2007, 12, 31):-372.00, \
+        self.assertEquals(self.google.getQuarterlyTotalCashDividendsPaid("DD"), {date(2008, 3, 31): -372.00,\
+																				 date(2007, 12, 31):-372.00, \
                                                date(2007, 9, 30):-345.00, \
                                                date(2007, 6, 30):-345.00, \
                                                date(2007, 3, 31):-347.00})
@@ -2011,7 +2025,8 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                                 
     def testQuarterlyIssuanceOfStock(self):
         """ Test that I find Quarterly Issuance Of Stock"""
-        self.assertEquals(self.google.getQuarterlyIssuanceOfStock("DD"), {date(2007, 12, 31):14.00, \
+        self.assertEquals(self.google.getQuarterlyIssuanceOfStock("DD"), {date(2008, 3, 31): 19.00,\
+																		  date(2007, 12, 31):14.00, \
                                         date(2007, 9, 30):-1029.00, \
                                         date(2007, 6, 30):-185.00, \
                                         date(2007, 3, 31):-50.00})
@@ -2019,7 +2034,8 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                          
     def testQuarterlyIssuanceOfDebt(self):
         """ Test that I find Quarterly Issuance Of Debt"""
-        self.assertEquals(self.google.getQuarterlyIssuanceOfDebt("DD"), {date(2007, 12, 31):-1673.00, \
+        self.assertEquals(self.google.getQuarterlyIssuanceOfDebt("DD"), {date(2008, 3, 31): 1611.00,\
+																		 date(2007, 12, 31):-1673.00, \
                                        date(2007, 9, 30):858.00, \
                                        date(2007, 6, 30):431.00, \
                                        date(2007, 3, 31):41.00})
@@ -2027,7 +2043,8 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                         
     def testQuarterlyCashFromFinancingActivities(self):
         """ Test that I find Quarterly Cash From Financing Activities"""
-        self.assertEquals(self.google.getQuarterlyCashFromFinancingActivities("DD"), {date(2007, 12, 31):-2026.00, \
+        self.assertEquals(self.google.getQuarterlyCashFromFinancingActivities("DD"), {date(2008, 3, 31): 1262.00,\
+																					  date(2007, 12, 31):-2026.00, \
                                                     date(2007, 9, 30):-508.00, \
                                                     date(2007, 6, 30):-110.00, \
                                                     date(2007, 3, 31):-425.00})
@@ -2035,7 +2052,8 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                                      
     def testQuarterlyForeignExchangeEffects(self):
         """ Test that I find Quarterly Foreign Exchange Effects"""
-        self.assertEquals(self.google.getQuarterlyForeignExchangeEffects("DD"), {date(2007, 12, 31):-12.00, \
+        self.assertEquals(self.google.getQuarterlyForeignExchangeEffects("DD"), {date(2008, 3, 31): -2.00,\
+																				 date(2007, 12, 31):-12.00, \
                                                date(2007, 9, 30):35.00, \
                                                date(2007, 6, 30):-6.00, \
                                                date(2007, 3, 31):3.00})
@@ -2043,7 +2061,8 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                                 
     def testQuarterlyNetChangeInCash(self):
         """ Test that I find Quarterly Net Change In Cash"""
-        self.assertEquals(self.google.getQuarterlyNetChangeInCash("DD"), {date(2007, 12, 31):96.00, \
+        self.assertEquals(self.google.getQuarterlyNetChangeInCash("DD"), {date(2008, 3, 31): -211.00,\
+																		  date(2007, 12, 31):96.00, \
                                         date(2007, 9, 30):222.00, \
                                         date(2007, 6, 30):104.00, \
                                         date(2007, 3, 31):-931.00})
@@ -2051,7 +2070,8 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                          
     def testQuarterlyCashInterestPaid(self):
         """ Test that I find Quarterly Cash Interest Paid"""
-        self.assertEquals(self.google.getQuarterlyCashInterestPaid("DD"), {date(2007, 12, 31):'-', \
+        self.assertEquals(self.google.getQuarterlyCashInterestPaid("DD"), {date(2008, 3, 31): '-',\
+																		   date(2007, 12, 31):'-', \
                                          date(2007, 9, 30):'-', \
                                          date(2007, 6, 30):'-', \
                                          date(2007, 3, 31):'-'})
@@ -2059,7 +2079,8 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                           
     def testQuarterlyCashTaxesPaid(self):
         """ Test that I find Quarterly Cash Taxes Paid"""
-        self.assertEquals(self.google.getQuarterlyCashTaxesPaid("DD"), {date(2007, 12, 31):'-', \
+        self.assertEquals(self.google.getQuarterlyCashTaxesPaid("DD"), {date(2008, 3, 31): '-',\
+																	    date(2007, 12, 31):'-', \
                                       date(2007, 9, 30):'-', \
                                       date(2007, 6, 30):'-', \
                                       date(2007, 3, 31):'-'})
