@@ -281,7 +281,11 @@ class Bloomberg(object):
 	""" A Bloomberg is a stock information service provider.  It can host any number of "
 	" services depending on what is available, such as price, volume, etc. information for "
 	" any stock and any date """
-	pass 
+	def _delegateInterface(self, interface, wrapper):
+		pass
+	
+	def _functionWrapper(self, func, methodName):
+		pass
 
 class Website(Bloomberg):
 	""" Website is a Bloomberg that gets its information from a particular website. """
@@ -1768,6 +1772,16 @@ class Google(Website):
 		self._delegateInterface(self.Metadata, self._metaWrapper)
 		self._metaCache = {}
 									
+
+		
+
+		
+		#should I make predicates safe/throw and then have private implementations that
+		#have the assumed contract?
+		
+		
+		
+		
 		#TODO: should also put this at the class level
 		#TODO: this sort of 'information' stuff should be formalized in the bloomberg concept.
 #		TODO: Investigate whether class inheritance interfaces are resolved at runtime

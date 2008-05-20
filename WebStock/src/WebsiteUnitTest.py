@@ -2086,5 +2086,6 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                       date(2007, 3, 31):'-'})
  
  
-                                      
+if __name__ == "__main__": #for coverage tests
+	unittest.main()
                                        
