@@ -1,5 +1,6 @@
 import BeautifulSoup
 import datetime
+import urllib2
 from utilities import isString
 
 class Yahoo(website):
@@ -70,21 +71,34 @@ class Yahoo(website):
 	"""
 	
 	class SoupFactory:
-		""" Does the work of getting to the price website and building a soup object"""
+		""" Does the work of getting to the price website and building a soup object
+		
+		
+		inv:
+			isinstance(self.basicSoupCache, dict)
+			isinstance(self.priceSoupCache, dict)
+		
+		"""
 		def __init__(self):
 			""" Sets up stuff so I can begin looking up webpages """
-			pass
+			self.basicSoupCache = {}
+			self.priceSoupCache = {}
+			
 		
 		def buildPriceSoup(self, symbol):
 			""" Does a lookup of symbol and returns the historical prices page of that soup object.  If
-			symbol does not exist, throws. 
+			symbol does not exist, throws.  Caches result on symbol. 
 			
 			#TODO: add a unit test for this since an example would have to parse a soup object...
 			
 			pre:
 				isString(symbol)
-			post[]:
+			post[self.priceSoupCache]:
 				isinstance(__return__,BeautifulSoup.BeautifulSoup)
+				symbol in self.priceSoupCache.keys()
+				isinstance(self.priceSoupCache[symbol], BeautifulSoup.BeautifulSoup)
+				self.priceSoupCache[symbol] == __return__
+				(len(self.priceSoupCache.keys()) - len(__old__.self.priceSoupCache.keys()) = 1) if (symbol not in __old__.self.priceSoupCache.keys()) else True
 			
 			"""
 			pass
@@ -138,19 +152,38 @@ class Yahoo(website):
 			post[]:
 				isString(__return__)
 			"""
-			pass
+			return "http://finance.yahoo.com/q?s=%s" % symbol
 			
 		def buildBasicSoup(self, symbol):
 			""" Finds the root yahoo page for this symbol.  Can be used to see if symbol exists.
 			The webpage looked up will be found no matter what, but analysis of whats in the soup 
-			is done by other functions like hasBasicSoup.
+			is done by other functions like hasBasicSoup.  Cache's basic soup pages.
+			
+			pre:
+				isString(symbol)
+			post[self.basicSoupCache]:
+				isinstance(__return__,BeautifulSoup.BeautifulSoup)
+				symbol in self.basicSoupCache.keys()
+				isinstance(self.basicSoupCache[symbol], BeautifulSoup.BeautifulSoup)
+				self.basicSoupCache[symbol] == __return__
+				(len(self.basicSoupCache.keys()) - len(__old__.self.basicSoupCache.keys()) = 1) if (symbol not in __old__.self.basicSoupCache.keys()) else True
+			 """
+			if symbol not in self.basicSoupCache:
+				self.basicSoupCache[symbol] = self._buildBasicSoup(symbol)
+			return self.basicSoupCache[symbol]
+		
+		def _buildBasicSoup(self, symbol):
+			""" Finds the root yahoo page for this symbol.  Does not cache. 
 			
 			pre:
 				isString(symbol)
 			post[]:
 				isinstance(__return__,BeautifulSoup.BeautifulSoup)
-			 """
-			pass
+			
+			"""
+			url = self._buildBasicURL(symbol)
+			webpage = urllib2.urlopen(url)
+			return BeautifulSoup.BeautifulSoup(webpage)
 		
 		def hasBasicSoup(self, symbol):
 			""" Predicate returning whether the root yahoo page for this symbol is that of one that
