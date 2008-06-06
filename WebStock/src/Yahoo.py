@@ -1,7 +1,7 @@
 import BeautifulSoup
 import datetime
 import urllib2
-from utilities import isString, dateFromString, publicInterface, Cache, checkCache
+from utilities import isString, dateFromString, publicInterface, Cache, checkCache, delegateInterface
 import Website
 import re
 from Website import SymbolNotFound, DateNotFound
@@ -61,7 +61,7 @@ class Yahoo(Website.Website):
 	
 	You can check for this yourself by calling
 	
-	>>> scraper.hasPrice("CFC", datetime.date(2007,12,30))
+	>>> scraper.hasDate("CFC", datetime.date(2007,12,30))
 	False
 	
 	inv:
@@ -74,12 +74,7 @@ class Yahoo(Website.Website):
 	def __init__(self):
 		self._soupFactory = Yahoo.SoupFactory()
 		self._tradingDateCollectionCache = Cache(lambda key: Yahoo.TradingDayCollection(self._soupFactory,key))
-		self._delegateInterface(Yahoo.TradingDay, self._priceWrapper)
 		
-		#TODO: check invariants in Yahoo
-		#TODO: figure out how you want to use hasPrice versus hasDate  compare current 
-		#implementation versus test that fails on hasPrice.
-	
 	class SoupFactory:
 		""" Does the work of getting to the price website and building a soup object
 		
@@ -103,11 +98,17 @@ class Yahoo(Website.Website):
 			""" Does a lookup of symbol and returns the historical prices page of that soup object.  If
 			symbol does not exist, throws.  Caches result on symbol. 
 			
-			#TODO: add a unit test for this since an example would have to parse a soup object...
+			This is exercised via other units.
 			#a trophy use case just to exercise the contracts
 			
 			>>> factory = Yahoo.SoupFactory()
 			>>> priceSoup = factory.buildPriceSoup("IRBT")
+			
+			>>> priceSoup = factory.buildPriceSoup("FART")
+			Traceback (most recent call last):
+				...
+			SymbolNotFound: Could not find symbol : \"FART\"
+			
 			
 			pre:
 				isString(symbol)
@@ -121,13 +122,7 @@ class Yahoo(Website.Website):
 			"""
 			if not self.hasBasicSoup(symbol):
 				raise SymbolNotFound(symbol)
-			
-			#TODO: i could use the default 'get' syntax with the cache dictionary for
-			#this.  should also make the two cache dictionary's in yahoo have consistant
-			#names.
-			
-#			if symbol not in self._priceSoupCache:
-#				self._priceSoupCache[symbol] = self._buildPriceSoup(symbol)
+		
 			return self._priceSoupCache[symbol]
 		
 		def _buildPriceSoup(self, symbol):
@@ -188,6 +183,14 @@ class Yahoo(Website.Website):
 					return self._buildYahooURL(link['href'])
 					
 		def _buildYahooURL(self, relativeURL):
+			""" Builds the URL to get from http://yahoo... 
+			
+			pre:
+				isinstance(relativeURL, basestring)
+			post[]:
+				isinstance(__return__, basestring)
+			
+			"""
 			return "".join([self._yahooRoot,relativeURL])
 		
 		def _buildBasicURL(self, symbol):
@@ -199,12 +202,16 @@ class Yahoo(Website.Website):
 				isString(__return__)
 			"""
 			return self._buildYahooURL("/q?s=%s" % symbol) 
-#			return "http://finance.yahoo.com/q?s=%s" % symbol
 			
 		def buildBasicSoup(self, symbol):
 			""" Finds the root yahoo page for this symbol.  Can be used to see if symbol exists.
 			The webpage looked up will be found no matter what, but analysis of whats in the soup 
 			is done by other functions like hasBasicSoup.  Cache's basic soup pages.
+			
+			Trophy to exercise contracts:
+			
+			>>> scraper = Yahoo.SoupFactory()
+			>>> basicSoup = scraper.buildBasicSoup("IRBT")
 			
 			pre:
 				isString(symbol)
@@ -215,8 +222,7 @@ class Yahoo(Website.Website):
 				self._basicSoupCache[symbol] == __return__
 				(len(self._basicSoupCache.keys()) - len(__old__.self._basicSoupCache.keys()) == 1) if (symbol not in __old__.self._basicSoupCache.keys()) else True
 			 """
-#			if symbol not in self._basicSoupCache:
-#				self._basicSoupCache[symbol] = self._buildBasicSoup(symbol)
+
 			return self._basicSoupCache[symbol]
 		
 		def _buildBasicSoup(self, symbol):
@@ -287,6 +293,7 @@ class Yahoo(Website.Website):
 			
 			pre:
 				isinstance(factory,Yahoo.SoupFactory) 
+				isinstance(symbol,basestring)
 			"""
 			self.invSet = False
 			self._factory = factory
@@ -333,6 +340,10 @@ class Yahoo(Website.Website):
 				splitEntry = entry.split(",")
 				date = dateFromString(splitEntry[0])
 				(open,high,low,close,volume,adjclose) = [float(x) for x in splitEntry[1:]]
+				if date in toReturn:
+					continue
+				#the above is put in right now so that duplicate dates, which might occur
+				#due to bugs before 1969, are for now, ignored.
 				toReturn[date] = Yahoo.TradingDay(date, open, high, low, close, volume, adjclose)
 			
 			return toReturn
@@ -353,15 +364,11 @@ class Yahoo(Website.Website):
 				all(isinstance(x,Yahoo.TradingDay) for x in __return__)
 			"""
 			
-			if (index.start < self.dateList[0] or index.end > self.dateList[-1] or
-				index.start > index.end):
+			if (index.start < self.dateList[0] or index.stop > self.dateList[-1] or
+				index.start > index.stop):
 				raise Exception("Invalid slicing in TradingDayCollection")
 			 
-			#TODO: add support for fuzzy dates - i.e., i get passed in a date that is not
-			#in the list, but is near a date in the list.
-			start = self.dateList.index(index.start)
-			stop = self.dateList.index(index.stop)
-			return [self.tradingDayDict[x] for x in self.dateList[start:stop]]
+			return [self.tradingDayDict[x] for x in self.getDates(index.start,index.stop)]
 			
 		
 		def _getitem_date_(self,index):
@@ -419,19 +426,27 @@ class Yahoo(Website.Website):
 			"""
 			return (aDate in self.dateList)
 			
-		def getDates(self, dateFrom, dateTo):
-			""" Returns the trading days available between dateFrom and dateTo 
+		def getDates(self, dateFrom=None, dateTo=None):
+			""" Returns the trading dates available between dateFrom and dateTo.  If either is left out, assumed to be the very
+			begining or very end
 			
 			pre:
-				isinstance(dateFrom,datetime.date)
-				isinstance(dateTo,datetime.date)
+				isinstance(dateFrom,datetime.date) if dateFrom else True
+				isinstance(dateTo,datetime.date) if dateTo else True
 			post[]:
-				isinstance(__return__,dict)
-				all(isinstance(x,datetime.date) for x in __return__.keys())
-				all(isinstance(x,Yahoo.TradingDay) for x in __return__.values())
+				isinstance(__return__,list)
+				all(isinstance(x,datetime.date) for x in __return__)
+				__return__ == sorted(__return__)
+				#inclusive of the begining and exclusive of the end
+				dateTo not in __return__ 
 			"""
-			dates = [date for date in self.dateList if (date >= dateFrom) and (date <= dateTo)]			
-			return dict([(date,self.tradingDayDict[date]) for date in dates])
+			if not dateFrom:
+				dateFrom = self.getBeginingDate()
+			if not dateTo:
+				dateTo = self.getEndingDate()
+			
+			toReturn =  [date for date in self.dateList if (date >= dateFrom) and (date <= dateTo)]
+			return toReturn[:-1] if dateTo in toReturn else toReturn #strip off the last date exclusively if it's in the list			
 			
 		def getBeginingDate(self):
 			""" Returns the first date this collection supports 
@@ -555,6 +570,20 @@ class Yahoo(Website.Website):
 				isinstance(__return__,float)
 			"""
 			return self.adjclose
+		
+		def isValid(self):
+			""" Helper that just does the invariance checks."""
+			return all([self.open <= self.high, 
+						self.close <= self.high, 
+						self.open >= self.low,
+						self.close >= self.close,
+						self.low <= self.high,
+						self.open >= 0.0,
+						self.close >= 0.0,
+						self.high >= 0.0,
+						self.low >= 0.0,
+						self.volume >= 0.0,
+						self.adjclose >= 0.0])
 	
 	def _priceWrapper(self, method, symbol, dateTo=None, dateFrom=None, zipDate=False):
 		""" Wraps the delegated interface TradingDay.  Symbol is used as a dict
@@ -614,6 +643,9 @@ class Yahoo(Website.Website):
 		>>> scraper = Yahoo()
 		>>> scraper.hasPrice("IRBT")
 		True
+		
+		>>> scraper.hasPrice("CHEESE")
+		False
 	
 		pre:
 			isString(symbol)
@@ -623,17 +655,30 @@ class Yahoo(Website.Website):
 		"""
 		return self._soupFactory.hasPriceSoup(symbol) 
 	
-	def getDates(self, symbol, dateFrom, dateTo):
+	def getDates(self, symbol, dateFrom=None, dateTo=None):
 		""" Gets all trading days available for this symbol from dateFrom to dateTo.  Throws 
-		if symbol is bad.
+		if symbol is bad.  
 		
 		>>> scraper = Yahoo()
 		>>> scraper.getDates("IRBT", datetime.date(2007,1,5), datetime.date(2007,1,10))
 		[datetime.date(2007, 1, 5), datetime.date(2007, 1, 8), datetime.date(2007, 1, 9)]
+		
+		>>> scraper.getDates("IRBT", datetime.date(2007,1,6), datetime.date(2007,1,7))
+		[]
+		
+		In the future, this might give dates backwards, but for now, at least it shouldn't fail.
+		
+		>>> scraper.getDates("IRBT", datetime.date(2007,1,10), datetime.date(2007,1,5))
+		[]
+		
+		If either date is not provided, assumed to be the very begining or very end.
+		
+		>> len(scraper.getDates("IRBT")) >= 100
+		True
 	
 		pre:
-			isinstance(dateFrom, datetime.date)
-			isinstance(dateTo, datetime.date)
+			isinstance(dateFrom, datetime.date) if dateFrom else True
+			isinstance(dateTo, datetime.date) if dateFrom else True
 			isString(symbol)
 		post[self._tradingDateCollectionCache]:
 			isinstance(__return__,list)
@@ -642,11 +687,7 @@ class Yahoo(Website.Website):
 			checkCache(self._tradingDateCollectionCache,__old__.self._tradingDateCollectionCache,symbol)
 		"""
 		
-#		if symbol not in self._tradingDateCollectionCache:
-#			self._tradingDateCollectionCache[symbol] = Yahoo.TradingDayCollection(self._soupFactory,symbol)
-		
-		return sorted(self._tradingDateCollectionCache[symbol].getDates(dateFrom,dateTo).keys())[:-1] #-1 at the end because normal slices just give you the begining incluse and ending exclusive
-	#TODO: getDates in Yahoo behaves differently from getDates in TradingDateCollection, is this what I want?
+		return self._tradingDateCollectionCache[symbol].getDates(dateFrom,dateTo) #-1 at the end because normal slices just give you the begining incluse and ending exclusive
 	
 	def hasDate(self, symbol, date=None):
 		""" Predicate whether or not price information for the given symbol is available for
@@ -680,3 +721,4 @@ class Yahoo(Website.Website):
 			date = datetime.date.today()
 			
 		return self._tradingDateCollectionCache[symbol].hasDate(date)
+delegateInterface(Yahoo,Yahoo.TradingDay,Yahoo._priceWrapper)

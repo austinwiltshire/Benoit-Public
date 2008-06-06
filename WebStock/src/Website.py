@@ -281,49 +281,7 @@ class Bloomberg(object):
 	""" A Bloomberg is a stock information service provider.  It can host any number of "
 	" services depending on what is available, such as price, volume, etc. information for "
 	" any stock and any date """
-	def _delegateInterface(self, interface, wrapper):
-		""" Helper private function that implements my own little delegated interface idiom.
-		Pushes the interface's methods on to this object, and sets all of the calls equal to 
-		'wrapper' which gets passed in the method name and arguments.
-		
-		pre:
-			#typechecking
-			isinstance(dir(interface), list)
-			all(isinstance(x, str) for x in dir(interface))
-			callable(wrapper)
-			
-			#make sure i don't already have the attribute
-			all(not hasattr(self,x) for x in publicInterface(interface))
-			
-		post[self]:
-			#ensure that i've added the attributes
-			all(hasattr(self,x) for x in publicInterface(interface))
-			all(callable(getattr(self,x)) for x in publicInterface(interface))
-			
-			#has documentation string
-			all(hasattr(getattr(self,x),'__doc__') for x in publicInterface(interface))
-		
-		"""
-	   	for method in publicInterface(interface): 
-	   	   	setattr(self,method, self._functionWrapper(wrapper,method))
-	   	   	getattr(self,method).__doc__ = " This method is delegated to %s, check documentation there. " % interface
-	
-	def _functionWrapper(self, func, methodName):
-		""" I can't use a lambda for this because lambda's don't bind to their arguments until they
-		are called.  Meaning if i call lambda x: y(x), it call's whatever y is THEN, and if y has
-		changed via a reference or something, then the lambda has completely changed! 
-		
-		pre:
-			isinstance(methodName, str) or isinstance(methodName, unicode)
-			callable(func)
-			
-		post[]:
-			callable(__return__)
-		
-		"""
-		def _(*args, **kwargs):
-			return func(methodName, *args, **kwargs)
-		return _
+	pass
 
 class Website(Bloomberg):
 	""" Website is a Bloomberg that gets its information from a particular website. """
