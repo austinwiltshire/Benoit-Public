@@ -487,7 +487,7 @@ class Google(Website):
 			
 		"""
 		
-		otherKW = FinancialXML.xml_to_dict("google.xml")
+		otherKW = FinancialXML.xml_to_dict()
 		regexs = otherKW['regular_expressions']
 		divs = otherKW['divisions']
 		sec_docs = otherKW['sec_definition']
@@ -631,7 +631,7 @@ class Google(Website):
 					regEx in self.regexs.values()
 					
 					#ensure that the methods and variables I'm about to define are not already
-					#defined
+#					#defined
 					not callable(getattr(self,"getAnnual%s" % name)) or getattr(self,"getAnnual%s" % name) == self._badHack
 					not callable(getattr(self,"getQuarterly%s" % name)) or getattr(self,"getQuarterly%s" % name) == self._badHack
 					
