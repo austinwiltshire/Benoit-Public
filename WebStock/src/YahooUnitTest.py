@@ -21,6 +21,14 @@ class YahooTestCase(unittest.TestCase):
 	def tearDown(self):	
 		pass
 	
+	def testSymbolResolution(self):
+		""" Test that weird symbols get resolved properly """
+		scraper = Yahoo.Yahoo()
+		
+		self.assertEqual(scraper.getHigh("OTC:NTDOY", datetime.date(2008,6,4)), 69.35) #test google style exchange info
+		self.assertEqual(scraper.getLow("BRK.A", datetime.date(1990, 1, 12)), 8175.0) #test ambiguous, google style extension
+		
+	
 	def testRandom(self):
 		""" Randomly sample different stocks and attributes """
 		scraper = Yahoo.Yahoo()

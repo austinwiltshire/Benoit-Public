@@ -19,6 +19,16 @@ class WebsiteTestCase(unittest.TestCase):
         del self.google
         self.google = None
         
+class GoogleTestCase(WebsiteTestCase):
+	def testSymbolResolution(self):
+		""" Ensure that the symbol resolution is working properly """
+		
+		competitors = self.google.getCompetitors("NTDOY.PK")
+		self.assertTrue("SNE" in competitors)
+		self.assertTrue("KNM" in competitors)
+		self.assertTrue("NTDOF" in competitors) #test google style exchange info
+		self.assertEqual(self.google.getQuarterlyTotalRevenue("BRK-A", date(2008, 3, 31)), 25175.0) #test ambiguous, google style extension
+        
 class SoupFactoryTestCase(unittest.TestCase):
     def setUp(self):
         self.factory = Website.Google.SoupFactory()
@@ -44,7 +54,7 @@ class SoupFactoryTestCase(unittest.TestCase):
     	""" Test that I can build and see stuff from a MetaSoup """
     	metasoup = self.meta(self.factory.buildMetaSoup("XRAY"), self.factory)
     	competitors = set(metasoup.getCompetitors())
-    	self.assertEqual(competitors, set([u"YDNT",u"ALGN",u"BLTI",u"MLSS",u"PDEX",u"NADX",u"SIRO",u"BSML",u"IART",u"MMM"]))
+    	self.assertEqual(competitors, set([u"YDNT",u"ALGN",u"BLTI",u"MLSS",u"PDEX",u"NADX",u"SIRO",u"BSML",u"IART",u"CMN"]))
     	self.assertEqual(metasoup.getSector(), u"Healthcare")
     	self.assertEqual(metasoup.getProperName(), u"DENTSPLY International Inc.")
     	
@@ -186,25 +196,25 @@ class WebsiteTestCase_WebpageFormat(WebsiteTestCase):
 		""" Test results that have mixed bold and span tags in them """
 		self.assertEqual(self.google.getQuarterlyOperatingIncome('S'), {date(2007,12,31):-29625.0,\
                                                      date(2007,9,30):398.0,\
-                                                     date(2007,6,30):317.0,\
+                                                     date(2007,6,30):316.0,\
                                                      date(2007,3,31):1.0,\
-                                                     date(2006,12,31):569.0})
+                                                     date(2008,3,31):-498.0})
 	
 	def testMixedSpanned(self):
 		""" Test results that have mixed span tags in them """
 		self.assertEqual(self.google.getQuarterlyOtherNet('S'), {date(2007,12,31):234.0,\
                                                      date(2007,9,30):0.0,\
-                                                     date(2007,6,30):13.0,\
-                                                     date(2007,3,31):-4.0,\
-                                                     date(2006,12,31):142.0})
+                                                     date(2007,6,30):43.0,\
+                                                     date(2007,3,31):27.0,\
+                                                     date(2008,3,31):22.0})
 		
 	def testAllSpannedBolded(self):
 		""" Tests results that are all spanned and bolded """
 		self.assertEqual(self.google.getQuarterlyIncomeAfterTax('S'), {date(2007,12,31):-29452.00,\
                                                      date(2007,9,30):64.0,\
-                                                     date(2007,6,30):-192.0,\
+                                                     date(2007,6,30):19.0,\
                                                      date(2007,3,31):-211.0,\
-                                                     date(2006,12,31):261.0})
+                                                     date(2008,3,31):-505.00})
  
 	def testBoldedKeyword(self):
 		""" Tests results that rely on a bolded keyword """

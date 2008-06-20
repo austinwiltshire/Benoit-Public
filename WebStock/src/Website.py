@@ -38,18 +38,18 @@ True
 
 Only difference between annual and quarterly data is in the name:
 
->>> scraper.getQuarterlyOtherRevenue("BP") == {date(2007,12,31):3938.0,\
+>>> scraper.getQuarterlyOtherRevenue("BP") == {date(2007,12,31):2862.0,\
 											   date(2007,6,30):1610.0,\
 											   date(2007,3,31):1076.0,\
 											   date(2006,12,31):602.0,\
-											   date(2006,9,30):2584.0}
+											   date(2008,3,31):1428.0}
 True
 
 >>> scraper.getQuarterlyShortTermInvestments("MSFT") == {date(2007,12,31):13616.0,\
 														 date(2007,9,30):14937.0,\
 														 date(2007,6,30):17300.0,\
 														 date(2007,3,31):20625.0,\
-														 date(2006,12,31):22014.0}
+														 date(2008,3,31):14521.0}
 True
 
 >>> scraper.getQuarterlyDeferredTaxes("YHOO") == {date(2008,3,31):29.64,\
@@ -67,8 +67,9 @@ import urllib2
 import re
 import datetime
 import FinancialXML
+import SymbolLookup
 
-from utilities import publicInterface, isString, isRegex
+from utilities import publicInterface, isString, isRegex, checkCache, delegateInterface
 
 class SymbolNotFound(Exception):
 	""" Raised when a symbol is not found or information for it cannot be found "
@@ -76,14 +77,14 @@ class SymbolNotFound(Exception):
 	inv:
 		#typechecking
 		self.symbol != None
-		isinstance(self.symbol,str)
+		isinstance(self.symbol,basestring)
 	"""
 	def __init__(self, symbol, *args, **kwargs):
 		"""
 		
 		pre:
 			#typechecking
-			isinstance(symbol,str)
+			isinstance(symbol,basestring)
 		
 		post:
 			#typechecking
@@ -110,7 +111,7 @@ class SymbolHasNoFinancials(Exception):
 	inv:
 		#typechecking
 		self.symbol != None
-		isinstance(self.symbol,str) or isinstance(self.symbol,unicode)
+		isinstance(self.symbol,basestring)
 	
 	"""
 	
@@ -145,7 +146,7 @@ class DateNotFound(Exception):
 	inv:
 		#typechecking
 		self.symbol != None
-		isinstance(self.symbol,str)
+		isinstance(self.symbol,basestring)
 		self.date != None
 		isinstance(self.date,datetime.date)
 	"""
@@ -155,7 +156,7 @@ class DateNotFound(Exception):
 		
 		pre:
 			#typechecking
-			isinstance(symbol,str)
+			isinstance(symbol,basestring)
 			isinstance(date,datetime.date)
 			
 		post:
@@ -287,6 +288,15 @@ class Website(Bloomberg):
 	""" Website is a Bloomberg that gets its information from a particular website. """
 	pass
 
+
+
+
+#i'm going to try a metaclass approach. ultimately, a combination of gnosis.magic MetaXMLPickler (and maybe my own DTD) 
+# plus meta classes might be able to build Google, Yahoo and any other information I need just with a general description of
+# a) what page it's on(or how to get to that page), b) what to search for, and c) what to call it and what type it is (c can also be
+#used for my database.
+#but for now, just doing something lightweight to add in Google's SECData so I can see it at class building time.
+		
 class Google(Website):
 	""" Google is the main class in this module, and supports a Bloomberg like use.
 	Currently supports the retrieval of most SEC document information for the past 
@@ -320,9 +330,9 @@ class Google(Website):
 
 	>>> scraper.getQuarterlyTotalRevenue('S') == {date(2007,12,31):9847.0,\
 												  date(2007,9,30):10044.0,\
-													date(2007,6,30):20255.0,\
-												  date(2007,3,31):10091.0,\
-												  date(2006,12,31):10438.0}
+													date(2007,6,30):10163.0,\
+												  date(2007,3,31):10092.0,\
+												  date(2008,3,31):9334.0}
 	True
 	
 	When information is unavailable to Google itself, a character dash is reported:
@@ -331,7 +341,7 @@ class Google(Website):
 												  date(2007,9,30):'-',\
 												  date(2007,6,30):'-',\
 												  date(2007,3,31):'-',\
-												  date(2006,12,31):'-'}
+												  date(2008,3,31):'-'}
 	True
 
 	These can sometimes be mixed:
@@ -340,7 +350,7 @@ class Google(Website):
 														 date(2007,9,30):'-',\
 														 date(2007,6,30):0.00,\
 														 date(2007,3,31):0.00,\
-														 date(2006,12,31):'-'}
+														 date(2008,3,31):0.00}
 	True
 	
 	A dash does not necesarilly mean zero, though.  Simply a lack of data.
@@ -350,7 +360,7 @@ class Google(Website):
 														   date(2007,9,29):0.0,\
 														   date(2007,6,30):0.0,\
 														   date(2007,3,31):0.0,\
-														   date(2006,12,30):0.0}
+														   date(2008,3,29):0.0}
 	True
 	
 	The data is accurate down to the hundredth, or at least as accurate as the 
@@ -358,9 +368,9 @@ class Google(Website):
 	
 	>>> scraper.getQuarterlyDilutedNormalizedEPS('S') == {date(2007,12,31):-3.55,\
 														   date(2007,9,30):0.05,\
-														   date(2007,6,30):-0.01,\
+														   date(2007,6,30):0.03,\
 														   date(2007,3,31):-0.03,\
-														   date(2006,12,31):0.11}
+														   date(2008,3,31):-0.12}
 	True
 	
 	When searching for a stock that has no SEC data, an exception is raised:
@@ -420,8 +430,8 @@ class Google(Website):
 	inv:
 		isinstance(self._SECCache,dict)
 		isinstance(self._metaCache,dict)
-		all(isinstance(x,str) for x in self._SECCache.keys())
-		all(isinstance(x,str) for x in self._metaCache.keys())
+		all(isinstance(x,basestring) for x in self._SECCache.keys())
+		all(isinstance(x,basestring) for x in self._metaCache.keys())
 		all(isinstance(x,Google.SECData) for x in self._SECCache.values())
 		all(isinstance(x,Google.Metadata) for x in self._metaCache.values())
 	""" 
@@ -475,7 +485,7 @@ class Google(Website):
 			isinstance(self.annualDates,list)
 			isinstance(self.datesCache, dict)
 			
-			hasattr(self,"labels") if not self.isPrototype else True
+			hasattr(self,"labels")
 			self.labels.has_key("BalanceSheet") if hasattr(self,"labels") else True 
 			self.labels.has_key("IncomeStatement") if hasattr(self,"labels") else True
 			self.labels.has_key("CashFlowStatement") if hasattr(self,"labels") else True
@@ -501,11 +511,8 @@ class Google(Website):
 		numberRe = re.compile(r"-?[\d{3,3},]*\d{0,3}\.\d+|-")
 		dateRe = re.compile(r"((\d+ (months|weeks) Ending )|(As of ))(?P<year>\d{4,4})-(?P<month>\d{2,2})-(?P<day>\d{2,2})")	
 		
-	
-		
-		def __init__(self, soup=None):
-			""" General constructor.  soup is an optional keyword, and if it is left out, 
-			we simply return a prototype to get access to SECData's interface.
+		def __init__(self, soup):
+			""" General constructor.  Needs a soup to parse.
 			
 			pre:
 				#type check
@@ -515,9 +522,8 @@ class Google(Website):
 				#do a check to make sure I've added my attributes correctly
 				#but only in the case that this isn't a prototype
 				
-				hasattr(self,"getAnnualRevenue") if soup else True
-				callable(self.getAnnualRevenue) if (hasattr(self,"getAnnualRevenue") and not self.isPrototype) else True
-				not hasattr(self,"labels") if self.isPrototype else True
+				hasattr(self,"getAnnualRevenue")
+				callable(self.getAnnualRevenue)
 				
 			
 			"""
@@ -528,16 +534,6 @@ class Google(Website):
 			self.datesCache = {}
 			#assumes that across balance sheet, cash flows, etc... same dates are used.
 			
-			self.isPrototype = True
-			
-			for name,_ in self.regexs.items():
-				self._declareAttribute(name)
-			
-			if not soup:
-				self.isPrototype = True
-				return #used to get a prototype
-	
-			self.isPrototype = False
 			#TODO: move prototype functionality out into a class method - the class itself should have these methods declared, not just
 			#the objects!
 			
@@ -553,46 +549,10 @@ class Google(Website):
 			for name,searchRe in self.regexs.items():
 				self._addAttribute(name,searchRe)
 				
-		def _declareAttribute(self, name):
-			""" Helper private function to build up this objects interface.  Loads 
-			what properties this Bloomberg can view from an XML file, who's names are
-			then sent in here.
 			
-			pre:
-				#typechecking
-				isinstance(name,BeautifulSoup.NavigableString) or isinstance(name,str) or isinstance(str,unicode)
-				
-				#make sure the name i'm declaring is NOT already declared
-				not hasattr(self,"getAnnual"+name)
-				not hasattr(self,"getQuarterly"+name)
-				
-			post[self,name]:
-			
-				#make sure class has been mutated
-				hasattr(self,"getAnnual"+name)
-				hasattr(self,"getQuarterly"+name)
-			
-			"""
-	
-			annualMethodName = "getAnnual%s" % name
-			quarterlyMethodName = "getQuarterly%s" % name
-			
-			self.__setattr__(annualMethodName, self._badHack)
-			self.__setattr__(quarterlyMethodName, self._badHack)
-			
-		def _badHack(self):
-			""" This is baaad.  Used to fake 'callable' on the prototype's interface.  """
-			pass
-				
 		def _getSECDoc(self, name):
 			""" Returns the name of the SEC document that any particular financial keyword
 			is found in.  Generally only used as a private, helper function.
-			
-			Example: #For testing purposes only
-			
-			>>> example = Google.SECData()
-			>>> example._getSECDoc("Revenue")
-			'IncomeStatement'
 			
 			pre:
 				#typecheck
@@ -624,16 +584,16 @@ class Google(Website):
 				
 				pre:
 					#TYPECHECK
-					isinstance(name,str) or isinstance(name,unicode)
-					isinstance(regEx,str) or isinstance(regEx,unicode)
+					isinstance(name,basestring)
+					isinstance(regEx,basestring)
 				
 					#ensure I'm only getting class defined regex's
 					regEx in self.regexs.values()
 					
 					#ensure that the methods and variables I'm about to define are not already
 #					#defined
-					not callable(getattr(self,"getAnnual%s" % name)) or getattr(self,"getAnnual%s" % name) == self._badHack
-					not callable(getattr(self,"getQuarterly%s" % name)) or getattr(self,"getQuarterly%s" % name) == self._badHack
+#					getattr(self,"getAnnual%s" % name)(None) == 0 if callable(getattr(self,"getAnnual%s" % name)) else True
+#					getattr(self,"getQuarterly%s" % name)(None) == 0 if callable(getattr(self,"getAnnual%s" % name)) else True
 					
 					#ensure that the variable names are not declared
 					not hasattr(self,"annual%s" % name)
@@ -820,7 +780,7 @@ class Google(Website):
 			return dates
 
 	
-	class Metadata:
+	class Metadata(object):
 		"""
 		
 		inv:
@@ -1082,9 +1042,17 @@ class Google(Website):
 			For example:
 			>>> scraper = Google()
 			>>> x = scraper.getCompetitors("MSFT")
-			>>> x.sort()
-			>>> print x
-			[u'AAPL', u'ADBE', u'GOOG', u'HPQ', u'IBM', u'JAVA', u'NOVL', u'ORCL', u'QUIK', u'YHOO']
+			>>> 'AAPL' in x
+			True
+			
+			>>> 'GOOG' in x
+			True
+			
+			>>> 'IBM' in x
+			True
+			
+			>>> 'YHOO' in x
+			True
 	
 			pre:
 				self.factory.hasMeta(self.getSymbol())
@@ -1327,7 +1295,7 @@ class Google(Website):
 			else:
 				return False
 
-	class SoupFactory:
+	class SoupFactory(object):
 		""" A helper class that builds Beautiful Soup objects and handles page look ups for the more specialized 
 		soup parser objects inside Google.
 		
@@ -1709,9 +1677,15 @@ class Google(Website):
 			
 		post[self._metaCache, symbol]:
 			#check that symbol has been cached.
-			symbol in self._metaCache if not symbol in __old__.self._metaCache else self._metaCache[symbol] == __old__.self._metaCache[symbol]
-			
+			#symbol in self._metaCache if not symbol in __old__.self._metaCache else self._metaCache[symbol] == __old__.self._metaCache[symbol]
+			checkCache(self._metaCache, __old__.self._metaCache, self.resolver.getGoogle(__old__.symbol))
+			#TODO: !!!!
 		"""
+		symbol = self.resolver.getGoogle(symbol) # resolve the symbol for google
+		#TODO: i'd like to refactor these ^^^ calls out but i can't think of a way off the top of my head.  
+		# It's kind of like a pipes architectural pattern where symbol needs to flow through something
+		# perhaps if i understand decorators + redo the interface inheritnace model in this framework something will occur.
+		
 		if not self._metaCache.has_key(symbol):
 			self._metaCache[symbol] = self.Metadata(self.factory.buildMetaSoup(symbol), self.factory)
 		return getattr(self._metaCache[symbol],method)()
@@ -1727,13 +1701,16 @@ class Google(Website):
 			isinstance(symbol, str) or isinstance(symbol, unicode)
 			isinstance(method, str) or isinstance(method, unicode)
 		
-		post[self._SECCache]:
+		post[self._SECCache, symbol]:
 			#typechecking
 			isinstance(__return__,dict) or isinstance(__return__, float)
 			all(isinstance(x, datetime.date) for x in __return__.keys()) if isinstance(__return__,dict) else True
 			all(isinstance(x, float) or isinstance(x,str) or isinstance(x,unicode) for x in __return__.values()) if isinstance(__return__,dict) else True
-			symbol in self._SECCache if not symbol in __old__.self._SECCache else self._SECCache[symbol] == __old__.self._SECCache[symbol]
+			checkCache(self._SECCache, __old__.self._SECCache, self.resolver.getGoogle(__old__.symbol))
+			#symbol in self._SECCache if not symbol in __old__.self._SECCache else self._SECCache[symbol] == __old__.self._SECCache[symbol]
 		"""
+		
+		symbol = self.resolver.getGoogle(symbol)
 		
 		if not self._SECCache.has_key(symbol):
 			self._SECCache[symbol] = self.SECData(self.factory.buildSECSoup(symbol))
@@ -1753,23 +1730,34 @@ class Google(Website):
 		
 		post[self]:
 			#check to make sure attributes are added
-			all([hasattr(self,x) for x in publicInterface(self.SECData())])
+			all([hasattr(self,x) for x in publicInterface(self.SECData)])
 			
 		"""
 
-		prototype = self.SECData()  # SECData's interface doesn't get fully set until it's built so I need an instantiated object
+#		prototype = self.SECData()  # SECData's interface doesn't get fully set until it's built so I need an instantiated object
 		self.factory = self.SoupFactory()
 		
 		#add SEC info
-	   	self._delegateInterface(prototype, self._SECWrapper) 
+#	   	self._delegateInterface(self.SECData, self._SECWrapper) 
 		self._SECCache = {}
 		
 		#add meta info
-		self._delegateInterface(self.Metadata, self._metaWrapper)
+#		self._delegateInterface(self.Metadata, self._metaWrapper)
 		self._metaCache = {}
 									
+		self.resolver = SymbolLookup.SymbolLookup()
 
+def addSECData(cls):
+	otherKW = FinancialXML.xml_to_dict()
+	methodsToAdd = otherKW['regular_expressions'].keys()
 		
+	for method in methodsToAdd:
+		setattr(cls,"getAnnual%s" % method,lambda:0)
+		setattr(cls,"getQuarterly%s" % method,lambda:0)
+		
+addSECData(Google.SECData)
+delegateInterface(Google,Google.SECData,Google._SECWrapper)
+delegateInterface(Google,Google.Metadata,Google._metaWrapper)
 
 		
 		#should I make predicates safe/throw and then have private implementations that

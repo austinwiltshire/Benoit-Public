@@ -2,7 +2,7 @@ import BeautifulSoup
 import re
 
 #import xml.etree.ElementTree as ETree
-import lxml
+import lxml.objectify
 
 #current new idea for a design - an xml manager as a singleton.  he will get queried for information.  he will then take
 #those queries and have already loaded an xml query mapping that will give him the file+definitions of how the answer is supposed
@@ -154,7 +154,7 @@ class XMLObject(object):
 			isinstance(getattr(self, newXMLObject.type), list)
 			newXMLObject.type == ((getattr(self,newXMLObject.type))[0]).type
 		"""
-		setattr(self, newXMLObject.type, newXMLObject])
+		setattr(self, newXMLObject.type, newXMLObject)
 		
 	def _appendChild(self, newXMLObject):
 		""" Called when I have a new child to add to a list of subelements that I already maintain. 
@@ -296,7 +296,7 @@ class XMLObject(object):
 
 def xml_to_dict():
 	#google divisions  
-	webpage = objectify.parse("google.xml").getroot()
+	webpage = lxml.objectify.parse("google.xml").getroot()
 	
 	
 	toReturn = {}
@@ -318,7 +318,7 @@ def xml_to_dict():
 	toReturn['regular_expressions'] = regex
 	
 	#sec_stuff
-	secDocumentDefinitions = objectify.parse("general.xml").getroot()
+	secDocumentDefinitions = lxml.objectify.parse("general.xml").getroot()
 	
 	sec_definition = {}
 	

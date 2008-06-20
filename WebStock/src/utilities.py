@@ -4,7 +4,25 @@ import copy
 
 
 def publicInterface(anObject):
-	return [x for x in dir(anObject) if  callable(getattr(anObject,x)) and x[0] != '_']
+	""" Returns all functions on this objects public interface that are not appended with a _.
+	
+	>>> class x:
+	...		def public(self):
+	...			pass
+	...		class innerClass:
+	...			pass
+	...		def _private(self):
+	...			pass
+	...		def __impl__(self):
+	...			pass
+	...
+	>>> publicInterface(x)
+	['public'] 
+
+	"""
+	
+	
+	return [x for x in dir(anObject) if  callable(getattr(anObject,x)) and x[0] != '_' and not isinstance(getattr(anObject,x),type)]
 
 def delegateInterface(cls, interface, wrapper):
 	""" Helper private function that implements my own little delegated interface idiom.

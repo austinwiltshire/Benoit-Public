@@ -5,6 +5,7 @@ from utilities import isString, dateFromString, publicInterface, Cache, checkCac
 import Website
 import re
 from Website import SymbolNotFound, DateNotFound
+import SymbolLookup
 
 class Yahoo(Website.Website):
 	""" Class represents a scraping framework for the yahoo website.  Currently provides price information. 
@@ -74,8 +75,9 @@ class Yahoo(Website.Website):
 	def __init__(self):
 		self._soupFactory = Yahoo.SoupFactory()
 		self._tradingDateCollectionCache = Cache(lambda key: Yahoo.TradingDayCollection(self._soupFactory,key))
+		self.resolver = SymbolLookup.SymbolLookup()
 		
-	class SoupFactory:
+	class SoupFactory(object):
 		""" Does the work of getting to the price website and building a soup object
 		
 		
@@ -269,7 +271,7 @@ class Yahoo(Website.Website):
 				raise Exception("I dont know whether this is a basic soup or not")
 			
 	
-	class TradingDayCollection:
+	class TradingDayCollection(object):
 		""" Downloads and parses price information from a soup object.
 		Price information closed on symbol/soup.
 		
@@ -465,7 +467,7 @@ class Yahoo(Website.Website):
 			"""
 			return self.dateList[-1]
 	
-	class TradingDay:
+	class TradingDay(object):
 		""" Price information closed on date 
 		
 		inv:
@@ -614,6 +616,9 @@ class Yahoo(Website.Website):
 #		if symbol not in self._tradingDateCollectionCache:
 #			self._tradingDateCollectionCache[symbol] = Yahoo.TradingDayCollection(self._soupFactory,symbol)
 		
+		#resolve to yahoo style symbols
+		symbol = self.resolver.getYahoo(symbol)
+		
 		#three cases:
 		#if no date is passed in, use today.
 		if not dateTo:
@@ -653,6 +658,10 @@ class Yahoo(Website.Website):
 			isinstance(__return__,bool)
 		 
 		"""
+		
+		#resolve to yahoo style symbols
+		symbol = self.resolver.getYahoo(symbol)
+		
 		return self._soupFactory.hasPriceSoup(symbol) 
 	
 	def getDates(self, symbol, dateFrom=None, dateTo=None):
@@ -687,6 +696,9 @@ class Yahoo(Website.Website):
 			checkCache(self._tradingDateCollectionCache,__old__.self._tradingDateCollectionCache,symbol)
 		"""
 		
+		#resolve to yahoo style symbols
+		symbol = self.resolver.getYahoo(symbol)
+		
 		return self._tradingDateCollectionCache[symbol].getDates(dateFrom,dateTo) #-1 at the end because normal slices just give you the begining incluse and ending exclusive
 	
 	def hasDate(self, symbol, date=None):
@@ -716,6 +728,9 @@ class Yahoo(Website.Website):
 		
 #		if symbol not in self._tradingDateCollectionCache:
 #			self._tradingDateCollectionCache[symbol] = Yahoo.TradingDayCollection(self._soupFactory,symbol)
+		
+		#resolve to yahoo style symbols
+		symbol = self.resolver.getYahoo(symbol)
 		
 		if not date:
 			date = datetime.date.today()
