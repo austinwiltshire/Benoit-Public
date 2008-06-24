@@ -6,7 +6,7 @@ A bloomberg that unifies any number of other bloombergs behind a single interfac
 >>> ub.getHigh("IRBT", datetime.date(2007,4,2)) == 13.37
 True
 
->>> round(ub.getQuarterlyGoodwill("IBM", date(2007,9,30)))
+>>> round(ub.getQuarterlyGoodwill("IBM", datetime.date(2007,9,30)))
 13843.0
 
 Can take in either instantiations of other bloombergs or classes, or a combination thereof.
@@ -25,7 +25,7 @@ Will raise an error if you try and add two bloombergs with the same methods.
 >>> ub = UnifiedBloomberg(Yahoo.Yahoo,Yahoo.Yahoo)
 Traceback (most recent call last):
 	...
-DuplicateMethod "getHigh", bailing out.
+DuplicateBloomberg: Duplicated Bloomberg: "<class 'Yahoo.Yahoo'>", bailing out.
 
 Also can simply be a wrapper around a single Bloomberg
 
@@ -37,6 +37,7 @@ True
 
 import datetime
 import Website
+import Yahoo
 from utilities import publicInterface 
 
 class DuplicateMethod(Exception):
@@ -44,7 +45,7 @@ class DuplicateMethod(Exception):
 	
 	inv:
 		#typechecking
-		self.symbol != None
+		self.method != None
 		isinstance(self.method,basestring)
 	"""
 	def __init__(self, method, *args, **kwargs):
@@ -52,7 +53,7 @@ class DuplicateMethod(Exception):
 		
 		pre:
 			#typechecking
-			isinstance(symbol,basestring)
+			isinstance(method,basestring)
 		"""
 		
 		self.method = method
@@ -63,21 +64,47 @@ class DuplicateMethod(Exception):
 		if hasattr(self,"message"):
 			toReturn = "\n".join([toReturn, self.message])
 		return toReturn
+	
+class DuplicateBloomberg(Exception):
+	""" Raised when a symbol is not found or information for it cannot be found "
+	
+	inv:
+		#typechecking
+		self.bloomberg != None
+		isinstance(self.bloomberg,basestring)
+	"""
+	def __init__(self, bloomberg, *args, **kwargs):
+		"""
+		
+		pre:
+			#typechecking
+			isinstance(bloomberg,basestring)
+		"""
+		
+		self.bloomberg = bloomberg
+		super(DuplicateBloomberg,self).__init__(*args, **kwargs)
+		
+	def __str__(self):
+		toReturn = "Duplicated Bloomberg: \"%s\", bailing out." % self.bloomberg
+#		if hasattr(self,"message"):
+#			toReturn = "\n".join([toReturn, self.message])
+		return toReturn
+	
 
 class UnifiedBloomberg(Website.Bloomberg):
 	""" Unifies the interface to a variable number of other bloombergs 
 	
-	>>> ub = UnifiedBloomberg(Yahoo.Yahoo(),Google.Google)
-	>>> ub.getClose("IRBT", datetime.date(2007,5,2)) == 12.00
+	>>> ub = UnifiedBloomberg(Yahoo.Yahoo(),Website.Google)
+	>>> ub.getClose("IRBT", datetime.date(2007,5,2)) == 15.5
 	True
 	
-	>>> ub.getAnnualDefferedTaxes("S", datetime.date(2007,12,31)) == 1000.00
+	>>> ub.getAnnualDeferredTaxes("S", datetime.date(2007,12,31)) == -360.00
 	True
 	
 	Can take either already instantiated bloombergs or bloomberg classes
 	
-	>>> ub = UnifiedBloomberg(Yahoo.Yahoo, Google.Google())
-	>>> ub.getAdjustedClose("DD", datetime.date(2005,1,20)) == 12.00
+	>>> ub = UnifiedBloomberg(Yahoo.Yahoo, Website.Google())
+	>>> ub.getAdjustedClose("DD", datetime.date(2005,1,20)) == 42.1
 	True
 	
 	Will raise an error if you try and add two bloombergs with the same methods.
@@ -85,11 +112,11 @@ class UnifiedBloomberg(Website.Bloomberg):
 	>>> ub = UnifiedBloomberg(Yahoo.Yahoo,Yahoo.Yahoo)
 	Traceback (most recent call last):
 		...
-	Duplicated Method: "getHigh", bailing out.
+	DuplicateBloomberg: Duplicated Bloomberg: "<class 'Yahoo.Yahoo'>", bailing out.
 	
 	inv:
 		isinstance(self._delegates, dict)
-		all(isinstance(val, key) for key,val in self._delegates.items())
+		all(isinstance(val, Website.Bloomberg) for val in self._delegates.values())
 	
 	"""
 	
@@ -97,7 +124,7 @@ class UnifiedBloomberg(Website.Bloomberg):
 		""" Expect to get an array of bloombergs to unify 
 		
 		pre:
-			all(isinstance(x, Bloomberg) or (isinstance(x, type) and isinstance(x(), Bloomberg)) for x in args)
+			all(isinstance(x, Website.Bloomberg) or issubclass(x, Website.Bloomberg) for x in args)
 		post[args]:
 			isinstance(self._delegates, dict)
 			all(x in self._delegates for x in args)
@@ -113,14 +140,16 @@ class UnifiedBloomberg(Website.Bloomberg):
 		to an instantiation of this bloomberg 
 		
 		pre:
-			isinstance(bloomberg, Bloomberg) or (isinstance(bloomberg, type) and isinstance(bloomberg(), Bloomberg))
-			bloomberg not in self._delegates.keys()
+			isinstance(bloomberg, Website.Bloomberg) or issubclass(bloomberg, Website.Bloomberg)
+			#bloomberg not in self._delegates.keys()
+			#this has to be taken out to exercise the duplicate method exception
 		post[]:
 			all(hasattr(self, method) for method in publicInterface(bloomberg))
-			all(callable(getattr(self,method)) for method in publicInterfacE(bloomberg))
+			all(callable(getattr(self,method)) for method in publicInterface(bloomberg))
 			bloomberg in self._delegates.keys()
-			isinstance(self._delegates[bloomberg], bloomberg)
 		"""
+		
+		
 		
 		if isinstance(bloomberg, type): #if it's a type, we need to instantiate it
 			self._delegateClass(bloomberg)
@@ -134,14 +163,13 @@ class UnifiedBloomberg(Website.Bloomberg):
 		""" Delegates to a bloomberg class, that is, a type of bloomberg that is not instantiated yet. 
 		
 		pre:
-			isinstance(bloomberg, type) and isinstance(bloomberg(), Bloomberg)
-			bloomberg not in self._delegates.keys()
-			bloomberg() not in self._delegates.values()
-			all(not isinstance(x, bloomberg) for x in self._delegates.values())
+			issubclass(bloomberg, Website.Bloomberg)
 		post[]:
 			bloomberg in self._delegates.keys()
-			bloomberg in self._delegates.values()
+			isinstance(self._delegates[bloomberg], bloomberg)
 		"""
+		if bloomberg in self._delegates.keys():
+			raise DuplicateBloomberg(str(bloomberg))
 		self._delegates[bloomberg] = bloomberg() #assumes default constructable
 	
 	
@@ -152,24 +180,22 @@ class UnifiedBloomberg(Website.Bloomberg):
 		""" Sets the delegate dictionary for an already instantiated bloomberg 
 		
 		pre:
-			isinstance(bloomberg, Bloomberg)
-			type(bloomberg) not in self._delegates.keys()
-			bloomberg not in self._delegates.keys()
-			bloomberg not in self._delegates.values()
+			isinstance(bloomberg, Website.Bloomberg)
 		post[]:
 			bloomberg in self._delegates.keys()
-			bloomberg in self._delegates.values()
+			isinstance(self._delegates[bloomberg], type(bloomberg))
 		"""
+		if bloomberg in self._delegates.keys():
+			raise DuplicateBloomberg(str(bloomberg))
 		self._delegates[bloomberg] = bloomberg #assumes already constructed
 	
 	def _assign(self, method, bloomberg):
 		""" Sets a given method to a delegated function call - will forward this method on to the given bloomberg 
 		
 		pre:
-			isinstance(bloomberg, Bloomberg) or isinstance(bloomberg(), Bloomberg)
+			isinstance(bloomberg, Website.Bloomberg) or issubclass(bloomberg, Website.Bloomberg)
 			hasattr(bloomberg,method)
 			callable(getattr(bloomberg,method))
-			not hasattr(self, method)
 		post[]:
 			hasattr(self,method)
 			callable(getattr(self,method))
@@ -185,7 +211,7 @@ class UnifiedBloomberg(Website.Bloomberg):
 		
 		pre:
 			callable(getattr(bloomberg,method))
-			isinstance(bloomberg, Bloomberg) or isinstance(bloomberg(), Bloomberg)
+			isinstance(bloomberg, Website.Bloomberg) or issubclass(bloomberg, Website.Bloomberg)
 		post:
 			callable(__return__)
 		"""
