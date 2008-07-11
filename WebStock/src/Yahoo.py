@@ -55,14 +55,14 @@ class Yahoo(Website.Website):
 	
 	Searching for a date that data is not available for will also throw an error.
 	
-	>>> scraper.getClose("CFC", datetime.date(2007,12,30))
+	>>> scraper.getClose("BAC", datetime.date(2007,12,30))
 	Traceback (most recent call last):
 		...
-	DateNotFound: Symbol \"CFC\" does not support date : 2007-12-30
+	DateNotFound: Symbol \"BAC\" does not support date : 2007-12-30
 	
 	You can check for this yourself by calling
 	
-	>>> scraper.hasDate("CFC", datetime.date(2007,12,30))
+	>>> scraper.hasDate("BAC", datetime.date(2007,12,30))
 	False
 	
 	inv:

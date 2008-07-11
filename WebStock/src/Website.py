@@ -17,17 +17,13 @@ Or, leave off the date and get whole dicts:
 >>> scraper.getAnnualOtherRevenue("XOM") == {date(2007,12,31):14224.0,\
 											 date(2006,12,31):12168.0,\
 											 date(2005,12,31):11725.0,\
-											 date(2004,12,31):6783.0,\
-											 date(2003,12,31):9684.0,\
-											 date(2002,12,31):3557.0}
+											 date(2004,12,31):6783.0}
 True
 
 >>> scraper.getAnnualShortTermInvestments("CVX") == {date(2007,12,31):732.0,\
 										   date(2006,12,31):953.0,\
 										   date(2005,12,31):1101.0,\
-										   date(2004,12,31):1451.0,\
-										   date(2003,12,31):1001.0,\
-										   date(2002,12,31):824.0}
+										   date(2004,12,31):1451.0}
 True
 
 >>> scraper.getAnnualDeferredTaxes("RDS.A") == {date(2007,12,31):-773.00,\
@@ -68,6 +64,7 @@ import re
 import datetime
 import FinancialXML
 import SymbolLookup
+import FinancialDate
 
 from utilities import publicInterface, isString, isRegex, checkCache, delegateInterface
 
@@ -400,9 +397,7 @@ class Google(Website):
 	>>> scraper.getAnnualNotesPayable("PIF.UN") == {date(2007,12,31):0.00,\
 													date(2006,12,31):0.00,\
 													date(2005,12,31):7.31,\
-													date(2004,12,31):2.97,\
-													date(2003,12,31):0.00,\
-													date(2002,12,31):0.00}
+													date(2004,12,31):2.97}
 	True
 	
 	Or ADR's
@@ -410,9 +405,7 @@ class Google(Website):
 	>>> scraper.getAnnualTotalAssets("IBN") == {date(2007,3,31):3943347.0,\
 												date(2006,3,31):2772295.0,\
 												date(2005,3,31):1784337.0,\
-												date(2004,3,31):1409131.0,\
-												date(2003,3,31):1180263.0,\
-												date(2002,3,31):743362.0}
+												date(2004,3,31):1409131.0}
 	True
 	
 	Beware though, stocks like these are not always reported in US Dollars!
@@ -636,7 +629,92 @@ class Google(Website):
 			self.__setattr__(quarterlyMethodName, quarterlyMethod)
 			self.__setattr__(annualVariableName, None)
 			self.__setattr__(quarterlyVariableName, None)
+		
+		def getQuarterlyCashFlowDates(self):
+			""" Returns the dates for which annual balance sheet information is available.
 			
+			>>> scraper = Google()
+			>>> scraper.getQuarterlyCashFlowDates("SBUX")
+			[datetime.date(2007, 7, 1), datetime.date(2007, 9, 30), datetime.date(2007, 12, 30), datetime.date(2008, 3, 30)]
+			
+			post[]:
+				isinstance(__return__,list)
+				all(isinstance(x,datetime.date) for x in __return__)
+				__return__ == sorted(__return__)
+			"""			
+			return sorted(self._getDates(self.labels['CashFlowStatement']['Quarterly'],'quarterlyCashFlowDates'))
+		
+		def getAnnualCashFlowDates(self):
+			""" Returns the dates for which annual balance sheet information is available.
+			
+			>>> scraper = Google()
+			>>> scraper.getAnnualCashFlowDates("SBUX")
+			[datetime.date(2004, 10, 3), datetime.date(2005, 10, 2), datetime.date(2006, 10, 1), datetime.date(2007, 9, 30)]
+			
+			post[]:
+				isinstance(__return__,list)
+				all(isinstance(x,datetime.date) for x in __return__)
+				__return__ == sorted(__return__)
+			"""			
+			return sorted(self._getDates(self.labels['CashFlowStatement']['Annual'], 'annualCashFlowDates'))
+			
+		def getQuarterlyIncomeStatementDates(self):
+			""" Returns the dates for which annual balance sheet information is available.
+			
+			>>> scraper = Google()
+			>>> scraper.getQuarterlyIncomeStatementDates("SBUX")
+			[datetime.date(2007, 4, 1), datetime.date(2007, 7, 1), datetime.date(2007, 9, 30), datetime.date(2007, 12, 30), datetime.date(2008, 3, 30)]
+			
+			post[]:
+				isinstance(__return__,list)
+				all(isinstance(x,datetime.date) for x in __return__)
+				__return__ == sorted(__return__)
+			"""			
+			return sorted(self._getDates(self.labels['IncomeStatement']['Quarterly'], 'quarterlyIncomeStatementDates'))
+		
+		def getAnnualIncomeStatementDates(self):
+			""" Returns the dates for which annual balance sheet information is available.
+			
+			>>> scraper = Google()
+			>>> scraper.getAnnualIncomeStatementDates("SBUX")
+			[datetime.date(2004, 10, 3), datetime.date(2005, 10, 2), datetime.date(2006, 10, 1), datetime.date(2007, 9, 30)]
+			
+			post[]:
+				isinstance(__return__,list)
+				all(isinstance(x,datetime.date) for x in __return__)
+				__return__ == sorted(__return__)
+			"""			
+			return sorted(self._getDates(self.labels['IncomeStatement']['Annual'], 'annualIncomeStatementDates'))
+		
+		def getQuarterlyBalanceSheetDates(self):
+			""" Returns the dates for which annual balance sheet information is available.
+			
+			>>> scraper = Google()
+			>>> scraper.getQuarterlyBalanceSheetDates("SBUX")
+			[datetime.date(2007, 4, 1), datetime.date(2007, 7, 1), datetime.date(2007, 9, 30), datetime.date(2007, 12, 30), datetime.date(2008, 3, 30)]
+						
+			post[]:
+				isinstance(__return__,list)
+				all(isinstance(x,datetime.date) for x in __return__)
+				__return__ == sorted(__return__)
+			"""
+			return sorted(self._getDates(self.labels['BalanceSheet']['Quarterly'], 'quarterlyBalanceSheetDates'))
+		
+		def getAnnualBalanceSheetDates(self):
+			""" Returns the dates for which annual balance sheet information is available.
+			
+			>>> scraper = Google()
+			>>> scraper.getAnnualBalanceSheetDates("SBUX")
+			[datetime.date(2004, 10, 3), datetime.date(2005, 10, 2), datetime.date(2006, 10, 1), datetime.date(2007, 9, 30)]
+			
+			post[]:
+				isinstance(__return__,list)
+				all(isinstance(x,datetime.date) for x in __return__)
+				__return__ == sorted(__return__)
+			"""
+			
+			return sorted(self._getDates(self.labels['BalanceSheet']['Annual'], 'annualBalanceSheetDates'))
+		
 		def _getRows(self, div, searchRe):
 			""" Get the rows associated with the regular expression searchRe.  Generally used
 			as a private, helper function. 
@@ -1692,7 +1770,11 @@ class Google(Website):
 	
 	def _SECWrapper(self, method, symbol, date=None):
 		"""A wrapper used around calls to SECData.  This allows me to delegate SECData's entire interface
-		onto Google at runtime.
+		onto Google at runtime.  
+		
+		Dates are handled in the following fashion: If a date is not provided, the entire dict of date:value pairs is returned.
+		If a date is provided, then it depends on the datePolicy of this object what happens.  Strict dating will raise a
+		DateNotFound error, while Fuzzy dating will return the closest quarter or years results according to some rule.
 		
 		pre:
 			#typechecking
@@ -1720,19 +1802,26 @@ class Google(Website):
 			
 		if date:
 			try:
-				results = results[date]
+				keydate = self.datePolicy.advice(date, results.keys())
+				results = results[keydate]
 			except KeyError, e:
 				raise DateNotFound(symbol,date)
 		return results
 			
-	def __init__(self):
+	def __init__(self, datePolicy=FinancialDate.StrictPolicy):
 		""" Google's constructor.
+		
+		pre:
+			isinstance(datePolicy,type)
+			issubclass(datePolicy,FinancialDate.DatePolicy)
 		
 		post[self]:
 			#check to make sure attributes are added
 			all([hasattr(self,x) for x in publicInterface(self.SECData)])
 			
 		"""
+		#print isinstance(datePolicy,type) , "isinstance(datePolicy,type)?"
+		#print issubclass(datePolicy,FinancialDate.DatePolicy), "issubclass..."
 
 #		prototype = self.SECData()  # SECData's interface doesn't get fully set until it's built so I need an instantiated object
 		self.factory = self.SoupFactory()
@@ -1744,7 +1833,7 @@ class Google(Website):
 		#add meta info
 #		self._delegateInterface(self.Metadata, self._metaWrapper)
 		self._metaCache = {}
-									
+		self.datePolicy = FinancialDate.StrictPolicy()	
 		self.resolver = SymbolLookup.SymbolLookup()
 
 def addSECData(cls):

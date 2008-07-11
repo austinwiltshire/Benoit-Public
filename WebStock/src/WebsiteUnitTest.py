@@ -1,9 +1,11 @@
 import Website
 from TestTools import assertClose, compareDicts
 from datetime import date
+import datetime
 import doctest
 import contract
 import unittest
+import FinancialDate
 
 contract.checkmod(Website)
 
@@ -19,6 +21,83 @@ class WebsiteTestCase(unittest.TestCase):
         del self.google
         self.google = None
         
+class DatePolicyTestCase(WebsiteTestCase):
+	def testStrictPolicyQuarterlyPass(self):
+		""" Test that the strict policy is the default dating policy for Google with a quarterly method that should pass """
+		self.assertAlmostEqual(self.google.getQuarterlyRevenue("IRBT",datetime.date(2007,3,31)), 39.49)
+	
+	def testStrictPolicyAnnualPass(self):
+		""" Test that the strict policy is the default dating policy for Google with an annual method that should pass """
+		self.assertAlmostEqual(self.google.getQuarterlyRevenue("IRBT", datetime.date(2004, 12, 31)), 95.04)
+		
+	def testStrictPolicyQuarterlyFail(self):
+		""" Test that the strict policy fails when given a quarterly date that is not available """
+		self.assertRaises(Website.DateNotFound,self.google.getQuarterlyRevenue,["IRBT",datetime.date(2007,3,30)]) #one day off
+		
+	def testStrictPolicyAnnualFail(self):
+		""" Test that the strict policy fails when given an annual date that is not available """
+		self.assertRaises(Website.DateNotFound, self.google.getAnnualRevenue,["IRBT",datetime.date(2004,12,30)]) #one day off 
+	
+	def testFuzzyPolicyQuarterlyPass_RoundDown(self):
+		""" Test that the fuzzy policy retrieves the right quartly information when rounding down with quarters """
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundDown))
+		self.assertAlmostEquals(self.google.google.getQuarterlyRevenue("IRBT",datetime.date(2007,5,3)), 39.49) #should be first quarter results
+		
+	def testFuzzyPolicyAnnualPass_RoundDown(self):
+		""" Test that the fuzzy policy retrieves the right annual information when rounding down with years """
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundDown))
+		self.assertAlmostEquals(self.google.google.getAnnualRevenue("IRBT",datetime.date(2007,2,3)),188.96) #should be 2006's revenue
+		
+	def testFuzzyPolicyQuarterlyFail_RoundDown(self):
+		""" Test that the fuzzy policy fails when there is no lower quarter to check """
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundDown))
+		self.assertRaises(Website.DateNotFound,self.google.google.getQuarterlyRevenue,["IRBT",datetime.date(2007,3,30)]) #IRBT doesnt have old quarter results any more
+		
+	def testFuzzyPolicyAnnualFail_RoundDown(self):
+		""" Test that the fuzzy policy fails when there is no lower year to check """
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundDown))
+		self.assertRaises(Website.DateNotFound,self.google.google.getAnnualRevenue,["IRBT",datetime.date(2004,12,30)]) #IRBT doesnt have 2004 results any more
+		
+	def testFuzzyPolicyQuarterlyPass_RoundUp(self):
+		""" Test that the fuzzy policy retrieves the right quartly information when rounding up with quarters """
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundUp))
+		self.assertAlmostEquals(self.google.google.getQuarterlyRevenue("IRBT",datetime.date(2007,8,3)),110.85) #should be first quarter results
+		
+	def testFuzzyPolicyAnnualPass_RoundUp(self):
+		""" Test that the fuzzy policy retrieves the right annual information when rounding up with years """
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundUp))
+		self.assertAlmostEquals(self.google.google.getAnnualRevenue("IRBT",datetime.date(2005,2,3)), 141.97) #should be 2005's revenue
+		
+	def testFuzzyPolicyQuarterlyFail_RoundUp(self):
+		""" Test that the fuzzy policy fails when there is no higher quarter to check """
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundUp))
+		self.assertRaises(Website.DateNotFound,self.google.google.getQuarterlyRevenue,["IRBT",datetime.date(2008,3,30)]) #IRBT doesnt have 2nd quarter results yet
+		
+	def testFuzzyPolicyAnnualFail_RoundUp(self):
+		""" Test that the fuzzy policy fails when there is no higher year to check """
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundUp))
+		self.assertRaises(Website.DateNotFound, self.google.google.getAnnualRevenue,["IRBT",datetime.date(2008,2,3)]) #IRBT doesnt have 2008 results yet
+		
+	def testFuzzyPolicyQuarterlyPass_RoundCloseFromHigher(self):
+		""" Test that the fuzzy policy retrieves the right quarterly information when rounding closest, from above, with quarters """
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundClose))
+		self.assertAlmostEquals(self.google.google.getQuarterlyRevenue("IRBT",datetime.date(2007,7,3)),47.01) #should be second quarter results
+		
+	def testFuzzyPolicyAnnualPass_RoundCloseFromHigher(self):
+		""" Test that the fuzzy policy retrieves the right annual information when rounding closest, from above, with years """
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundClose))
+		self.assertAlmostEquals(self.google.google.getAnnualRevenue("IRBT",datetime.date(2006,2,3)),95.04) #should be 2005's revenue
+		
+	def testFuzzyPolicyQuarterlyPass_RoundCloseFromBelow(self):
+		""" Test that the fuzzy policy retrieves the right quarterly information when rounding closest, from below, with quarters """
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundClose))
+		self.assertAlmostEquals(self.google.google.getQuarterlyRevenue("IRBT",datetime.date(2007,5,31)),47.01) #should be first quarter results
+		
+	def testFuzzyPolicyAnnualPass_RoundCloseFromBwlow(self):
+		""" Test that the fuzzy policy retrieves the right annual information when rounding closest, from below, with years """
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundClose))
+		self.assertAlmostEquals(self.google.google.getAnnualRevenue("IRBT",datetime.date(2005,11,3)), 95.04) #should be 2005's revenue					
+        
 class GoogleTestCase(WebsiteTestCase):
 	def testSymbolResolution(self):
 		""" Ensure that the symbol resolution is working properly """
@@ -26,7 +105,7 @@ class GoogleTestCase(WebsiteTestCase):
 		competitors = self.google.getCompetitors("NTDOY.PK")
 		self.assertTrue("SNE" in competitors)
 		self.assertTrue("KNM" in competitors)
-		self.assertTrue("NTDOF" in competitors) #test google style exchange info
+		self.assertTrue("7974" in competitors) #test google style exchange info
 		self.assertEqual(self.google.getQuarterlyTotalRevenue("BRK-A", date(2008, 3, 31)), 25175.0) #test ambiguous, google style extension
         
 class SoupFactoryTestCase(unittest.TestCase):
@@ -54,7 +133,10 @@ class SoupFactoryTestCase(unittest.TestCase):
     	""" Test that I can build and see stuff from a MetaSoup """
     	metasoup = self.meta(self.factory.buildMetaSoup("XRAY"), self.factory)
     	competitors = set(metasoup.getCompetitors())
-    	self.assertEqual(competitors, set([u"YDNT",u"ALGN",u"BLTI",u"MLSS",u"PDEX",u"NADX",u"SIRO",u"BSML",u"IART",u"CMN"]))
+    	checklist = [u"IART", u"CMN", u"SIRO", u"BLTI", u"ALGN", u"PDEX", u"YDNT"]
+    	for test in checklist:
+    		self.assertTrue(test in competitors)
+    	#self.assertEqual(competitors, set([u"YDNT",u"ALGN",u"BLTI",u"MLSS",u"PDEX",u"NADX",u"SIRO",u"BSML",u"IART",u"CMN"]))
     	self.assertEqual(metasoup.getSector(), u"Healthcare")
     	self.assertEqual(metasoup.getProperName(), u"DENTSPLY International Inc.")
     	
@@ -179,9 +261,7 @@ class WebsiteTestCase_RandomAccess(WebsiteTestCase):
 		self.assertEqual(self.google.getAnnualCashFromInvestingActivities("BRK.B"), {date(2007,12,31):-13428.0,\
                                                                     date(2006,12,31):-14077.0,\
                                                                     date(2005,12,31):-13841.0,\
-                                                                    date(2004,12,31):315.0,\
-                                                                    date(2003,12,31):16029.0,\
-                                                                    date(2002,12,31):-1311.0})
+                                                                    date(2004,12,31):315.0})
 	
 	#Tests included as doctests:
 	#Checking for ADR's
@@ -237,9 +317,7 @@ class WebsiteTestCase_WebpageFormat(WebsiteTestCase):
 		self.assertEqual(self.google.getAnnualLongTermInvestments("WHR"), {date(2007,12,31):'-',\
                                                      date(2006,12,31):'-',\
                                                      date(2005,12,31):28.00,\
-                                                     date(2004,12,31):16.00,\
-                                                     date(2003,12,31):11.00,\
-                                                     date(2002,12,31):7.00})
+                                                     date(2004,12,31):16.00})
 		
 	#tests included as doctests:
 	#all zeros
@@ -255,441 +333,343 @@ class WebsiteTestCase_IncomeStatement(WebsiteTestCase):
         self.assertEquals(self.google.getAnnualRevenue("DD"), {date(2007, 12, 31):29378.00, \
                                                                     date(2006, 12, 31):27421.00, \
                                                                                 date(2005, 12, 31):26639.00, \
-                                                                                date(2004, 12, 31):27340.00, \
-                                                                                date(2003, 12, 31):26996.00, \
-                                                                                date(2002, 12, 31):24006})
+                                                                                date(2004, 12, 31):27340.00})
         
     def testAnnualOtherRevenue(self):
         """ Test that I find Annual Other Revenue """
         self.assertEquals(self.google.getAnnualOtherRevenue("DD"), {date(2007, 12, 31):1275.00, \
                                                                         date(2006, 12, 31):1561.00, \
                                                                         date(2005, 12, 31):1852.00, \
-                                                                        date(2004, 12, 31):655.00, \
-                                                                        date(2003, 12, 31):734.00, \
-                                                                        date(2002, 12, 31):516.00})
+                                                                        date(2004, 12, 31):655.00})
  
     def testAnnualTotalRevenue(self):
         """ Test that I find Annual Total Revenue """
         self.assertEquals(self.google.getAnnualTotalRevenue("DD"), {date(2007, 12, 31):30653.00, \
                                                        date(2006, 12, 31):28982.00, \
                                                        date(2005, 12, 31):28491.00, \
-                                                       date(2004, 12, 31):27995.00, \
-                                                       date(2003, 12, 31):27730.00, \
-                                                       date(2002, 12, 31):24522.00})
+                                                       date(2004, 12, 31):27995.00})
         
     def testAnnualCostOfRevenue(self):
         """ Test that I find Annual Cost of Revenue """
         self.assertEquals(self.google.getAnnualCostOfRevenue("DD"), {date(2007, 12, 31):21565.00, \
                                                                           date(2006, 12, 31):20440.00, \
                                                                           date(2005, 12, 31):19683.00, \
-                                                                          date(2004, 12, 31):20827.00, \
-                                                                          date(2003, 12, 31):20759.00, \
-                                                                          date(2002, 12, 31):17529.00})
+                                                                          date(2004, 12, 31):20827.00})
         
     def testAnnualGrossProfit(self):
         """ Test that I find Annual Gross Profit"""
         self.assertEquals(self.google.getAnnualGrossProfit("DD"), {date(2007, 12, 31):7813.00, \
                                     date(2006, 12, 31):6981.00, \
                                     date(2005, 12, 31):6956.00, \
-                                    date(2004, 12, 31):6513.00, \
-                                    date(2003, 12, 31):6237.00, \
-                                    date(2002, 12, 31):6477.00})
+                                    date(2004, 12, 31):6513.00})
         
     def testAnnualSGAExpenses(self):
         """ Test that I find Annual SGA Expenses"""
         self.assertEquals(self.google.getAnnualSGAExpenses("DD"), {date(2007, 12, 31):3364.00, \
                                     date(2006, 12, 31):3224.00, \
                                     date(2005, 12, 31):3223.00, \
-                                    date(2004, 12, 31):3141.00, \
-                                    date(2003, 12, 31):3067.00, \
-                                    date(2002, 12, 31):2763.00})
+                                    date(2004, 12, 31):3141.00})
         
     def testAnnualResarchAndDevelopment(self):
         """ Test that I find Annual Resarch And Development """
         self.assertEquals(self.google.getAnnualResearchAndDevelopment("DD"), {date(2007, 12, 31):1338.00, \
                                                date(2006, 12, 31):1302.00, \
                                                date(2005, 12, 31):1336.00, \
-                                               date(2004, 12, 31):1333.00, \
-                                               date(2003, 12, 31):1349.00, \
-                                               date(2002, 12, 31):1264.00})
+                                               date(2004, 12, 31):1333.00})
         
     def testAnnualDepreciationAmortization(self):
         """ Test that I find Annual Depreciation and Amortization"""
         self.assertEquals(self.google.getAnnualDepreciationAmortization("DD"), {date(2007, 12, 31):213.00, \
                                                  date(2006, 12, 31):227.00, \
                                                  date(2005, 12, 31):230.00, \
-                                                 date(2004, 12, 31):223.00, \
-                                                 date(2003, 12, 31):229.00, \
-                                                 date(2002, 12, 31):218.00})        
+                                                 date(2004, 12, 31):223.00})        
         
     def testAnnualInterestNetOperating(self):
         """ Test that I find Annual Interest Net Operating"""
         self.assertEquals(self.google.getAnnualInterestNetOperating("DD"), {date(2007, 12, 31):430.00, \
                                              date(2006, 12, 31):460.00, \
                                              date(2005, 12, 31):518.00, \
-                                             date(2004, 12, 31):362.00, \
-                                             date(2003, 12, 31):347.00, \
-                                             date(2002, 12, 31):359.00})
+                                             date(2004, 12, 31):362.00})
         
     def testAnnualUnusualExpense(self):
         """ Test that I find Annual Unusual Expense"""
         self.assertEquals(self.google.getAnnualUnusualExpense("DD"), {date(2007, 12, 31):0.00, \
                                        date(2006, 12, 31):0.00, \
                                        date(2005, 12, 31):-62.00, \
-                                       date(2004, 12, 31):667.00, \
-                                       date(2003, 12, 31):1898.00, \
-                                       date(2002, 12, 31):290.00})
+                                       date(2004, 12, 31):667.00})
         
     def testAnnualOtherOperatingExpenses(self):
         """ Test that I find Annual Other Operating Expenses"""
         self.assertEquals(self.google.getAnnualOtherOperatingExpenses("DD"), {date(2007, 12, 31):'-', \
                                                date(2006, 12, 31):'-', \
                                                date(2005, 12, 31):'-', \
-                                               date(2004, 12, 31):'-', \
-                                               date(2003, 12, 31):-62.00, \
-                                               date(2002, 12, 31):-25.00})
+                                               date(2004, 12, 31):'-'})
         
     def testAnnualTotalOperatingExpense(self):
         """ Test that I find Annual Total Operating Expense"""
         self.assertEquals(self.google.getAnnualTotalOperatingExpense("DD"), {date(2007, 12, 31):26910.00, \
                                               date(2006, 12, 31):25653.00, \
                                               date(2005, 12, 31):24928.00, \
-                                              date(2004, 12, 31):26553.00, \
-                                              date(2003, 12, 31):27587.00, \
-                                              date(2002, 12, 31):22398.00})
+                                              date(2004, 12, 31):26553.00})
         
     def testAnnualOperatingIncome(self):
         """ Test that I find Annual Operating Income"""
         self.assertEquals(self.google.getAnnualOperatingIncome("DD"), {date(2007, 12, 31):3743.00, \
                                         date(2006, 12, 31):3329.00, \
                                         date(2005, 12, 31):3563.00, \
-                                        date(2004, 12, 31):1442.00, \
-                                        date(2003, 12, 31):143.00, \
-                                        date(2002, 12, 31):2124.00})
+                                        date(2004, 12, 31):1442.00})
         
     def testAnnualInterestIncome(self):
         """ Test that I find Annual Interest Income"""
         self.assertEquals(self.google.getAnnualInterestIncome("DD"), {date(2007, 12, 31):'-', \
                                        date(2006, 12, 31):'-', \
                                        date(2005, 12, 31):'-', \
-                                       date(2004, 12, 31):'-', \
-                                       date(2003, 12, 31):'-', \
-                                       date(2002, 12, 31):'-'})
+                                       date(2004, 12, 31):'-'})
         
     def testAnnualGainOnSaleOfAssets(self):
         """ Test that I find Annual Gain On Sale Of Assets"""
         self.assertEquals(self.google.getAnnualGainOnSaleOfAssets("DD"), {date(2007, 12, 31):'-', \
                                            date(2006, 12, 31):'-', \
                                            date(2005, 12, 31):'-', \
-                                           date(2004, 12, 31):'-', \
-                                           date(2003, 12, 31):'-', \
-                                           date(2002, 12, 31):'-'})
+                                           date(2004, 12, 31):'-'})
         
     def testAnnualOtherNet(self):
         """ Test that I find Annual Other Net"""
         self.assertEquals(self.google.getAnnualOtherNet("DD"), {date(2007, 12, 31):'-', \
                                  date(2006, 12, 31):'-', \
                                  date(2005, 12, 31):'-', \
-                                 date(2004, 12, 31):'-', \
-                                 date(2003, 12, 31):'-', \
-                                 date(2002, 12, 31):'-'})
+                                 date(2004, 12, 31):'-'})
         
     def testAnnualIncomeBeforeTax(self):
         """ Test that I find Annual Income Before Tax"""
         self.assertEquals(self.google.getAnnualIncomeBeforeTax("DD"), {date(2007, 12, 31):3743.00, \
                                         date(2006, 12, 31):3329.00, \
                                         date(2005, 12, 31):3563.00, \
-                                        date(2004, 12, 31):1442.00, \
-                                        date(2003, 12, 31):143.00, \
-                                        date(2002, 12, 31):2124.00})
+                                        date(2004, 12, 31):1442.00})
         
     def testAnnualIncomeAfterTax(self):
         """ Test that I find Annual Income After Tax"""
         self.assertEquals(self.google.getAnnualIncomeAfterTax("DD"), {date(2007, 12, 31):2995.0, \
                                        date(2006, 12, 31):3133.00, \
                                        date(2005, 12, 31):2093.00, \
-                                       date(2004, 12, 31):1771.00, \
-                                       date(2003, 12, 31):1073.00, \
-                                       date(2002, 12, 31):1939.00})
+                                       date(2004, 12, 31):1771.00})
         
     def testAnnualMinorityInterest_Inc(self):
         """ Test that I find Annual Minority Interest(Income Statement) """
         self.assertEquals(self.google.getAnnualMinorityInterest_Inc("DD"), {date(2007, 12, 31):-7.00, \
                                          date(2006, 12, 31):15.00, \
                                          date(2005, 12, 31):-37.00, \
-                                         date(2004, 12, 31):9.00, \
-                                         date(2003, 12, 31):-71.00, \
-                                         date(2002, 12, 31):-98.00})
+                                         date(2004, 12, 31):9.00})
         
     def testAnnualEquityInAffiliates(self):
         """ Test that I find Annual Equity In Affiliates"""
         self.assertEquals(self.google.getAnnualEquityInAffiliates("DD"), {date(2007, 12, 31):'-', \
                                            date(2006, 12, 31):'-', \
                                            date(2005, 12, 31):'-', \
-                                           date(2004, 12, 31):'-', \
-                                           date(2003, 12, 31):'-', \
-                                           date(2002, 12, 31):'-'})
+                                           date(2004, 12, 31):'-'})
         
     def testAnnualNetIncomeBeforeExtraItems(self):
         """ Test that I find Annual Net Income Before Extra Items"""
         self.assertEquals(self.google.getAnnualNetIncomeBeforeExtraItems("DD"), {date(2007, 12, 31):2988.00, \
                                                   date(2006, 12, 31):3148.00, \
                                                   date(2005, 12, 31):2056.00, \
-                                                  date(2004, 12, 31):1780.00, \
-                                                  date(2003, 12, 31):1002.00, \
-                                                  date(2002, 12, 31):1841.00})
+                                                  date(2004, 12, 31):1780.00})
         
     def testAnnualAccountingChange(self):
         """ Test that I find Annual Accounting Change"""
         self.assertEquals(self.google.getAnnualAccountingChange("DD"), {date(2007, 12, 31):'-', \
                                          date(2006, 12, 31):'-', \
                                          date(2005, 12, 31):'-', \
-                                         date(2004, 12, 31):'-', \
-                                         date(2003, 12, 31):'-', \
-                                         date(2002, 12, 31):'-'})
+                                         date(2004, 12, 31):'-'})
         
     def testAnnualDiscontinuedOperations(self):
         """ Test that I find Annual Discontinued Operations"""
         self.assertEquals(self.google.getAnnualDiscontinuedOperations("DD"), {date(2007, 12, 31):'-', \
                                                date(2006, 12, 31):'-', \
                                                date(2005, 12, 31):'-', \
-                                               date(2004, 12, 31):'-', \
-                                               date(2003, 12, 31):'-', \
-                                               date(2002, 12, 31):'-'})                                                                
+                                               date(2004, 12, 31):'-'})                                                                
         
     def testAnnualExtraordinaryItem(self):
         """ Test that I find Annual Extraordinary Item"""
         self.assertEquals(self.google.getAnnualExtraordinaryItem("DD"), {date(2007, 12, 31):'-', \
                                           date(2006, 12, 31):'-', \
                                           date(2005, 12, 31):'-', \
-                                          date(2004, 12, 31):'-', \
-                                          date(2003, 12, 31):'-', \
-                                          date(2002, 12, 31):'-'})
+                                          date(2004, 12, 31):'-'})
         
     def testAnnualNetIncome(self):
         """ Test that I find Annual Net Income"""
         self.assertEquals(self.google.getAnnualNetIncome("DD"), {date(2007, 12, 31):2988.00, \
                                   date(2006, 12, 31):3148.00, \
                                   date(2005, 12, 31):2056.00, \
-                                  date(2004, 12, 31):1780.00, \
-                                  date(2003, 12, 31):973.00, \
-                                  date(2002, 12, 31):-1103.00})
+                                  date(2004, 12, 31):1780.00})
         
     def testAnnualPreferredDividends(self):
         """ Test that I find Annual Preferred Dividends"""
         self.assertEquals(self.google.getAnnualPreferredDividends("DD"), {date(2007, 12, 31):'-', \
                                            date(2006, 12, 31):'-', \
                                            date(2005, 12, 31):'-', \
-                                           date(2004, 12, 31):'-', \
-                                           date(2003, 12, 31):'-', \
-                                           date(2002, 12, 31):'-'})
+                                           date(2004, 12, 31):'-'})
         
     def testAnnualIncomeAvailToCommonExclExtraItems(self):
         """ Test that I find Annual Income Avail T oCommon Excl Extra Items"""
         self.assertEquals(self.google.getAnnualIncomeAvailToCommonExclExtraItems("DD"), {date(2007, 12, 31):2978.00, \
                                                           date(2006, 12, 31):3138.00, \
                                                           date(2005, 12, 31):2046.00, \
-                                                          date(2004, 12, 31):1770.00, \
-                                                          date(2003, 12, 31):992.00, \
-                                                          date(2002, 12, 31):1831.00})
+                                                          date(2004, 12, 31):1770.00})
         
     def testAnnualIncomeAvailToCommonInclExtraItems(self):
         """ Test that I find Annual Income Avail To Common Incl Extra Items"""
         self.assertEquals(self.google.getAnnualIncomeAvailToCommonInclExtraItems("DD"), {date(2007, 12, 31):2978.00, \
                                                           date(2006, 12, 31):3138.00, \
                                                           date(2005, 12, 31):2046.00, \
-                                                          date(2004, 12, 31):1770.00, \
-                                                          date(2003, 12, 31):963.00, \
-                                                          date(2002, 12, 31):-1113.00})                                
+                                                          date(2004, 12, 31):1770.00})                                
         
     def testAnnualBasicWeightedAverageShares(self):
         """ Test that I find Annual Basic Weighted Average Shares"""
         self.assertEquals(self.google.getAnnualBasicWeightedAverageShares("DD"), {date(2007, 12, 31):'-', \
                                                    date(2006, 12, 31):'-', \
                                                    date(2005, 12, 31):'-', \
-                                                   date(2004, 12, 31):'-', \
-                                                   date(2003, 12, 31):'-', \
-                                                   date(2002, 12, 31):'-'})
+                                                   date(2004, 12, 31):'-'})
         
     def testAnnualBasicEPSExclExtraItems(self):
         """ Test that I find Annual Basic EPS Excl Extra Items"""
         self.assertEquals(self.google.getAnnualBasicEPSExclExtraItems("DD"), {date(2007, 12, 31):'-', \
                                                date(2006, 12, 31):'-', \
                                                date(2005, 12, 31):'-', \
-                                               date(2004, 12, 31):'-', \
-                                               date(2003, 12, 31):'-', \
-                                               date(2002, 12, 31):'-'})
+                                               date(2004, 12, 31):'-'})
         
     def testAnnualBasicEPSInclExtraItems(self):
         """ Test that I find Annual Basic EPS Incl Extra Items"""
         self.assertEquals(self.google.getAnnualBasicEPSInclExtraItems("DD"), {date(2007, 12, 31):'-', \
                                                date(2006, 12, 31):'-', \
                                                date(2005, 12, 31):'-', \
-                                               date(2004, 12, 31):'-', \
-                                               date(2003, 12, 31):'-', \
-                                               date(2002, 12, 31):'-'})
+                                               date(2004, 12, 31):'-'})
         
     def testAnnualDilutionAdjustment(self):
         """ Test that I find Annual Dilution Adjustment"""
         self.assertEquals(self.google.getAnnualDilutionAdjustment("DD"), {date(2007, 12, 31):'-', \
                                            date(2006, 12, 31):'-', \
                                            date(2005, 12, 31):'-', \
-                                           date(2004, 12, 31):'-', \
-                                           date(2003, 12, 31):0.00, \
-                                           date(2002, 12, 31):0.00})
+                                           date(2004, 12, 31):'-'})
         
     def testAnnualDilutedWeightedAverageShares(self):
         """ Test that I find Annual Diluted Weighted Average Shares"""
         self.assertEquals(self.google.getAnnualDilutedWeightedAverageShares("DD"), {date(2007, 12, 31):925.40, \
                                                      date(2006, 12, 31):928.60, \
                                                      date(2005, 12, 31):988.95, \
-                                                     date(2004, 12, 31):1003.39, \
-                                                     date(2003, 12, 31):1000.01, \
-                                                     date(2002, 12, 31):998.74})                                        
+                                                     date(2004, 12, 31):1003.39})                                        
         
     def testAnnualDilutedEPSExclExtraItems(self):
         """ Test that I find Annual Diluted EPS Excl Extra Items"""
         self.assertEquals(self.google.getAnnualDilutedEPSExclExtraItems("DD"), {date(2007, 12, 31):3.22, \
                                                  date(2006, 12, 31):3.38, \
                                                  date(2005, 12, 31):2.07, \
-                                                 date(2004, 12, 31):1.76, \
-                                                 date(2003, 12, 31):0.99, \
-                                                 date(2002, 12, 31):1.83})
+                                                 date(2004, 12, 31):1.76})
         
     def testAnnualDilutedEPSInclExtraItems(self):
         """ Test that I find Annual Diluted EPS Incl Extra Items"""
         self.assertEquals(self.google.getAnnualDilutedEPSInclExtraItems("DD"), {date(2007, 12, 31):'-', \
                                                  date(2006, 12, 31):'-', \
                                                  date(2005, 12, 31):'-', \
-                                                 date(2004, 12, 31):'-', \
-                                                 date(2003, 12, 31):'-', \
-                                                 date(2002, 12, 31):'-'})
+                                                 date(2004, 12, 31):'-'})
         
     def testAnnualDividendsPerShare(self):
         """ Test that I find Annual Dividends Per Share"""
         self.assertEquals(self.google.getAnnualDividendsPerShare("DD"), {date(2007, 12, 31):1.52, \
                                           date(2006, 12, 31):1.48, \
                                           date(2005, 12, 31):1.46, \
-                                          date(2004, 12, 31):1.40, \
-                                          date(2003, 12, 31):1.40, \
-                                          date(2002, 12, 31):1.40})
+                                          date(2004, 12, 31):1.40})
         
     def testAnnualGrossDividends(self):
         """ Test that I find Annual Gross Dividends"""
         self.assertEquals(self.google.getAnnualGrossDividends("DD"), {date(2007, 12, 31):'-', \
                                        date(2006, 12, 31):'-', \
                                        date(2005, 12, 31):'-', \
-                                       date(2004, 12, 31):'-', \
-                                       date(2003, 12, 31):'-', \
-                                       date(2002, 12, 31):'-'})
+                                       date(2004, 12, 31):'-'})
         
     def testAnnualNetIncomeAfterCompExp(self):
         """ Test that I find Annual Net Income After Comp Exp"""
         self.assertEquals(self.google.getAnnualNetIncomeAfterCompExp("DD"), {date(2007, 12, 31):'-', \
                                               date(2006, 12, 31):'-', \
                                               date(2005, 12, 31):'-', \
-                                              date(2004, 12, 31):'-', \
-                                              date(2003, 12, 31):'-', \
-                                              date(2002, 12, 31):'-'})
+                                              date(2004, 12, 31):'-'})
         
     def testAnnualBasicEPSAfterCompExp(self):
         """ Test that I find Annual Basic EPS After Comp Exp"""
         self.assertEquals(self.google.getAnnualBasicEPSAfterCompExp("DD"), {date(2007, 12, 31):'-', \
                                              date(2006, 12, 31):'-', \
                                              date(2005, 12, 31):'-', \
-                                             date(2004, 12, 31):'-', \
-                                             date(2003, 12, 31):'-', \
-                                             date(2002, 12, 31):'-'})
+                                             date(2004, 12, 31):'-'})
         
     def testAnnualDilutedEPSAfterCompExp(self):
         """ Test that I find Annual Diluted EPS After Comp Exp"""
         self.assertEquals(self.google.getAnnualDilutedEPSAfterCompExp("DD"), {date(2007, 12, 31):'-', \
                                                date(2006, 12, 31):'-', \
                                                date(2005, 12, 31):'-', \
-                                               date(2004, 12, 31):'-', \
-                                               date(2003, 12, 31):'-', \
-                                               date(2002, 12, 31):'-'})
+                                               date(2004, 12, 31):'-'})
         
     def testAnnualDepreciationSupplemental(self):
         """ Test that I find Annual Depreciation Supplemental"""
         self.assertEquals(self.google.getAnnualDepreciationSupplemental("DD"), {date(2007, 12, 31):'-', \
                                                  date(2006, 12, 31):'-', \
                                                  date(2005, 12, 31):'-', \
-                                                 date(2004, 12, 31):'-', \
-                                                 date(2003, 12, 31):'-', \
-                                                 date(2002, 12, 31):'-'})
+                                                 date(2004, 12, 31):'-'})
         
     def testAnnualTotalSpecialItems(self):
         """ Test that I find Annual Total Special Items"""
         self.assertEquals(self.google.getAnnualTotalSpecialItems("DD"), {date(2007, 12, 31):'-', \
                                           date(2006, 12, 31):'-', \
                                           date(2005, 12, 31):'-', \
-                                          date(2004, 12, 31):'-', \
-                                          date(2003, 12, 31):'-', \
-                                          date(2002, 12, 31):'-'})
+                                          date(2004, 12, 31):'-'})
         
     def testAnnualNormalizedIncomeBeforeTaxes(self):
         """ Test that I find Annual Normalized Income Before Taxes"""
         self.assertEquals(self.google.getAnnualNormalizedIncomeBeforeTaxes("DD"), {date(2007, 12, 31):'-', \
                                                     date(2006, 12, 31):'-', \
                                                     date(2005, 12, 31):'-', \
-                                                    date(2004, 12, 31):'-', \
-                                                    date(2003, 12, 31):'-', \
-                                                    date(2002, 12, 31):'-'})                                                                                
+                                                    date(2004, 12, 31):'-'})                                                                                
         
     def testAnnualEffectsOfSpecialItemsOnIncomeTaxes(self):
         """ Test that I find Annual Effects Of Special Items On Income Taxes"""
         self.assertEquals(self.google.getAnnualEffectsOfSpecialItemsOnIncomeTaxes("DD"), {date(2007, 12, 31):'-', \
                                                            date(2006, 12, 31):'-', \
                                                            date(2005, 12, 31):'-', \
-                                                           date(2004, 12, 31):'-', \
-                                                           date(2003, 12, 31):'-', \
-                                                           date(2002, 12, 31):'-'})
+                                                           date(2004, 12, 31):'-'})
         
     def testAnnualIncomeTaxesExSpecialItems(self):
         """ Test that I find Annual Income Taxes Ex Special Items"""
         self.assertEquals(self.google.getAnnualIncomeTaxesExSpecialItems("DD"), {date(2007, 12, 31):'-', \
                                                   date(2006, 12, 31):'-', \
                                                   date(2005, 12, 31):'-', \
-                                                  date(2004, 12, 31):'-', \
-                                                  date(2003, 12, 31):'-', \
-                                                  date(2002, 12, 31):'-'})
+                                                  date(2004, 12, 31):'-'})
         
     def testAnnualNormalizedIncomeAfterTaxes(self):
         """ Test that I find Annual Normalized Income After Taxes"""
         self.assertEquals(self.google.getAnnualNormalizedIncomeAfterTaxes("DD"), {date(2007, 12, 31):'-', \
                                                    date(2006, 12, 31):'-', \
                                                    date(2005, 12, 31):'-', \
-                                                   date(2004, 12, 31):'-', \
-                                                   date(2003, 12, 31):'-', \
-                                                   date(2002, 12, 31):'-'})
+                                                   date(2004, 12, 31):'-'})
         
     def testAnnualNormalizedIncomeAvailableCommon(self):
         """ Test that I find Annual Normalized Income Available Common"""
         self.assertEquals(self.google.getAnnualNormalizedIncomeAvailableCommon("DD"), {date(2007, 12, 31):'-', \
                                                         date(2006, 12, 31):'-', \
                                                         date(2005, 12, 31):'-', \
-                                                        date(2004, 12, 31):'-', \
-                                                        date(2003, 12, 31):'-', \
-                                                        date(2002, 12, 31):'-'})                                
+                                                        date(2004, 12, 31):'-'})                                
         
     def testAnnualBasicNormalizedEPS(self):
         """ Test that I find Annual Basic Normalized EPS"""
         self.assertEquals(self.google.getAnnualBasicNormalizedEPS("DD"), {date(2007, 12, 31):'-', \
                                            date(2006, 12, 31):'-', \
                                            date(2005, 12, 31):'-', \
-                                           date(2004, 12, 31):'-', \
-                                           date(2003, 12, 31):'-', \
-                                           date(2002, 12, 31):'-'})
+                                           date(2004, 12, 31):'-'})
         
     def testAnnualDilutedNormalizedEPS(self):
         """ Test that I find Annual Diluted Normalized EPS"""
         self.assertEquals(self.google.getAnnualDilutedNormalizedEPS("DD"), {date(2007, 12, 31):3.22, \
                                              date(2006, 12, 31):3.38, \
                                              date(2005, 12, 31):2.03, \
-                                             date(2004, 12, 31):2.20, \
-                                             date(2003, 12, 31):2.19, \
-                                             date(2002, 12, 31):1.90})
+                                             date(2004, 12, 31):2.20})
         
     #quarterly stuff
     
@@ -1094,349 +1074,267 @@ class WebsiteTestCase_BalanceSheet(WebsiteTestCase):
         self.assertEquals(self.google.getAnnualCashAndEquivalents("DD"), {date(2007, 12, 31):1305.00, \
                                            date(2006, 12, 31):1814.00, \
                                            date(2005, 12, 31):1736.00, \
-                                           date(2004, 12, 31):3369.00, \
-                                           date(2003, 12, 31):3273.00, \
-                                           date(2002, 12, 31):3678.00})
+                                           date(2004, 12, 31):3369.00})
         
     def testAnnualShortTermInvestments(self):
         """ Test that I find Annual Short Term Investments"""
         self.assertEquals(self.google.getAnnualShortTermInvestments("DD"), {date(2007, 12, 31):131.00, \
                                              date(2006, 12, 31):79.00, \
                                              date(2005, 12, 31):115.00, \
-                                             date(2004, 12, 31):167.00, \
-                                             date(2003, 12, 31):25.00, \
-                                             date(2002, 12, 31):465.00})
+                                             date(2004, 12, 31):167.00})
         
     def testAnnualCashAndShortTermInvestments(self):
         """ Test that I find Annual Cash And Short Term Investments"""
         self.assertEquals(self.google.getAnnualCashAndShortTermInvestments("DD"), {date(2007, 12, 31):1436.00, \
                                                     date(2006, 12, 31):1893.00, \
                                                     date(2005, 12, 31):1851.00, \
-                                                    date(2004, 12, 31):3536.00, \
-                                                    date(2003, 12, 31):3298.00, \
-                                                    date(2002, 12, 31):4143.00})
+                                                    date(2004, 12, 31):3536.00})
         
     def testAnnualAccountsReceivableTrade(self):
         """ Test that I find Annual Accounts Receivable Trade"""
         self.assertEquals(self.google.getAnnualAccountsReceivableTrade("DD"), {date(2007, 12, 31):4649.00, \
                                                 date(2006, 12, 31):4335.00, \
                                                 date(2005, 12, 31):3907.00, \
-                                                date(2004, 12, 31):3860.00, \
-                                                date(2003, 12, 31):3427.00, \
-                                                date(2002, 12, 31):2913.00})
+                                                date(2004, 12, 31):3860.00})
         
     def testAnnualReceivablesOther(self):
         """ Test that I find Annual Receivables Other"""
         self.assertEquals(self.google.getAnnualReceivablesOther("DD"), {date(2007, 12, 31):'-', \
                                          date(2006, 12, 31):'-', \
                                          date(2005, 12, 31):'-', \
-                                         date(2004, 12, 31):'-', \
-                                         date(2003, 12, 31):'-', \
-                                         date(2002, 12, 31):'-'})
+                                         date(2004, 12, 31):'-'})
         
     def testAnnualTotalReceivablesNet(self):
         """ Test that I find Annual Total Receivables Net"""
         self.assertEquals(self.google.getAnnualTotalReceivablesNet("DD"), {date(2007, 12, 31):5683.00, \
                                             date(2006, 12, 31):5198.00, \
                                             date(2005, 12, 31):4801.00, \
-                                            date(2004, 12, 31):4889.00, \
-                                            date(2003, 12, 31):4218.00, \
-                                            date(2002, 12, 31):3884.00})                                                        
+                                            date(2004, 12, 31):4889.00})                                                        
         
     def testAnnualTotalInventory(self):
         """ Test that I find Annual Total Inventory"""
         self.assertEquals(self.google.getAnnualTotalInventory("DD"), {date(2007, 12, 31):5278.00, \
                                        date(2006, 12, 31):4941.00, \
                                        date(2005, 12, 31):4743.00, \
-                                       date(2004, 12, 31):4489.00, \
-                                       date(2003, 12, 31):4107.00, \
-                                       date(2002, 12, 31):4409.00})
+                                       date(2004, 12, 31):4489.00})
         
     def testAnnualPrepaidExpenses(self):
         """ Test that I find Annual Prepaid Expenses"""
         self.assertEquals(self.google.getAnnualPrepaidExpenses("DD"), {date(2007, 12, 31):199.00, \
                                         date(2006, 12, 31):182.00, \
                                         date(2005, 12, 31):199.00, \
-                                        date(2004, 12, 31):209.00, \
-                                        date(2003, 12, 31):208.00, \
-                                        date(2002, 12, 31):175.00})
+                                        date(2004, 12, 31):209.00})
         
     def testAnnualOtherCurrentAssetsTotal(self):
         """ Test that I find Annual OtherCurrent Assets Total"""
         self.assertEquals(self.google.getAnnualOtherCurrentAssetsTotal("DD"), {date(2007, 12, 31):564.00, \
                                                 date(2006, 12, 31):656.00, \
                                                 date(2005, 12, 31):828.00, \
-                                                date(2004, 12, 31):2088.00, \
-                                                date(2003, 12, 31):6631.00, \
-                                                date(2002, 12, 31):848.00})
+                                                date(2004, 12, 31):2088.00})
         
     def testAnnualTotalCurrentAssets(self):
         """ Test that I find Annual Total Current Assets"""
         self.assertEquals(self.google.getAnnualTotalCurrentAssets("DD"), {date(2007, 12, 31):13160.00, \
                                            date(2006, 12, 31):12870.00, \
                                            date(2005, 12, 31):12422.00, \
-                                           date(2004, 12, 31):15211.00, \
-                                           date(2003, 12, 31):18462.00, \
-                                           date(2002, 12, 31):13459.00})
+                                           date(2004, 12, 31):15211.00})
         
     def testAnnualPPE(self):
         """ Test that I find Annual PPE"""
         self.assertEquals(self.google.getAnnualPPE("DD"), {date(2007, 12, 31):26593.00, \
                             date(2006, 12, 31):25719.00, \
                             date(2005, 12, 31):24963.00, \
-                            date(2004, 12, 31):23978.00, \
-                            date(2003, 12, 31):24149.00, \
-                            date(2002, 12, 31):33732.00})                                        
+                            date(2004, 12, 31):23978.00})                                        
         
     def testAnnualGoodwill(self):
         """ Test that I find Annual Goodwill"""
         self.assertEquals(self.google.getAnnualGoodwill("DD"), {date(2007, 12, 31):2074.00, \
                                  date(2006, 12, 31):2108.00, \
                                  date(2005, 12, 31):2087.00, \
-                                 date(2004, 12, 31):2082.00, \
-                                 date(2003, 12, 31):1939.00, \
-                                 date(2002, 12, 31):1167.00})
+                                 date(2004, 12, 31):2082.00})
         
     def testAnnualIntangibles(self):
         """ Test that I find Annual Intangibles"""
         self.assertEquals(self.google.getAnnualIntangibles("DD"), {date(2007, 12, 31):2856.00, \
                                     date(2006, 12, 31):2479.00, \
                                     date(2005, 12, 31):2712.00, \
-                                    date(2004, 12, 31):2883.00, \
-                                    date(2003, 12, 31):3278.00, \
-                                    date(2002, 12, 31):3514.00})
+                                    date(2004, 12, 31):2883.00})
         
     def testAnnualLongTermInvestments(self):
         """ Test that I find Annual Long Term Investments"""
         self.assertEquals(self.google.getAnnualLongTermInvestments("DD"), {date(2007, 12, 31):908.00, \
                                             date(2006, 12, 31):897.00, \
                                             date(2005, 12, 31):937.00, \
-                                            date(2004, 12, 31):1140.00, \
-                                            date(2003, 12, 31):1445.00, \
-                                            date(2002, 12, 31):2190.00})
+                                            date(2004, 12, 31):1140.00})
         
     def testAnnualOtherLongTermAssets(self):
         """ Test that I find Annual Other Long Term Assets"""
         self.assertEquals(self.google.getAnnualOtherLongTermAssets("DD"), {date(2007, 12, 31):4273.00, \
                                             date(2006, 12, 31):2925.00, \
                                             date(2005, 12, 31):4824.00, \
-                                            date(2004, 12, 31):4092.00, \
-                                            date(2003, 12, 31):2023.00, \
-                                            date(2002, 12, 31):1005.00})
+                                            date(2004, 12, 31):4092.00})
         
     def testAnnualTotalAssets(self):
         """ Test that I find Annual Total Assets"""
         self.assertEquals(self.google.getAnnualTotalAssets("DD"), {date(2007, 12, 31):34131.00, \
                                     date(2006, 12, 31):31777.00, \
                                     date(2005, 12, 31):33291.00, \
-                                    date(2004, 12, 31):35632.00, \
-                                    date(2003, 12, 31):37039.00, \
-                                    date(2002, 12, 31):34621.00})
+                                    date(2004, 12, 31):35632.00})
         
     def testAnnualAccountsPayable(self):
         """ Test that I find Annual Accounts Payable"""
         self.assertEquals(self.google.getAnnualAccountsPayable("DD"), {date(2007, 12, 31):3172.00, \
                                         date(2006, 12, 31):2711.00, \
                                         date(2005, 12, 31):2670.00, \
-                                        date(2004, 12, 31):2661.00, \
-                                        date(2003, 12, 31):2412.00, \
-                                        date(2002, 12, 31):2727.00})
+                                        date(2004, 12, 31):2661.00})
         
     def testAnnualAccruedExpenses(self):
         """ Test that I find Annual Accrued Expenses"""
         self.assertEquals(self.google.getAnnualAccruedExpenses("DD"), {date(2007, 12, 31):3823.00, \
                                         date(2006, 12, 31):3534.00, \
                                         date(2005, 12, 31):3075.00, \
-                                        date(2004, 12, 31):4054.00, \
-                                        date(2003, 12, 31):2963.00, \
-                                        date(2002, 12, 31):3137.00})
+                                        date(2004, 12, 31):4054.00})
         
     def testAnnualNotesPayable(self):
         """ Test that I find Annual Notes Payable"""
         self.assertEquals(self.google.getAnnualNotesPayable("DD"), {date(2007, 12, 31):1349.00, \
                                      date(2006, 12, 31):354.00, \
                                      date(2005, 12, 31):0.00, \
-                                     date(2004, 12, 31):0.00, \
-                                     date(2003, 12, 31):0.00, \
-                                     date(2002, 12, 31):0.00})
+                                     date(2004, 12, 31):0.00})
         
     def testAnnualCurrentPortLTDebtToCapital(self):
         """ Test that I find Annual Current Port LT Debt To Capital"""
         self.assertEquals(self.google.getAnnualCurrentPortLTDebtToCapital("DD"), {date(2007, 12, 31):21.00, \
                                                    date(2006, 12, 31):1163.00, \
                                                    date(2005, 12, 31):1397.00, \
-                                                   date(2004, 12, 31):936.00, \
-                                                   date(2003, 12, 31):5914.00, \
-                                                   date(2002, 12, 31):1185.00})                                        
+                                                   date(2004, 12, 31):936.00})                                        
         
     def testAnnualOtherCurrentLiabilities(self):
         """ Test that I find Annual Other Current Liabilities"""
         self.assertEquals(self.google.getAnnualOtherCurrentLiabilities("DD"), {date(2007, 12, 31):176.00, \
                                                 date(2006, 12, 31):178.00, \
                                                 date(2005, 12, 31):294.00, \
-                                                date(2004, 12, 31):288.00, \
-                                                date(2003, 12, 31):1754.00, \
-                                                date(2002, 12, 31):47.00}) 
+                                                date(2004, 12, 31):288.00}) 
     def testAnnualTotalCurrentLiabilities(self):
         """ Test that I find Annual Total Current Liabilities""" 
         self.assertEquals(self.google.getAnnualTotalCurrentLiabilities("DD"), {date(2007, 12, 31):8541.00, \
                                                 date(2006, 12, 31):7940.00, \
                                                 date(2005, 12, 31):7436.00, \
-                                                date(2004, 12, 31):7939.00, \
-                                                date(2003, 12, 31):13043.00, \
-                                                date(2002, 12, 31):7096.00}) 
+                                                date(2004, 12, 31):7939.00}) 
     def testAnnualLongTermDebt(self):
         """ Test that I find Annual Long Term Debt""" 
         self.assertEquals(self.google.getAnnualLongTermDebt("DD"), {date(2007, 12, 31):5955.00, \
                                      date(2006, 12, 31):6013.00, \
                                      date(2005, 12, 31):6783.00, \
-                                     date(2004, 12, 31):5548.00, \
-                                     date(2003, 12, 31):4301.00, \
-                                     date(2002, 12, 31):5647.00}) 
+                                     date(2004, 12, 31):5548.00}) 
     def testAnnualCapitalLeaseObligations(self):
         """ Test that I find Annual Capital Lease Obligations""" 
         self.assertEquals(self.google.getAnnualCapitalLeaseObligations("DD"), {date(2007, 12, 31):'-', \
                                                 date(2006, 12, 31):'-', \
                                                 date(2005, 12, 31):'-', \
-                                                date(2004, 12, 31):'-', \
-                                                date(2003, 12, 31):'-', \
-                                                date(2002, 12, 31):'-'}) 
+                                                date(2004, 12, 31):'-'}) 
     def testAnnualTotalLongTermDebt(self):
         """ Test that I find Annual Total Long Term Debt""" 
         self.assertEquals(self.google.getAnnualTotalLongTermDebt("DD"), {date(2007, 12, 31):5955.00, \
                                           date(2006, 12, 31):6013.00, \
                                           date(2005, 12, 31):6783.00, \
-                                          date(2004, 12, 31):5548.00, \
-                                          date(2003, 12, 31):4301.00, \
-                                          date(2002, 12, 31):5647.00}) 
+                                          date(2004, 12, 31):5548.00}) 
     def testAnnualTotalDebt(self):
         """ Test that I find Annual Total Debt""" 
         self.assertEquals(self.google.getAnnualTotalDebt("DD"), {date(2007, 12, 31):7325.00, \
                                   date(2006, 12, 31):7530.00, \
                                   date(2005, 12, 31):8180.00, \
-                                  date(2004, 12, 31):6484.00, \
-                                  date(2003, 12, 31):10215.00, \
-                                  date(2002, 12, 31):6832.00}) 
+                                  date(2004, 12, 31):6484.00}) 
     def testAnnualDeferredIncomeTax(self):
         """ Test that I find Annual Deferred Income Tax""" 
         self.assertEquals(self.google.getAnnualDeferredIncomeTax("DD"), {date(2007, 12, 31):802.00, \
                                           date(2006, 12, 31):269.00, \
                                           date(2005, 12, 31):1179.00, \
-                                          date(2004, 12, 31):966.00, \
-                                          date(2003, 12, 31):508.00, \
-                                          date(2002, 12, 31):563.00}) 
+                                          date(2004, 12, 31):966.00}) 
     def testAnnualMinorityInterest_Bal(self):
         """ Test that I find Annual Minority Interes(Balance Sheet)""" 
         self.assertEquals(self.google.getAnnualMinorityInterest_Bal("DD"), {date(2007, 12, 31):442.00, \
                                          date(2006, 12, 31):441.00, \
                                          date(2005, 12, 31):490.00, \
-                                         date(2004, 12, 31):1110.00, \
-                                         date(2003, 12, 31):497.00, \
-                                         date(2002, 12, 31):2423.00}) 
+                                         date(2004, 12, 31):1110.00}) 
     def testAnnualOtherLiabilities(self):
         """ Test that I find Annual Other Liabilities""" 
         self.assertEquals(self.google.getAnnualOtherLiabilities("DD"), {date(2007, 12, 31):7255.00, \
                                          date(2006, 12, 31):7692.00, \
                                          date(2005, 12, 31):8441.00, \
-                                         date(2004, 12, 31):8692.00, \
-                                         date(2003, 12, 31):8909.00, \
-                                         date(2002, 12, 31):9829.00}) 
+                                         date(2004, 12, 31):8692.00}) 
     def testAnnualTotalLiabilities(self):
         """ Test that I find Annual TotalLiabilities""" 
         self.assertEquals(self.google.getAnnualTotalLiabilities("DD"), {date(2007, 12, 31):22995.00, \
                                          date(2006, 12, 31):22355.00, \
                                           date(2005, 12, 31):24329.00, \
-                                         date(2004, 12, 31):24255.00, \
-                                         date(2003, 12, 31):27258.00, \
-                                         date(2002, 12, 31):25558.00}) 
+                                         date(2004, 12, 31):24255.00}) 
     def testAnnualRedeemablePreferredStock(self):
         """ Test that I find Annual Redeemable Preferred Stock""" 
         self.assertEquals(self.google.getAnnualRedeemablePreferredStock("DD"), {date(2007, 12, 31):'-', \
                                                  date(2006, 12, 31):'-', \
                                                  date(2005, 12, 31):'-', \
-                                                 date(2004, 12, 31):'-', \
-                                                 date(2003, 12, 31):'-', \
-                                                 date(2002, 12, 31):'-'}) 
+                                                 date(2004, 12, 31):'-'}) 
     def testAnnualPreferredStockNonRedeemable(self):
         """ Test that I find Annual Preferred Stock Non Redeemable""" 
         self.assertEquals(self.google.getAnnualPreferredStockNonRedeemable("DD"), {date(2007, 12, 31):237.00, \
                                                     date(2006, 12, 31):237.00, \
                                                     date(2005, 12, 31):237.00, \
-                                                    date(2004, 12, 31):237.00, \
-                                                    date(2003, 12, 31):237.00, \
-                                                    date(2002, 12, 31):237.00}) 
+                                                    date(2004, 12, 31):237.00}) 
     def testAnnualCommonStock(self):
         """ Test that I find Annual Common Stock""" 
         self.assertEquals(self.google.getAnnualCommonStock("DD"), {date(2007, 12, 31):296.00, \
                                     date(2006, 12, 31):303.00, \
                                     date(2005, 12, 31):302.00, \
-                                    date(2004, 12, 31):324.00, \
-                                    date(2003, 12, 31):325.00, \
-                                    date(2002, 12, 31):324.00}) 
+                                    date(2004, 12, 31):324.00}) 
     def testAnnualAdditionalPaidInCapital(self):
         """ Test that I find Annual Additional Paid In Capital""" 
         self.assertEquals(self.google.getAnnualAdditionalPaidInCapital("DD"), {date(2007, 12, 31):8179.00, \
                                                 date(2006, 12, 31):7797.00, \
                                                 date(2005, 12, 31):7679.00, \
-                                                date(2004, 12, 31):7784.00, \
-                                                date(2003, 12, 31):7522.00, \
-                                                date(2002, 12, 31):7377.00}) 
+                                                date(2004, 12, 31):7784.00}) 
     def testAnnualRetainedEarnings(self):
         """ Test that I find Annual Retained Earnings""" 
         self.assertEquals(self.google.getAnnualRetainedEarnings("DD"), {date(2007, 12, 31):9945.00, \
                                          date(2006, 12, 31):9679.00, \
                                          date(2005, 12, 31):7990.00, \
-                                         date(2004, 12, 31):10182.00, \
-                                         date(2003, 12, 31):10185.00, \
-                                         date(2002, 12, 31):10619.00}) 
+                                         date(2004, 12, 31):10182.00}) 
     def testAnnualTreasuryStock(self):
         """ Test that I find Annual Treasury Stock"""
         self.assertEquals(self.google.getAnnualTreasuryStock("DD"), {date(2007, 12, 31):-6727.00, \
                                       date(2006, 12, 31):-6727.00, \
                                       date(2005, 12, 31):-6727.00, \
-                                      date(2004, 12, 31):-6727.00, \
-                                      date(2003, 12, 31):-6727.00, \
-                                      date(2002, 12, 31):-6727.00}) 
+                                      date(2004, 12, 31):-6727.00}) 
     def testAnnualOtherEquity(self):
         """ Test that I find Annual Other Equity""" 
         self.assertEquals(self.google.getAnnualOtherEquity("DD"), {date(2007, 12, 31):-794.00, \
                                     date(2006, 12, 31):-1867.00, \
                                     date(2005, 12, 31):-518.00, \
-                                    date(2004, 12, 31):-423.00, \
-                                    date(2003, 12, 31):-1761.00, \
-                                    date(2002, 12, 31):-2767.00}) 
+                                    date(2004, 12, 31):-423.00}) 
     def testAnnualTotalEquity(self):
         """ Test that I find Annual Total Equity"""
         self.assertEquals(self.google.getAnnualTotalEquity("DD"), {date(2007, 12, 31):11136.00, \
                                     date(2006, 12, 31):9422.00, \
                                     date(2005, 12, 31):8963.00, \
-                                    date(2004, 12, 31):11377.00, \
-                                    date(2003, 12, 31):9781.00, \
-                                    date(2002, 12, 31):9063.00}) 
+                                    date(2004, 12, 31):11377.00}) 
     def testAnnualTotalLiabilitiesAndShareholdersEquity(self):
         """ Test that I find Annual Total Liabilities And Shareholders Equity""" 
         self.assertEquals(self.google.getAnnualTotalLiabilitiesAndShareholdersEquity("DD"), {date(2007, 12, 31):34131.00, \
                                                               date(2006, 12, 31):31777.00, \
                                                               date(2005, 12, 31):33292.00, \
-                                                              date(2004, 12, 31):35632.00, \
-                                                              date(2003, 12, 31):37039.00, \
-                                                              date(2002, 12, 31):34621.00}) 
+                                                              date(2004, 12, 31):35632.00}) 
     def testAnnualSharesOuts(self):
         """ Test that I find Annual Shares Outs""" 
         self.assertEquals(self.google.getAnnualSharesOuts("DD"), {date(2007, 12, 31):'-', \
                                    date(2006, 12, 31):'-', \
                                    date(2005, 12, 31):'-', \
-                                   date(2004, 12, 31):'-', \
-                                   date(2003, 12, 31):'-', \
-                                   date(2002, 12, 31):'-'}) 
+                                   date(2004, 12, 31):'-'}) 
     def testAnnualTotalCommonSharesOutstanding(self):
         """ Test that I find Annual Total Common Shares Outstanding""" 
         self.assertEquals(self.google.getAnnualTotalCommonSharesOutstanding("DD"), {date(2007, 12, 31):899.29, \
                                                      date(2006, 12, 31):922.07, \
                                                      date(2005, 12, 31):919.61, \
-                                                     date(2004, 12, 31):994.34, \
-                                                     date(2003, 12, 31):997.28, \
-                                                     date(2002, 12, 31):993.94})
+                                                     date(2004, 12, 31):994.34})
          
  #Quarterly
  
@@ -1775,153 +1673,115 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
         self.assertEquals(self.google.getAnnualNetIncomeStartingLine("DD"), {date(2007, 12, 31):2988.00, \
                                               date(2006, 12, 31):3148.00, \
                                               date(2005, 12, 31):2056.00, \
-                                              date(2004, 12, 31):1780.00, \
-                                              date(2003, 12, 31):973.00, \
-                                              date(2002, 12, 31):-1103.00})
+                                              date(2004, 12, 31):1780.00})
     def testAnnualDepreciationDepletion(self):
         """ Test that I find Annual Depreciation Depletion"""  
         self.assertEquals(self.google.getAnnualDepreciationDepletion("DD"), {date(2007, 12, 31):1158.00, \
                                               date(2006, 12, 31):1157.00, \
                                               date(2005, 12, 31):1128.00, \
-                                              date(2004, 12, 31):1124.00, \
-                                              date(2003, 12, 31):1355.00, \
-                                              date(2002, 12, 31):1297.00})
+                                              date(2004, 12, 31):1124.00})
     def testAnnualAmortization(self):
         """ Test that I find Annual Amortization"""  
         self.assertEquals(self.google.getAnnualAmortization("DD"), {date(2007, 12, 31):213.00, \
                                      date(2006, 12, 31):227.00, \
                                      date(2005, 12, 31):230.00, \
-                                     date(2004, 12, 31):223.00, \
-                                     date(2003, 12, 31):229.00, \
-                                     date(2002, 12, 31):218.00}) 
+                                     date(2004, 12, 31):223.00}) 
     def testAnnualDeferredTaxes(self):
         """ Test that I find Annual Deferred Taxes"""
         self.assertEquals(self.google.getAnnualDeferredTaxes("DD"), {date(2007, 12, 31):-1.00, \
                                       date(2006, 12, 31):-615.00, \
                                       date(2005, 12, 31):109.00, \
-                                      date(2004, 12, 31):'-', \
-                                      date(2003, 12, 31):'-', \
-                                      date(2002, 12, 31):'-'}) 
+                                      date(2004, 12, 31):'-'}) 
     def testAnnualNonCashItems(self):
         """ Test that I find Annual Non Cash Items"""
         self.assertEquals(self.google.getAnnualNonCashItems("DD"), {date(2007, 12, 31):88.00, \
                                      date(2006, 12, 31):-93.00, \
                                      date(2005, 12, 31):-1703.00, \
-                                     date(2004, 12, 31):732.00, \
-                                     date(2003, 12, 31):2278.00, \
-                                     date(2002, 12, 31):3752.00}) 
+                                     date(2004, 12, 31):732.00}) 
     def testAnnualChangesInWorkingCapital(self):
         """ Test that I find Annual Changes In Working Capital"""
         self.assertEquals(self.google.getAnnualChangesInWorkingCapital("DD"), {date(2007, 12, 31):-156.00, \
                                                 date(2006, 12, 31):-88.00, \
                                                 date(2005, 12, 31):722.00, \
-                                                date(2004, 12, 31):-628.00, \
-                                                date(2003, 12, 31):-2246.00, \
-                                                date(2002, 12, 31):-1725.00}) 
+                                                date(2004, 12, 31):-628.00}) 
     def testAnnualCashFromOperatingActivities(self):
         """ Test that I find Annual Cash From Operating Activities"""
         self.assertEquals(self.google.getAnnualCashFromOperatingActivities("DD"), {date(2007, 12, 31):4290.00, \
                                                     date(2006, 12, 31):3736.00, \
                                                     date(2005, 12, 31):2542.00, \
-                                                    date(2004, 12, 31):3231.00, \
-                                                    date(2003, 12, 31):2589.00, \
-                                                    date(2002, 12, 31):2439.00})
+                                                    date(2004, 12, 31):3231.00})
     def testAnnualCapitalExpenditures(self):
         """ Test that I find Annual Capital Expenditures"""
         self.assertEquals(self.google.getAnnualCapitalExpenditures("DD"), {date(2007, 12, 31):-1585.00, \
                                             date(2006, 12, 31):-1532.00, \
                                             date(2005, 12, 31):-1340.00, \
-                                            date(2004, 12, 31):-1232.00, \
-                                            date(2003, 12, 31):-1713.00, \
-                                            date(2002, 12, 31):-1280.00}) 
+                                            date(2004, 12, 31):-1232.00}) 
     def testAnnualOtherInvestingCashFlow(self):
         """ Test that I find Annual Other Investing Cash Flow"""
         self.assertEquals(self.google.getAnnualOtherInvestingCashFlow("DD"), {date(2007, 12, 31):-165.00, \
                                                date(2006, 12, 31):187.00, \
                                                date(2005, 12, 31):738.00, \
-                                               date(2004, 12, 31):3168.00, \
-                                               date(2003, 12, 31):-1662.00, \
-                                               date(2002, 12, 31):-1312.00}) 
+                                               date(2004, 12, 31):3168.00}) 
     def testAnnualCashFromInvestingActivities(self):
         """ Test that I find Annual Cash From Investing Activities"""
         self.assertEquals(self.google.getAnnualCashFromInvestingActivities("DD"), {date(2007, 12, 31):-1750.00, \
                                                     date(2006, 12, 31):-1345.00, \
                                                     date(2005, 12, 31):-602.00, \
-                                                    date(2004, 12, 31):1936.00, \
-                                                    date(2003, 12, 31):-3375.00, \
-                                                    date(2002, 12, 31):-2592.00}) 
+                                                    date(2004, 12, 31):1936.00}) 
     def testAnnualFinancingCashFlowItems(self):
         """ Test that I find Annual Financing Cash Flow Items"""
         self.assertEquals(self.google.getAnnualFinancingCashFlowItems("DD"), {date(2007, 12, 31):-67.00, \
                                                date(2006, 12, 31):-22.00, \
                                                date(2005, 12, 31):-13.00, \
-                                               date(2004, 12, 31):-79.00, \
-                                               date(2003, 12, 31):-2005.00, \
-                                               date(2002, 12, 31):0.00}) 
+                                               date(2004, 12, 31):-79.00}) 
     def testAnnualTotalCashDividendsPaid(self):
         """ Test that I find Annual Total Cash Dividends Paid"""
         self.assertEquals(self.google.getAnnualTotalCashDividendsPaid("DD"), {date(2007, 12, 31):-1409.00, \
                                                date(2006, 12, 31):-1378.00, \
                                                date(2005, 12, 31):-1439.00, \
-                                               date(2004, 12, 31):-1404.00, \
-                                               date(2003, 12, 31):-1407.00, \
-                                               date(2002, 12, 31):-1401.00}) 
+                                               date(2004, 12, 31):-1404.00}) 
     def testAnnualIssuanceOfStock(self):
         """ Test that I find Annual Issuance Of Stock"""
         self.assertEquals(self.google.getAnnualIssuanceOfStock("DD"), {date(2007, 12, 31):-1250.00, \
                                         date(2006, 12, 31):-132.00, \
                                         date(2005, 12, 31):-3171.00, \
-                                        date(2004, 12, 31):-260.00, \
-                                        date(2003, 12, 31):52.00, \
-                                        date(2002, 12, 31):-436.00}) 
+                                        date(2004, 12, 31):-260.00}) 
     def testAnnualIssuanceOfDebt(self):
         """ Test that I find Annual Issuance Of Debt"""
         self.assertEquals(self.google.getAnnualIssuanceOfDebt("DD"), {date(2007, 12, 31):-343.00, \
                                        date(2006, 12, 31):-791.00, \
                                        date(2005, 12, 31):1772.00, \
-                                       date(2004, 12, 31):-3807.00, \
-                                       date(2003, 12, 31):3391.00, \
-                                       date(2002, 12, 31):-281.00}) 
+                                       date(2004, 12, 31):-3807.00}) 
     def testAnnualCashFromFinancingActivities(self):
         """ Test that I find Annual Cash From Financing Activities"""
         self.assertEquals(self.google.getAnnualCashFromFinancingActivities("DD"), {date(2007, 12, 31):-3069.00, \
                                                     date(2006, 12, 31):-2323.00, \
                                                     date(2005, 12, 31):-2851.00, \
-                                                    date(2004, 12, 31):-5550.00, \
-                                                    date(2003, 12, 31):31.00, \
-                                                    date(2002, 12, 31):-2118.00}) 
+                                                    date(2004, 12, 31):-5550.00}) 
     def testAnnualForeignExchangeEffects(self):
         """ Test that I find Annual Foreign Exchange Effects"""
         self.assertEquals(self.google.getAnnualForeignExchangeEffects("DD"), {date(2007, 12, 31):20.00, \
                                                date(2006, 12, 31):10.00, \
                                                date(2005, 12, 31):-722.00, \
-                                               date(2004, 12, 31):404.00, \
-                                               date(2003, 12, 31):425.00, \
-                                               date(2002, 12, 31):186.00}) 
+                                               date(2004, 12, 31):404.00}) 
     def testAnnualNetChangeInCash(self):
         """ Test that I find Annual Net Change In Cash"""
         self.assertEquals(self.google.getAnnualNetChangeInCash("DD"), {date(2007, 12, 31):-509.00, \
                                         date(2006, 12, 31):78.00, \
                                         date(2005, 12, 31):-1633.00, \
-                                        date(2004, 12, 31):21.00, \
-                                        date(2003, 12, 31):-330.00, \
-                                        date(2002, 12, 31):-2085.00}) 
+                                        date(2004, 12, 31):21.00}) 
     def testAnnualCashInterestPaid(self):
         """ Test that I find Annual Cash Interest Paid"""
         self.assertEquals(self.google.getAnnualCashInterestPaid("DD"), {date(2007, 12, 31):527.00, \
                                          date(2006, 12, 31):295.00, \
                                          date(2005, 12, 31):479.00, \
-                                         date(2004, 12, 31):366.00, \
-                                         date(2003, 12, 31):357.00, \
-                                         date(2002, 12, 31):402.00}) 
+                                         date(2004, 12, 31):366.00}) 
     def testAnnualCashTaxesPaid(self):
         """ Test that I find Annual Cash Taxes Paid"""
         self.assertEquals(self.google.getAnnualCashTaxesPaid("DD"), {date(2007, 12, 31):795.00, \
                                       date(2006, 12, 31):899.00, \
                                       date(2005, 12, 31):355.00, \
-                                      date(2004, 12, 31):521.00, \
-                                      date(2003, 12, 31):278.00, \
-                                      date(2002, 12, 31):1691.00}) 
+                                      date(2004, 12, 31):521.00}) 
  
         #quarterly
         
@@ -2098,4 +1958,5 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
  
 if __name__ == "__main__": #for coverage tests
 	unittest.main()
+	unittest.TestLoader
                                        
