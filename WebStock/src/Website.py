@@ -387,10 +387,10 @@ class Google(Website):
 	Or, when looking for information on a stock that DOES exist, but a date 
 	that doesnt:
 	
-	>>> scraper.getAnnualDeferredTaxes("CFC", date(2007,12,30))
+	>>> scraper.getAnnualDeferredTaxes("BAC", date(2007,12,30))
 	Traceback (most recent call last):
 		...
-	DateNotFound: Symbol \"CFC\" does not support date : 2007-12-30
+	DateNotFound: Symbol \"BAC\" does not support date : 2007-12-30
 	
 	The scraper supports any stock that Google can search, including foreign stocks:
 	
@@ -1802,18 +1802,18 @@ class Google(Website):
 			
 		if date:
 			try:
+				#print sorted(results.keys()), date, self.datePolicy.advice(date, sorted(results.keys()))
 				keydate = self.datePolicy.advice(date, results.keys())
 				results = results[keydate]
 			except KeyError, e:
 				raise DateNotFound(symbol,date)
 		return results
 			
-	def __init__(self, datePolicy=FinancialDate.StrictPolicy):
+	def __init__(self, datePolicy=None):
 		""" Google's constructor.
 		
 		pre:
-			isinstance(datePolicy,type)
-			issubclass(datePolicy,FinancialDate.DatePolicy)
+			isinstance(datePolicy,FinancialDate.DatePolicy) if datePolicy else True
 		
 		post[self]:
 			#check to make sure attributes are added
@@ -1833,7 +1833,10 @@ class Google(Website):
 		#add meta info
 #		self._delegateInterface(self.Metadata, self._metaWrapper)
 		self._metaCache = {}
-		self.datePolicy = FinancialDate.StrictPolicy()	
+		
+		if not datePolicy:
+			datePolicy = FinancialDate.StrictPolicy()
+		self.datePolicy = datePolicy	
 		self.resolver = SymbolLookup.SymbolLookup()
 
 def addSECData(cls):

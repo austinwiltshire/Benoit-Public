@@ -13,7 +13,7 @@ def registerModule(module):
 registerModule("SymbolLookupUnitTest")
 #registerModule("SymbolUnitTest")
 registerModule("UnifiedBloombergUnitTest")
-registerModule("FinancialDate")
+registerModule("FinancialDateUnitTest")
 registerModule("WebsiteUnitTest")
 registerModule("YahooUnitTest")
 

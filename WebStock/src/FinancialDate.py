@@ -38,7 +38,6 @@ class StrictPolicy(DatePolicy):
 		datetime.date(2005, 3, 4)
 		
 		pre:
-			sorted(dateList) == dateList
 			isinstance(aDate, datetime.date)
 			all(isinstance(x, datetime.date) for x in dateList)
 		
@@ -73,7 +72,7 @@ class FuzzyPolicy(DatePolicy):
 		larger(later) than the date passed in, RoundUp returns None.
 		
 		Returns the closest date that's after the one passed in:
-		>>> dp = FuzzyPolicy(FuzzyPolicy.RoundUp)
+		>>> dp = FuzzyPolicy(FuzzyPolicy.RoundUp())
 		>>> dp.advice(datetime.date(2004,1,2), [datetime.date(2003,12,30), datetime.date(2004,1,1), datetime.date(2004,6,2)])
 		datetime.date(2004, 6, 2)
 		
@@ -93,7 +92,7 @@ class FuzzyPolicy(DatePolicy):
 		    aDate is a datetime.date, while dateList is a list of datetime.dates in sorted order (latest dates last).
 			
 			pre:
-				sorted(dateList) == dateList
+				dateList == sorted(dateList)
 				isinstance(aDate, datetime.date)
 				all(isinstance(x, datetime.date) for x in dateList)
 		
@@ -101,6 +100,7 @@ class FuzzyPolicy(DatePolicy):
 				isinstance(__return__,datetime.date) or __return__ is None
 			 
 		"""
+		  	dateList = sorted(dateList)
 			toReturn = [upperBound for (lowerBound,upperBound) in zip(dateList[:-1],dateList[1:]) if lowerBound < aDate < upperBound]
 			if toReturn:
 				return toReturn[0]
@@ -114,7 +114,7 @@ class FuzzyPolicy(DatePolicy):
 		smaller(earlier) than the date passed in, RoundDown returns None.
 		
 		Returns the closest date that's before the one passed in:
-		>>> dp = FuzzyPolicy(FuzzyPolicy.RoundDown)
+		>>> dp = FuzzyPolicy(FuzzyPolicy.RoundDown())
 		>>> dp.advice(datetime.date(2004,1,2), [datetime.date(2003,6,30), datetime.date(2004,1,3), datetime.date(2004,6,2)])
 		datetime.date(2003, 6, 30)
 		
@@ -134,7 +134,7 @@ class FuzzyPolicy(DatePolicy):
 			aDate is a datetime.date, while dateList is a list of datetime.dates in sorted order (latest dates last).
 			
 			pre:
-				sorted(dateList) == dateList
+				dateList == sorted(dateList)
 				isinstance(aDate, datetime.date)
 				all(isinstance(x, datetime.date) for x in dateList)
 		
@@ -142,6 +142,7 @@ class FuzzyPolicy(DatePolicy):
 				isinstance(__return__,datetime.date) or __return__ is None
 			
 			"""	
+			dateList = sorted(dateList)
 			toReturn = [lowerBound for (lowerBound,upperBound) in zip(dateList[:-1],dateList[1:]) if lowerBound < aDate < upperBound]
 			if toReturn:
 				return toReturn[0]
@@ -154,39 +155,43 @@ class FuzzyPolicy(DatePolicy):
 		object semantics.  RoundClose is the safest Rounding rule as it will never return None.
 		
 		Returns the closest date that's to the one passed in:
-		>>> dp = FuzzyPolicy(FuzzyPolicy.RoundClose)
+		
+		>>> dp = FuzzyPolicy(FuzzyPolicy.RoundClose())
 		>>> dp.advice(datetime.date(2004,1,2), [datetime.date(2003,6,30), datetime.date(2004,1,3), datetime.date(2004,6,2)])
 		datetime.date(2004, 1, 3)
 		
 		Whether that date is higher or lower:
+		
 		>>> dp.advice(datetime.date(2004,1,2), [datetime.date(2003,6,30), datetime.date(2004,1,1), datetime.date(2004,6,2)])
 		datetime.date(2004, 1, 1)
 		
 		Returns the date passed in if it exists in the dateList:
+		
 		>>> dp.advice(datetime.date(2004,1,2), [datetime.date(2004,1,1), datetime.date(2004,1,2), datetime.date(2004,2,3)])
 		datetime.date(2004, 1, 2)
 		
 		Never returns None:
+		
 		>>> dp.advice(datetime.date(1990,12,31), [datetime.date(2004,1,1), datetime.date(2004,1,2), datetime.date(2004,1,3)])
 		datetime.date(2004, 1, 1)
 		
 		>>> dp.advice(datetime.date(2010,2,28), [datetime.date(2004,1,1), datetime.date(2004,1,2), datetime.date(2004,1,3)])
-		datetime.date(2004, 1, 3)
-		
-		pre:
-			sorted(dateList) == dateList
-			isinstance(aDate, datetime.date)
-			all(isinstance(x, datetime.date) for x in dateList)
-		
-		post[]:
-			isinstance(__return__,datetime.date) or __return__ is None
-		
+		datetime.date(2004, 1, 3)		
 		""" 
 		def __call__(self, aDate, dateList):
 			"""
 			RoundClose uses function object semantics.  For help, please see the RoundClose object's documentation.  This
 			call expects a datetime.date to be passed in for aDate, and a list of datetime.dates to be passed in for dateList
 			aDate is a datetime.date, while dateList is a list of datetime.dates in sorted order (latest dates last).
+			
+			pre:
+				dateList == sorted(dateList)
+				isinstance(aDate, datetime.date)
+				all(isinstance(x, datetime.date) for x in dateList)
+		
+			post[]:
+				isinstance(__return__,datetime.date) or __return__ is None
+			
 			"""	
 			diffs = [aDate-otherDate for otherDate in dateList]
 			#print diffs
@@ -199,16 +204,15 @@ class FuzzyPolicy(DatePolicy):
 			return dateList[minimumIndex]
 	
 	
-	def __init__(self, roundRule=RoundDown):
+	def __init__(self, roundRule):
 		"""
 		Fuzzy policy requires a rounding rule to be passed in for dependency injection.  By default, this is 
 		RoundDown.  The round rule is expected to be default constructable and passed in as a class.
 		
 		pre:
-			isinstance(roundRule,type)
-			roundRule == FuzzyPolicy.RoundDown or roundRule == FuzzyPolicy.RoundUp or roundRule == FuzzyPolicy.RoundClose
+			isinstance(roundRule,FuzzyPolicy.RoundRule)
 		"""
-		self._roundRule = roundRule()
+		self._roundRule = roundRule
 		
 	def advice(self, aDate, dateList):
 		"""
@@ -218,7 +222,6 @@ class FuzzyPolicy(DatePolicy):
 		the passed in date.   aDate is a datetime.date, while dateList is a list of datetime.dates in sorted order (latest dates last).
 		
 		pre:
-			sorted(dateList) == dateList
 			isinstance(aDate, datetime.date)
 			all(isinstance(x, datetime.date) for x in dateList)
 		
@@ -226,6 +229,7 @@ class FuzzyPolicy(DatePolicy):
 			isinstance(__return__,datetime.date) or __return__ is None
 		
 		"""
+		dateList = sorted(dateList)
 		if aDate in dateList:
 			return aDate
 		return self._roundRule(aDate, dateList)

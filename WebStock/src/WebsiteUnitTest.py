@@ -8,6 +8,7 @@ import unittest
 import FinancialDate
 
 contract.checkmod(Website)
+contract.checkmod(FinancialDate)
 
 class DoctestWrapper(unittest.TestSuite):
 	def __init__(self):
@@ -24,79 +25,79 @@ class WebsiteTestCase(unittest.TestCase):
 class DatePolicyTestCase(WebsiteTestCase):
 	def testStrictPolicyQuarterlyPass(self):
 		""" Test that the strict policy is the default dating policy for Google with a quarterly method that should pass """
-		self.assertAlmostEqual(self.google.getQuarterlyRevenue("IRBT",datetime.date(2007,3,31)), 39.49)
+		self.assertAlmostEqual(self.google.getQuarterlyRevenue("IRBT", datetime.date(2007, 3, 31)), 39.49)
 	
 	def testStrictPolicyAnnualPass(self):
 		""" Test that the strict policy is the default dating policy for Google with an annual method that should pass """
-		self.assertAlmostEqual(self.google.getQuarterlyRevenue("IRBT", datetime.date(2004, 12, 31)), 95.04)
+		self.assertAlmostEqual(self.google.getAnnualRevenue("IRBT", datetime.date(2004, 12, 31)), 95.04)
 		
 	def testStrictPolicyQuarterlyFail(self):
 		""" Test that the strict policy fails when given a quarterly date that is not available """
-		self.assertRaises(Website.DateNotFound,self.google.getQuarterlyRevenue,["IRBT",datetime.date(2007,3,30)]) #one day off
+		self.assertRaises(Website.DateNotFound, self.google.getQuarterlyRevenue, "IRBT", datetime.date(2007, 3, 30)) #one day off
 		
 	def testStrictPolicyAnnualFail(self):
 		""" Test that the strict policy fails when given an annual date that is not available """
-		self.assertRaises(Website.DateNotFound, self.google.getAnnualRevenue,["IRBT",datetime.date(2004,12,30)]) #one day off 
+		self.assertRaises(Website.DateNotFound, self.google.getAnnualRevenue, "IRBT", datetime.date(2004, 12, 30)) #one day off 
 	
 	def testFuzzyPolicyQuarterlyPass_RoundDown(self):
 		""" Test that the fuzzy policy retrieves the right quartly information when rounding down with quarters """
-		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundDown))
-		self.assertAlmostEquals(self.google.google.getQuarterlyRevenue("IRBT",datetime.date(2007,5,3)), 39.49) #should be first quarter results
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundDown()))
+		self.assertAlmostEquals(scraper.getQuarterlyRevenue("IRBT", datetime.date(2007, 5, 3)), 39.49) #should be first quarter results
 		
 	def testFuzzyPolicyAnnualPass_RoundDown(self):
 		""" Test that the fuzzy policy retrieves the right annual information when rounding down with years """
-		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundDown))
-		self.assertAlmostEquals(self.google.google.getAnnualRevenue("IRBT",datetime.date(2007,2,3)),188.96) #should be 2006's revenue
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundDown()))
+		self.assertAlmostEquals(scraper.getAnnualRevenue("IRBT", datetime.date(2007, 2, 3)), 188.96) #should be 2006's revenue
 		
 	def testFuzzyPolicyQuarterlyFail_RoundDown(self):
 		""" Test that the fuzzy policy fails when there is no lower quarter to check """
-		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundDown))
-		self.assertRaises(Website.DateNotFound,self.google.google.getQuarterlyRevenue,["IRBT",datetime.date(2007,3,30)]) #IRBT doesnt have old quarter results any more
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundDown()))
+		self.assertRaises(Website.DateNotFound, scraper.getQuarterlyRevenue, "IRBT", datetime.date(2007, 3, 30)) #IRBT doesnt have old quarter results any more
 		
 	def testFuzzyPolicyAnnualFail_RoundDown(self):
 		""" Test that the fuzzy policy fails when there is no lower year to check """
-		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundDown))
-		self.assertRaises(Website.DateNotFound,self.google.google.getAnnualRevenue,["IRBT",datetime.date(2004,12,30)]) #IRBT doesnt have 2004 results any more
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundDown()))
+		self.assertRaises(Website.DateNotFound, scraper.getAnnualRevenue, "IRBT", datetime.date(2004, 12, 30)) #IRBT doesnt have 2004 results any more
 		
 	def testFuzzyPolicyQuarterlyPass_RoundUp(self):
 		""" Test that the fuzzy policy retrieves the right quartly information when rounding up with quarters """
-		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundUp))
-		self.assertAlmostEquals(self.google.google.getQuarterlyRevenue("IRBT",datetime.date(2007,8,3)),110.85) #should be first quarter results
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundUp()))
+		self.assertAlmostEquals(scraper.getQuarterlyRevenue("IRBT", datetime.date(2007, 8, 3)), 110.85) #should be first quarter results
 		
 	def testFuzzyPolicyAnnualPass_RoundUp(self):
 		""" Test that the fuzzy policy retrieves the right annual information when rounding up with years """
-		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundUp))
-		self.assertAlmostEquals(self.google.google.getAnnualRevenue("IRBT",datetime.date(2005,2,3)), 141.97) #should be 2005's revenue
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundUp()))
+		self.assertAlmostEquals(scraper.getAnnualRevenue("IRBT", datetime.date(2005, 2, 3)), 141.97) #should be 2005's revenue
 		
 	def testFuzzyPolicyQuarterlyFail_RoundUp(self):
 		""" Test that the fuzzy policy fails when there is no higher quarter to check """
-		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundUp))
-		self.assertRaises(Website.DateNotFound,self.google.google.getQuarterlyRevenue,["IRBT",datetime.date(2008,3,30)]) #IRBT doesnt have 2nd quarter results yet
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundUp()))
+		self.assertRaises(Website.DateNotFound, scraper.getQuarterlyRevenue, "IRBT", datetime.date(2008, 3, 30)) #IRBT doesnt have 2nd quarter results yet
 		
 	def testFuzzyPolicyAnnualFail_RoundUp(self):
 		""" Test that the fuzzy policy fails when there is no higher year to check """
-		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundUp))
-		self.assertRaises(Website.DateNotFound, self.google.google.getAnnualRevenue,["IRBT",datetime.date(2008,2,3)]) #IRBT doesnt have 2008 results yet
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundUp()))
+		self.assertRaises(Website.DateNotFound, scraper.getAnnualRevenue, "IRBT", datetime.date(2008, 2, 3)) #IRBT doesnt have 2008 results yet
 		
 	def testFuzzyPolicyQuarterlyPass_RoundCloseFromHigher(self):
 		""" Test that the fuzzy policy retrieves the right quarterly information when rounding closest, from above, with quarters """
-		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundClose))
-		self.assertAlmostEquals(self.google.google.getQuarterlyRevenue("IRBT",datetime.date(2007,7,3)),47.01) #should be second quarter results
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundClose()))
+		self.assertAlmostEquals(scraper.getQuarterlyRevenue("IRBT", datetime.date(2007, 7, 3)), 47.01) #should be second quarter results
 		
 	def testFuzzyPolicyAnnualPass_RoundCloseFromHigher(self):
 		""" Test that the fuzzy policy retrieves the right annual information when rounding closest, from above, with years """
-		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundClose))
-		self.assertAlmostEquals(self.google.google.getAnnualRevenue("IRBT",datetime.date(2006,2,3)),95.04) #should be 2005's revenue
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundClose()))
+		self.assertAlmostEquals(scraper.getAnnualRevenue("IRBT", datetime.date(2006, 2, 3)), 141.97) #should be 2005's revenue
 		
 	def testFuzzyPolicyQuarterlyPass_RoundCloseFromBelow(self):
 		""" Test that the fuzzy policy retrieves the right quarterly information when rounding closest, from below, with quarters """
-		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundClose))
-		self.assertAlmostEquals(self.google.google.getQuarterlyRevenue("IRBT",datetime.date(2007,5,31)),47.01) #should be first quarter results
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundClose()))
+		self.assertAlmostEquals(scraper.getQuarterlyRevenue("IRBT", datetime.date(2007, 5, 31)), 47.01) #should be first quarter results
 		
-	def testFuzzyPolicyAnnualPass_RoundCloseFromBwlow(self):
+	def testFuzzyPolicyAnnualPass_RoundCloseFromBelow(self):
 		""" Test that the fuzzy policy retrieves the right annual information when rounding closest, from below, with years """
-		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundClose))
-		self.assertAlmostEquals(self.google.google.getAnnualRevenue("IRBT",datetime.date(2005,11,3)), 95.04) #should be 2005's revenue					
+		scraper = Website.Google(datePolicy=FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundClose()))
+		self.assertAlmostEquals(scraper.getAnnualRevenue("IRBT", datetime.date(2005, 11, 3)), 141.97) #should be 2005's revenue					
         
 class GoogleTestCase(WebsiteTestCase):
 	def testSymbolResolution(self):
@@ -143,9 +144,9 @@ class SoupFactoryTestCase(unittest.TestCase):
     def testSECSoup(self):
     	""" Test that I can build and see things from an SEC soup """
     	secsoup = self.sec(self.factory.buildSECSoup("YDNT"))
-    	self.assertEqual(secsoup.getQuarterlyRevenue()[date(2007,12,31)], 25.04)
-    	self.assertEqual(secsoup.getQuarterlyTotalCurrentAssets()[date(2007,12,31)], 32.86)
-    	self.assertEqual(secsoup.getQuarterlyCashFromOperatingActivities()[date(2007,12,31)], 3.77)
+    	self.assertEqual(secsoup.getQuarterlyRevenue()[date(2007, 12, 31)], 25.04)
+    	self.assertEqual(secsoup.getQuarterlyTotalCurrentAssets()[date(2007, 12, 31)], 32.86)
+    	self.assertEqual(secsoup.getQuarterlyCashFromOperatingActivities()[date(2007, 12, 31)], 3.77)
     	
     def testIsSECSoupTrue(self):
     	""" Test that I can detect an SEC soup """
@@ -181,63 +182,63 @@ class WebsiteTestCase_FailureTests(WebsiteTestCase):
 	""" None of these should pass! """
 	def testNonNegativeNumbers(self):
 		""" Make sure I'm not mixing up negatives, this should fail """
-		self.assertNotEqual(self.google.getAnnualCashFromInvestingActivities("BRK.B"), {date(2007,12,31):-13428.0,\
-                                                                    date(2006,12,31):14077.0,\
-                                                                    date(2005,12,31):-13841.0,\
-                                                                    date(2004,12,31):315.0,\
-                                                                    date(2003,12,31):16029.0,\
-                                                                    date(2002,12,31):-1311.0})
+		self.assertNotEqual(self.google.getAnnualCashFromInvestingActivities("BRK.B"), {date(2007, 12, 31):-13428.0, \
+                                                                    date(2006, 12, 31):14077.0, \
+                                                                    date(2005, 12, 31):-13841.0, \
+                                                                    date(2004, 12, 31):315.0, \
+                                                                    date(2003, 12, 31):16029.0, \
+                                                                    date(2002, 12, 31):-1311.0})
 	
 	def testBigNumbers(self):
 		""" Make sure I don't loose precision with big numbers, this should fail """
-		self.assertNotEqual(self.google.getAnnualTotalAssets("IBN"), {date(2007,3,31):3943347.0,\
-                                                   date(2006,3,31):2772295.1,\
-                                                   date(2005,3,31):1784337.0,\
-                                                   date(2004,3,31):1409131.0,\
-                                                   date(2003,3,31):1180263.0,\
-                                                   date(2002,3,31):743362.0})
+		self.assertNotEqual(self.google.getAnnualTotalAssets("IBN"), {date(2007, 3, 31):3943347.0, \
+                                                   date(2006, 3, 31):2772295.1, \
+                                                   date(2005, 3, 31):1784337.0, \
+                                                   date(2004, 3, 31):1409131.0, \
+                                                   date(2003, 3, 31):1180263.0, \
+                                                   date(2002, 3, 31):743362.0})
 	
 	def testZeroes(self):
 		""" Make sure numbers that shouldn't be zero fail """
-		self.assertNotEqual(self.google.getQuarterlyDividendsPerShare("IRBT"), {date(2007,12,29):-0.06,\
-                                                     date(2007,9,29):0.0,\
-                                                     date(2007,6,30):0.0,\
-                                                     date(2007,3,31):0.0,\
-                                                     date(2006,12,30):0.0})
+		self.assertNotEqual(self.google.getQuarterlyDividendsPerShare("IRBT"), {date(2007, 12, 29):-0.06, \
+                                                     date(2007, 9, 29):0.0, \
+                                                     date(2007, 6, 30):0.0, \
+                                                     date(2007, 3, 31):0.0, \
+                                                     date(2006, 12, 30):0.0})
 		
 	def testTinyNumbers(self):
 		""" Make sure numbers near zero that are wrong fail """
-		self.assertNotEqual(self.google.getQuarterlyDilutedNormalizedEPS('S'), {date(2007,12,31):-3.55,\
-                                                     date(2007,9,30):0.5,\
-                                                     date(2007,6,30):0.0,\
-                                                     date(2007,3,31):-0.03,\
-                                                     date(2006,12,31):0.11}) 
+		self.assertNotEqual(self.google.getQuarterlyDilutedNormalizedEPS('S'), {date(2007, 12, 31):-3.55, \
+                                                     date(2007, 9, 30):0.5, \
+                                                     date(2007, 6, 30):0.0, \
+                                                     date(2007, 3, 31):-0.03, \
+                                                     date(2006, 12, 31):0.11}) 
      
 	def testDashesMixedWithNumbers(self): 
 		""" Make sure that a wrong answer with dashes and numbers fails """
-		self.assertNotEqual(self.google.getQuarterlyDilutionAdjustment('S'), {date(2007,12,31):0.00,\
-                                                     date(2007,9,30):'-',\
-                                                     date(2007,6,30):0.00,\
-                                                     date(2007,3,31):0.00,\
-                                                     date(2006,12,31):0.00})
+		self.assertNotEqual(self.google.getQuarterlyDilutionAdjustment('S'), {date(2007, 12, 31):0.00, \
+                                                     date(2007, 9, 30):'-', \
+                                                     date(2007, 6, 30):0.00, \
+                                                     date(2007, 3, 31):0.00, \
+                                                     date(2006, 12, 31):0.00})
 	def testRandomLookups(self):
 		""" Make sure to not screw up a random search and make sure it fails if its wrong """
-		self.assertNotAlmostEqual(self.google.getAnnualIssuanceOfStock("CSCO", date(2005,07,30)),9148.00)
+		self.assertNotAlmostEqual(self.google.getAnnualIssuanceOfStock("CSCO", date(2005, 07, 30)), 9148.00)
 		
 		#failed key
-		self.assertNotEqual(self.google.getQuarterlyAmortization("GOOG"), {date(2007,12,31):48.03,\
-                                                         date(2007,9,30):41.96,\
-                                                         date(2007,6,30):35.22,\
-                                                         date(2007,3,30):34.70})
+		self.assertNotEqual(self.google.getQuarterlyAmortization("GOOG"), {date(2007, 12, 31):48.03, \
+                                                         date(2007, 9, 30):41.96, \
+                                                         date(2007, 6, 30):35.22, \
+                                                         date(2007, 3, 30):34.70})
 		#failed value
-		self.assertNotEqual(self.google.getQuarterlyAmortization("GOOG"), {date(2007,12,31):48.03,\
-                                                         date(2007,9,30):41.96,\
-                                                         date(2007,6,30):35.22,\
-                                                         date(2007,3,31):35.70})
+		self.assertNotEqual(self.google.getQuarterlyAmortization("GOOG"), {date(2007, 12, 31):48.03, \
+                                                         date(2007, 9, 30):41.96, \
+                                                         date(2007, 6, 30):35.22, \
+                                                         date(2007, 3, 31):35.70})
 		
 		#missing values/keys
-		self.assertNotEqual(self.google.getAnnualDeferredTaxes("RDS.A"), {date(2006,12,31):1833.0,\
-                                                       date(2004,12,31):-1007.0})
+		self.assertNotEqual(self.google.getAnnualDeferredTaxes("RDS.A"), {date(2006, 12, 31):1833.0, \
+                                                       date(2004, 12, 31):-1007.0})
         
 class WebsiteTestCase_RandomAccess(WebsiteTestCase):
 	""" These tests randomly check different output to ensure that it is not just DD that works """
@@ -247,21 +248,21 @@ class WebsiteTestCase_RandomAccess(WebsiteTestCase):
 		#in other words, ensures that one test isn't 'accidently' passing.
 		
 		#annuals
-		self.assertAlmostEqual(self.google.getAnnualRevenue("CICI", date(2006,12,31)), 2.34)
-		self.assertAlmostEqual(self.google.getAnnualCashAndEquivalents("CICI", date(2006,12,31)), 0.73)
-		self.assertAlmostEqual(self.google.getAnnualNetIncomeStartingLine("CICI", date(2006,12,31)), -3.29)
+		self.assertAlmostEqual(self.google.getAnnualRevenue("CICI", date(2006, 12, 31)), 2.34)
+		self.assertAlmostEqual(self.google.getAnnualCashAndEquivalents("CICI", date(2006, 12, 31)), 0.73)
+		self.assertAlmostEqual(self.google.getAnnualNetIncomeStartingLine("CICI", date(2006, 12, 31)), -3.29)
 		
 		#quarterlys
-		self.assertAlmostEqual(self.google.getQuarterlyRevenue("CICI", date(2007,9,30)), .46) 
-		self.assertAlmostEqual(self.google.getQuarterlyCashAndEquivalents("CICI", date(2007,9,30)), 3.24) 
-		self.assertAlmostEqual(self.google.getQuarterlyNetIncomeStartingLine("CICI", date(2007,9,30)), -1.10)
+		self.assertAlmostEqual(self.google.getQuarterlyRevenue("CICI", date(2007, 9, 30)), .46) 
+		self.assertAlmostEqual(self.google.getQuarterlyCashAndEquivalents("CICI", date(2007, 9, 30)), 3.24) 
+		self.assertAlmostEqual(self.google.getQuarterlyNetIncomeStartingLine("CICI", date(2007, 9, 30)), -1.10)
 		
 	def testWeirdName(self):
 		""" Tests a weird symbol name to make sure I'm finding it right """
-		self.assertEqual(self.google.getAnnualCashFromInvestingActivities("BRK.B"), {date(2007,12,31):-13428.0,\
-                                                                    date(2006,12,31):-14077.0,\
-                                                                    date(2005,12,31):-13841.0,\
-                                                                    date(2004,12,31):315.0})
+		self.assertEqual(self.google.getAnnualCashFromInvestingActivities("BRK.B"), {date(2007, 12, 31):-13428.0, \
+                                                                    date(2006, 12, 31):-14077.0, \
+                                                                    date(2005, 12, 31):-13841.0, \
+                                                                    date(2004, 12, 31):315.0})
 	
 	#Tests included as doctests:
 	#Checking for ADR's
@@ -274,50 +275,50 @@ class WebsiteTestCase_WebpageFormat(WebsiteTestCase):
 	""" Test suite that checks for problems that tend to deal with formatting of the webpage """
 	def testMixedBoldedSpanned(self):
 		""" Test results that have mixed bold and span tags in them """
-		self.assertEqual(self.google.getQuarterlyOperatingIncome('S'), {date(2007,12,31):-29625.0,\
-                                                     date(2007,9,30):398.0,\
-                                                     date(2007,6,30):316.0,\
-                                                     date(2007,3,31):1.0,\
-                                                     date(2008,3,31):-498.0})
+		self.assertEqual(self.google.getQuarterlyOperatingIncome('S'), {date(2007, 12, 31):-29625.0, \
+                                                     date(2007, 9, 30):398.0, \
+                                                     date(2007, 6, 30):316.0, \
+                                                     date(2007, 3, 31):1.0, \
+                                                     date(2008, 3, 31):-498.0})
 	
 	def testMixedSpanned(self):
 		""" Test results that have mixed span tags in them """
-		self.assertEqual(self.google.getQuarterlyOtherNet('S'), {date(2007,12,31):234.0,\
-                                                     date(2007,9,30):0.0,\
-                                                     date(2007,6,30):43.0,\
-                                                     date(2007,3,31):27.0,\
-                                                     date(2008,3,31):22.0})
+		self.assertEqual(self.google.getQuarterlyOtherNet('S'), {date(2007, 12, 31):234.0, \
+                                                     date(2007, 9, 30):0.0, \
+                                                     date(2007, 6, 30):43.0, \
+                                                     date(2007, 3, 31):27.0, \
+                                                     date(2008, 3, 31):22.0})
 		
 	def testAllSpannedBolded(self):
 		""" Tests results that are all spanned and bolded """
-		self.assertEqual(self.google.getQuarterlyIncomeAfterTax('S'), {date(2007,12,31):-29452.00,\
-                                                     date(2007,9,30):64.0,\
-                                                     date(2007,6,30):19.0,\
-                                                     date(2007,3,31):-211.0,\
-                                                     date(2008,3,31):-505.00})
+		self.assertEqual(self.google.getQuarterlyIncomeAfterTax('S'), {date(2007, 12, 31):-29452.00, \
+                                                     date(2007, 9, 30):64.0, \
+                                                     date(2007, 6, 30):19.0, \
+                                                     date(2007, 3, 31):-211.0, \
+                                                     date(2008, 3, 31):-505.00})
  
 	def testBoldedKeyword(self):
 		""" Tests results that rely on a bolded keyword """
-		self.assertEqual(self.google.getQuarterlyTotalRevenue("IRBT"), {date(2007,12,29):98.74,\
-                                                     date(2007,9,29):110.85,\
-                                                     date(2007,6,30):47.01,\
-                                                     date(2007,3,31):39.49,\
-                                                     date(2008,3,29):57.30})
+		self.assertEqual(self.google.getQuarterlyTotalRevenue("IRBT"), {date(2007, 12, 29):98.74, \
+                                                     date(2007, 9, 29):110.85, \
+                                                     date(2007, 6, 30):47.01, \
+                                                     date(2007, 3, 31):39.49, \
+                                                     date(2008, 3, 29):57.30})
  
 	def testSpannedKeyword(self):
 		""" Tests results that rely on a spanned keyword """
-		self.assertEqual(self.google.getQuarterlyCashAndEquivalents("IRBT"), {date(2007,12,29):26.73,\
-                                                     date(2007,9,29):23.20,\
-                                                     date(2007,6,30):10.26,\
-                                                     date(2007,3,31):9.40,\
-                                                     date(2008,3,29):22.86})
+		self.assertEqual(self.google.getQuarterlyCashAndEquivalents("IRBT"), {date(2007, 12, 29):26.73, \
+                                                     date(2007, 9, 29):23.20, \
+                                                     date(2007, 6, 30):10.26, \
+                                                     date(2007, 3, 31):9.40, \
+                                                     date(2008, 3, 29):22.86})
     
 	def testMixedDashesAndNotZeros(self):
 		""" Tests that dashes can be mixed with non-zero numbers """
-		self.assertEqual(self.google.getAnnualLongTermInvestments("WHR"), {date(2007,12,31):'-',\
-                                                     date(2006,12,31):'-',\
-                                                     date(2005,12,31):28.00,\
-                                                     date(2004,12,31):16.00})
+		self.assertEqual(self.google.getAnnualLongTermInvestments("WHR"), {date(2007, 12, 31):'-', \
+                                                     date(2006, 12, 31):'-', \
+                                                     date(2005, 12, 31):28.00, \
+                                                     date(2004, 12, 31):16.00})
 		
 	#tests included as doctests:
 	#all zeros
@@ -1787,7 +1788,7 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
         
     def testQuarterlyNetIncomeStartingLine(self):
         """ Test that I find Quarterly Net Income or Starting Line"""
-        self.assertEquals(self.google.getQuarterlyNetIncomeStartingLine("DD"), {date(2008, 3, 31): 1191.00,\
+        self.assertEquals(self.google.getQuarterlyNetIncomeStartingLine("DD"), {date(2008, 3, 31): 1191.00, \
 																			    date(2007, 12, 31):545.00, \
                                               date(2007, 9, 30):526.00, \
                                               date(2007, 6, 30):972.00, \
@@ -1796,7 +1797,7 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                               
     def testQuarterlyDepreciationDepletion(self):
         """ Test that I find Quarterly Depreciation Depletion"""
-        self.assertEquals(self.google.getQuarterlyDepreciationDepletion("DD"), {date(2008, 3, 31): 287.0,\
+        self.assertEquals(self.google.getQuarterlyDepreciationDepletion("DD"), {date(2008, 3, 31): 287.0, \
 																			    date(2007, 12, 31):292.00, \
                                               date(2007, 9, 30):287.00, \
                                               date(2007, 6, 30):289.00, \
@@ -1805,7 +1806,7 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                               
     def testQuarterlyAmortization(self):
         """ Test that I find Quarterly Amortization""" 
-        self.assertEquals(self.google.getQuarterlyAmortization("DD"), {date(2008, 3, 31): 93.00,\
+        self.assertEquals(self.google.getQuarterlyAmortization("DD"), {date(2008, 3, 31): 93.00, \
 																	   date(2007, 12, 31):50.00, \
                                      date(2007, 9, 30):53.00, \
                                      date(2007, 6, 30):54.00, \
@@ -1814,7 +1815,7 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                       
     def testQuarterlyDeferredTaxes(self):
         """ Test that I find Quarterly Deferred Taxes"""
-        self.assertEquals(self.google.getQuarterlyDeferredTaxes("DD"), {date(2008, 3, 31): '-',\
+        self.assertEquals(self.google.getQuarterlyDeferredTaxes("DD"), {date(2008, 3, 31): '-', \
 																	    date(2007, 12, 31):'-', \
                                       date(2007, 9, 30):'-', \
                                       date(2007, 6, 30):'-', \
@@ -1823,7 +1824,7 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                        
     def testQuarterlyNonCashItems(self):
         """ Test that I find Quarterly Non Cash Items"""
-        self.assertEquals(self.google.getQuarterlyNonCashItems("DD"), {date(2008, 3, 31): -9.00,\
+        self.assertEquals(self.google.getQuarterlyNonCashItems("DD"), {date(2008, 3, 31): -9.00, \
 																	   date(2007, 12, 31):164.00, \
                                      date(2007, 9, 30):-32.00, \
                                      date(2007, 6, 30):-33.00, \
@@ -1832,7 +1833,7 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                       
     def testQuarterlyChangesInWorkingCapital(self):
         """ Test that I find Quarterly Changes In Working Capital"""
-        self.assertEquals(self.google.getQuarterlyChangesInWorkingCapital("DD"), {date(2008, 3, 31): -2513.00,\
+        self.assertEquals(self.google.getQuarterlyChangesInWorkingCapital("DD"), {date(2008, 3, 31): -2513.00, \
 																				  date(2007, 12, 31):1814.00, \
                                                 date(2007, 9, 30):209.00, \
                                                 date(2007, 6, 30):-659.00, \
@@ -1841,7 +1842,7 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                                  
     def testQuarterlyCashFromOperatingActivities(self):
         """ Test that I find Quarterly Cash From Operating Activities"""
-        self.assertEquals(self.google.getQuarterlyCashFromOperatingActivities("DD"), {date(2008, 3, 31): -951.00,\
+        self.assertEquals(self.google.getQuarterlyCashFromOperatingActivities("DD"), {date(2008, 3, 31): -951.00, \
 																					  date(2007, 12, 31):2864.00, \
                                                     date(2007, 9, 30):1043.00, \
                                                     date(2007, 6, 30):623.00, \
@@ -1850,7 +1851,7 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                                     
     def testQuarterlyCapitalExpenditures(self):
         """ Test that I find Quarterly Capital Expenditures"""
-        self.assertEquals(self.google.getQuarterlyCapitalExpenditures("DD"), {date(2008, 3, 31): -410.00,\
+        self.assertEquals(self.google.getQuarterlyCapitalExpenditures("DD"), {date(2008, 3, 31): -410.00, \
 																			  date(2007, 12, 31):-566.00, \
                                             date(2007, 9, 30):-398.00, \
                                             date(2007, 6, 30):-348.00, \
@@ -1859,7 +1860,7 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                              
     def testQuarterlyOtherInvestingCashFlow(self):
         """ Test that I find Quarterly Other Investing Cash Flow"""
-        self.assertEquals(self.google.getQuarterlyOtherInvestingCashFlow("DD"), {date(2008, 3, 31): -110.00,\
+        self.assertEquals(self.google.getQuarterlyOtherInvestingCashFlow("DD"), {date(2008, 3, 31): -110.00, \
 																				 date(2007, 12, 31):-164.00, \
                                                date(2007, 9, 30):50.00, \
                                                date(2007, 6, 30):-55.00, \
@@ -1868,7 +1869,7 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                                 
     def testQuarterlyCashFromInvestingActivities(self):
         """ Test that I find Quarterly Cash From Investing Activities"""
-        self.assertEquals(self.google.getQuarterlyCashFromInvestingActivities("DD"), {date(2008, 3, 31): -520.00,\
+        self.assertEquals(self.google.getQuarterlyCashFromInvestingActivities("DD"), {date(2008, 3, 31): -520.00, \
 																					  date(2007, 12, 31):-730.00, \
                                                     date(2007, 9, 30):-348.00, \
                                                     date(2007, 6, 30):-403.00, \
@@ -1877,7 +1878,7 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                                      
     def testQuarterlyFinancingCashFlowItems(self):
         """ Test that I find Quarterly Financing Cash Flow Items"""
-        self.assertEquals(self.google.getQuarterlyFinancingCashFlowItems("DD"), {date(2008, 3, 31): 4.00,\
+        self.assertEquals(self.google.getQuarterlyFinancingCashFlowItems("DD"), {date(2008, 3, 31): 4.00, \
 																				 date(2007, 12, 31):5.00, \
                                                date(2007, 9, 30):8.00, \
                                                date(2007, 6, 30):-11.00, \
@@ -1886,7 +1887,7 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                                 
     def testQuarterlyTotalCashDividendsPaid(self):
         """ Test that I find Quarterly Total Cash Dividends Paid"""
-        self.assertEquals(self.google.getQuarterlyTotalCashDividendsPaid("DD"), {date(2008, 3, 31): -372.00,\
+        self.assertEquals(self.google.getQuarterlyTotalCashDividendsPaid("DD"), {date(2008, 3, 31): -372.00, \
 																				 date(2007, 12, 31):-372.00, \
                                                date(2007, 9, 30):-345.00, \
                                                date(2007, 6, 30):-345.00, \
@@ -1895,7 +1896,7 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                                 
     def testQuarterlyIssuanceOfStock(self):
         """ Test that I find Quarterly Issuance Of Stock"""
-        self.assertEquals(self.google.getQuarterlyIssuanceOfStock("DD"), {date(2008, 3, 31): 19.00,\
+        self.assertEquals(self.google.getQuarterlyIssuanceOfStock("DD"), {date(2008, 3, 31): 19.00, \
 																		  date(2007, 12, 31):14.00, \
                                         date(2007, 9, 30):-1029.00, \
                                         date(2007, 6, 30):-185.00, \
@@ -1904,7 +1905,7 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                          
     def testQuarterlyIssuanceOfDebt(self):
         """ Test that I find Quarterly Issuance Of Debt"""
-        self.assertEquals(self.google.getQuarterlyIssuanceOfDebt("DD"), {date(2008, 3, 31): 1611.00,\
+        self.assertEquals(self.google.getQuarterlyIssuanceOfDebt("DD"), {date(2008, 3, 31): 1611.00, \
 																		 date(2007, 12, 31):-1673.00, \
                                        date(2007, 9, 30):858.00, \
                                        date(2007, 6, 30):431.00, \
@@ -1913,7 +1914,7 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                         
     def testQuarterlyCashFromFinancingActivities(self):
         """ Test that I find Quarterly Cash From Financing Activities"""
-        self.assertEquals(self.google.getQuarterlyCashFromFinancingActivities("DD"), {date(2008, 3, 31): 1262.00,\
+        self.assertEquals(self.google.getQuarterlyCashFromFinancingActivities("DD"), {date(2008, 3, 31): 1262.00, \
 																					  date(2007, 12, 31):-2026.00, \
                                                     date(2007, 9, 30):-508.00, \
                                                     date(2007, 6, 30):-110.00, \
@@ -1922,7 +1923,7 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                                      
     def testQuarterlyForeignExchangeEffects(self):
         """ Test that I find Quarterly Foreign Exchange Effects"""
-        self.assertEquals(self.google.getQuarterlyForeignExchangeEffects("DD"), {date(2008, 3, 31): -2.00,\
+        self.assertEquals(self.google.getQuarterlyForeignExchangeEffects("DD"), {date(2008, 3, 31): -2.00, \
 																				 date(2007, 12, 31):-12.00, \
                                                date(2007, 9, 30):35.00, \
                                                date(2007, 6, 30):-6.00, \
@@ -1931,7 +1932,7 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                                 
     def testQuarterlyNetChangeInCash(self):
         """ Test that I find Quarterly Net Change In Cash"""
-        self.assertEquals(self.google.getQuarterlyNetChangeInCash("DD"), {date(2008, 3, 31): -211.00,\
+        self.assertEquals(self.google.getQuarterlyNetChangeInCash("DD"), {date(2008, 3, 31): -211.00, \
 																		  date(2007, 12, 31):96.00, \
                                         date(2007, 9, 30):222.00, \
                                         date(2007, 6, 30):104.00, \
@@ -1940,7 +1941,7 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                          
     def testQuarterlyCashInterestPaid(self):
         """ Test that I find Quarterly Cash Interest Paid"""
-        self.assertEquals(self.google.getQuarterlyCashInterestPaid("DD"), {date(2008, 3, 31): '-',\
+        self.assertEquals(self.google.getQuarterlyCashInterestPaid("DD"), {date(2008, 3, 31): '-', \
 																		   date(2007, 12, 31):'-', \
                                          date(2007, 9, 30):'-', \
                                          date(2007, 6, 30):'-', \
@@ -1949,7 +1950,7 @@ class WebsiteTestCase_CashFlow(WebsiteTestCase):
                                           
     def testQuarterlyCashTaxesPaid(self):
         """ Test that I find Quarterly Cash Taxes Paid"""
-        self.assertEquals(self.google.getQuarterlyCashTaxesPaid("DD"), {date(2008, 3, 31): '-',\
+        self.assertEquals(self.google.getQuarterlyCashTaxesPaid("DD"), {date(2008, 3, 31): '-', \
 																	    date(2007, 12, 31):'-', \
                                       date(2007, 9, 30):'-', \
                                       date(2007, 6, 30):'-', \
