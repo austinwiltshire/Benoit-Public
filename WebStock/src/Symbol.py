@@ -6,35 +6,42 @@ This is assumed to be the first argument to all methods, and it is assumed to be
 For instance:
 
 >>> ub = UnifiedBloomberg.UnifiedBloomberg(Yahoo.Yahoo,Website.Google)
->>> IRBT = Symbol("IRBT",ub)
->>> IRBT.getHigh(datetime.date(2006,4,20)) == 13.25
+>>> market = Market(ub)
+>>> IRBT = market.getSymbol("IRBT")
+>>> IRBT.getHigh(datetime.date(2006,4,20)) == 26.9
 True
 
->>> IRBT.getAnnualRevenue(datetime.date(2006,12,31)) == 13000
+>>> IRBT.getAnnualRevenue(datetime.date(2006,12,30)) == 188.96
 True
 
 Multiple iterator functions are provided: 
 
->>> for day in Daily(IRBT)[datetime.date(2006,1,1):datetime.date(2006,1,10)]:
-... 	print day.getHigh()
-13.25
-13.25
-13.25
-13.25
-...
+>>> for day in market.Daily(IRBT)[datetime.date(2006,1,1):datetime.date(2006,1,10)]:
+... 	print day.getHigh(), ",",  day.getAssociatedDate()
+34.39, 2006-01-03
+32.96, 2006-01-04
+34.12, 2006-01-05
+34.95, 2006-01-06
+33.65, 2006-01-09
 
-#note that 'quarterly' is dropped from getOperatingCashFlow() ...
+>>> for day in market.Monthly(IRBT)[datetime.date(2007,3,5):datetime.date(2007,6,5)]:
+...		print day.getLow(), ",", day.getAssociatedDate()
+---
 
->>> for quarter in Quarterly(IRBT)[datetime.date(2007,1,1):]: # all quarters after 2007
-... 	print quarter.getOperatingCashFlow(), quarter.getDate(), quarter.getQuarter()
+>>> for day in market.Yearly(DD)[datetime.date(1999,4,20):datetime.date(2008,4,20)]:
+...		print day.getVolume(), ",", day.getAssociatedDate()
+---
+
+>>> for quarter in market.Quarterly(IRBT)[datetime.date(2007,1,1):]: # all quarters after 2007
+... 	print quarter.getQuarterlyOperatingCashFlow(), quarter.getDate(), FinancialDate.Quarter(quarter.getDate())
 1000, 2007-3-31, First Quarter
 1000, 2007-6-31, Second Quarter
 1000, 2007-9-31, Third Quarter
 1000, 2007-12-31, Fourth Quarter
-...
 
->>> for year in Annually(IRBT)[:datetime.date(2006,1,1)]: #all years before 2006
-...		print year.getTotalAssets(), year.getDate(), year.getYear()
+
+>>> for year in market.Annually(IRBT)[:datetime.date(2006,1,1)]: #all years before 2006
+...		print year.getTotalAssets(), year.getDate(), FinancialDate.Year(year.getDate())
 1000, 2005-3-31, 2005
 
 
@@ -47,9 +54,52 @@ import UnifiedBloomberg
 import Website
 import Yahoo
 import datetime
-from utilities import publicInterface
+from utilities import publicInterface, getBy
+import FinancialDate
+from itertools import izip
 
 from dateutil.rrule import *
+
+def getBasicMarket():
+	
+	return Market(UnifiedBloomberg.UnifiedBloomberg(Website.Google(),Yahoo.Yahoo()))
+
+def Intersection(*lstargs, **kwargs):
+	""" Function that returns the intersection of any number of iterables, which it takes as arguments, as a list.  There are a few
+	special keywords as well.  'sort' can be True or False (defaults to True) and decides whether to sort the returned list.  Since
+	the list is actually constructed from a Set, and sets have no intrinsic order, there is no guarantee that the list will be ordered
+	and so it is sorted before its returned.  'reverse' can be True or False, and indicates whether to reverse the returned list.  
+	Finally 'cmp' defines the compare function that is passed on to the sort function. """
+	
+	sort = kwargs['sort'] if 'sort' in kwargs else True
+	reverse = kwargs['reverse'] if 'reverse' in kwargs else False
+	cmp_ = kwargs['cmp'] if 'cmp' in kwargs else None
+	
+	masterSet = set(lstargs[0])
+	for lst in lstargs[1:]:
+		masterset = masterSet.intersection(set(lst))
+	finalList = list(masterset)
+	
+	finalList = sorted(finalList,cmp_) if sort else finalList
+	finalList = list(reversed(finalList)) if reverse else finalList
+	return finalList
+
+def Span(lst):
+	""" Simple function that returns the begining and end of a list, as a tuple. """
+	return (lst[0],lst[-1])
+
+def CreateRuleWithSpan(dateSpan, **kwargs):
+	""" Takes in the begining and end of a span of dates and any special keywords and binds these to create a new rrule based
+	around that time span. """
+	return rrule(dtstart=dateSpan[0], until=dateSpan[1], **kwargs)
+
+def IterateOverDates(dates, **kwargs):
+	""" Uses the facilities provided in dateutil to iterate over a list of dates using keywords required in rrule.  For instance,
+	passing in freq=MONTHLY over any list of dates will return another list of days from the first list, iterated on by month. """
+	
+	dateRule = CreateRuleWithSpan(Span(dates), **kwargs)
+	qualifiedDates = [x.date() for x in dateRule]
+	return Intersection(qualifiedDates, dates)
 
 class Market(object):
 	""" A market is a factory for Symbols, which provide access to stock information by symbol name. """
@@ -78,8 +128,8 @@ class Market(object):
 				self.symbolText = symbolText
 				self.market = market
 			
-			def _getSymbolText(self):
-				""" A private accessor method for the internally maintained symbolText.  This, once set, should never change. """
+			def getSymbolText(self):
+				""" An accessor method for the internally maintained symbolText.  This, once set, should never change. """
 				return self.symbolText
 		
 		for method in publicInterface(bloomberg):
@@ -132,7 +182,7 @@ class Market(object):
 		def _(symbol,*args,**kwargs):
 			""" Internal helper function that closes on a bloomberg and a method string but exposes symbol, which is a string,
 			to the caller. This in turn is held by InnerSymbol objects that they may close on the symbol text."""
-			return getattr(bloomberg,method)(symbol._getSymbolText(),*args,**kwargs)
+			return getattr(bloomberg,method)(symbol.getSymbolText(),*args,**kwargs)
 		return _
 	
 	def _delegateCallDate(self, bloomberg ,method):
@@ -167,23 +217,52 @@ class Market(object):
 	def recurenceRuleClosure(freq_, **kwargs):
 		""" Is used to build recurrence rules with the date start and date end bound later """
 		return lambda begin,end: rrule(freq=freq_, dtstart=begin, until=end, **kwargs)
-	
+		
 	def Daily(self, symbol):
 		""" This convienience method returns an iterator who's iteration is set to days a stock is traded.  This 
 		range of dates is in order of earlier dates to later dates, and the iterator returns an InnerSymbolDate object
 		that allows access to a stock's bloomberg data closed on date. 
 		"""
-		return self.SymbolDateIterator(symbol, self.recurenceRuleClosure(freq_=DAILY), self)
+		return self.SymbolDateIterator(symbol.getSymbolText(), CreateRuleWithSpan(Span(symbol.getDates()),freq=DAILY), self)
 	
-	def Monthly(self, symbol):
-		""" This convienience function builds an iterator who's period is based on months, returning one day per month
-		of a given stock, in order of earlier dates to later dates, with access to its bloomberg data."""
-		return self.SymbolDateIterator(symbol, self.recurenceRuleClosure(freq_=MONTHLY), self)
+	def MonthlyByDate(self):
+		pass
+	
+	def MonthlyByNth(self, symbol, tradingDay=1, startDate=None, endDate=None):
+		""" Returns monthly iterator access to symbol.  tradingDay argument represents which trading day in the month to iterate over,
+		while startDate and endDate limit the span of the iterator. """
+		
+		if not startDate:
+			sd = symbol.getDates()[0]
+			startDate = datetime.datetime(sd.year, sd.month, sd.day)
+		if not endDate:
+			ed = symbol.getDates()[-1]
+			endDate = datetime.datetime(ed.year, ed.month, ed.day)
+		
+		startingMonth = datetime.datetime(startDate.year, startDate.month, 1)
+		
+		months = rrule(MONTHLY,dtstart=startingMonth,until=endDate,bymonthday=1)
+
+		nthTradingDays = (FinancialDate.NthTradingDayAfter(month,tradingDay-1) for month in months)
+		
+		prunedNthTradingDays = (tradingDay for tradingDay in nthTradingDays if (startDate <= tradingDay <= endDate)) #deal with the first and last dates appropriately 
+		
+		return self.SymbolDateIterator(symbol.getSymbolText(), prunedNthTradingDays, self)
+	
+	
+	# rrule(MONTHLY, byweekday=(MO,TU,WE,TH,FR), bysetpos=n, dtstart=begin, until=end)
+	# move byweekday out to the interface but give it a default.  this will cover weekends as well as odd instances like the first
+	# friday of each month or the last thursday
+	# a second rrule is probably needed, pure daily excluding weeknds so that i can iterate through it in the case of holidays - 
+	# but in the case of this iteration i need to make sure i stay within the month.  perhaps i should construct this daily rrule
+	# in each and every first use?
+	#basic rules:
+	#1. take the n'th trading day of a certain 
 	
 	def Yearly(self, symbol):
 		""" This convienience function builds an iterator who's period is based on years, returning one day per year 
 		of a given stock, in order of earlier dates to later dates, with access to its bloomberg data. """
-		return self.SymbolDateIterator(symbol, self.recurenceRuleClosure(freq_=YEARLY), self)
+		return self.SymbolDateIterator(symbol.getSymbolText(), IterateOverDates(symbol.getDates(),freq=YEARLY), self)
 
 	def Quarterly(self, symbol):
 		""" The quarterly and annual iterators depend on special information from a bloomberg that provides SEC document
@@ -212,7 +291,7 @@ class Market(object):
 			self.market = market
 			self.symbol = symbol
 			
-			self.symbolText = symbol._getSymbolText()
+			self.symbolText = symbol.getSymbolText()
 			
 			cashdates = set(symbol.getQuarterlyCashFlowDates())
 			incomedates = set(symbol.getQuarterlyIncomeStatementDates())
@@ -250,7 +329,7 @@ class Market(object):
 			self.market = market
 			self.symbol = symbol
 			
-			self.symbolText = symbol._getSymbolText()
+			self.symbolText = symbol.getSymbolText()
 			
 			cashdates = set(symbol.getAnnualCashFlowDates())
 			incomedates = set(symbol.getAnnualIncomeStatementDates())
@@ -276,38 +355,94 @@ class Market(object):
 				raise StopIteration()
 			self.index += 1
 			return self.market.getSymbolDate(self.symbolText, self.dates[self.index-1])
+		
+	def DateSet(self, ruleBuilder, dateList):
+		""" Takes in a recuranceRule and a dateList and returns the intersection """
+		recuranceRule = ruleBuilder(dateList[0],dateList[-1])
+		recuranceSet = set((x.date() for x in rule))
+		normalSet = set(dateList)
+		return sorted(list(recuranceSet.intersection(normalSet)))
 			
 	class SymbolDateIterator(object):
 		""" This is a multipurpose iterator that returns SymbolDate objects from earliest to latest according to some passed
 		in date rule and the dates available for the underlying asset. It is used by the convienience functions Daily, Monthly and
 		Yearly """
 		
-		def __init__(self, symbol, ruleBuilder, market, begin=None, end=None, interval=None):
-			""" The constructor for this iterator requires an underlying symbol object to retrieve date and other information,
-			a ruleBuilder which expects a date range, a market object passed in by the convienience function, and optional
-			range and interval information. """
+		class SkipPolicy:
+			""" A policy class that decides what to do on date misses """
+			def __init__(self):
+				""" A policy can take a secondary policy that advises _it_ what to do if it cannot find it's own advised option. 
+				For example, if a SkipNext policy runs into the end of the recurrance rule, a SkipBack policy may take effect, creating
+				a new policy that goes to the next date if it's available, otherwise it goes to the last available date. """
+				pass
+			def advice(self, date, recurranceRule):
+				""" Takes in args and returns the date to look up.... """
+				pass
+		
+		class SkipForward(SkipPolicy):
+			""" A SkipPolicy that advises to simply go to the next trading day """
+			def advice(self, date):
+				if date in FinancialDate.AllTradingDays:
+					return date
+				else:
+					return FinancialDate.AllTradingDays.after(date)
+		
+		class SkipBack(SkipPolicy):
+			""" A SkipPolicy that advises to simply go to the last trading day """
+			def advice(self, date):
+				if date in FinancialDateAllTradingDays:
+					return date
+				else:
+					return FinancialDate.AllTradingDays.before(date)
+				
+		class SkipNone(SkipPolicy):
+			""" A SkipPolicy that advises to simply skip this date and go to the next recurrance rule via returning None """
+			def advice(self, date):
+				if date in FinancialDateAllTradingDays:
+					return date
+				else:
+					return None
+		
+		def __init__(self, symbolText, dates, market):
 			self.market = market
-			self.ruleBuilder = ruleBuilder
-			self.symbol = symbol
-						
-			self.symbolText = symbol._getSymbolText()
-			self.availableDates = symbol.getDates()
-			
-			if not begin:
-				begin = self.availableDates[0]
-			
-			if not end:
-				end = self.availableDates[-1]
+			self.symbolText = symbolText
+			self.dates = dates
+		
+#		def nextValidTradingDay(self, date):
+#			""" Returns the next valid trading day in case of collissions with holidays or weekends from some other iterator """
+#			tradingdays = rrule(DAILY,byweekday(MO,TU,WE,TH,FR), dtstart=date)
+#			potential = tradingdays.after(date)
+#			while potential in self.getHolidays(date):
+#				potential = tradingdays.after(potential)
+#			return potential
 				
-			if not interval:
-				interval = 1
-			
-			self.interval = interval
-				
-			rule = ruleBuilder(begin,end)
-			recurenceDatesSet = set((x.date() for x in rule[::interval])) #putting interval as a slice on rule here allows us to  go backwards if we want.
-			 	   	   	   	   	   	   	   	   	   	   	   	   	   	   	  #which is required to allow SymbolDateIterator to have proper slice notation
-			availableDatesSet = set(self.availableDates)
+		
+#		def __init__(self, symbol, dates, ruleBuilder, market, begin=None, end=None, interval=None):
+#			""" The constructor for this iterator requires an underlying symbol object to retrieve date and other information,
+#			a ruleBuilder which expects a date range, a market object passed in by the convienience function, and optional
+#			range and interval information. """
+#			self.market = market
+#			self.ruleBuilder = ruleBuilder
+#			self.symbol = symbol
+#						
+#			self.symbolText = symbol._getSymbolText()
+#			self.availableDates = dates
+#			
+#			if not begin:
+#				begin = self.availableDates[0]
+#			
+#			if not end:
+#				end = self.availableDates[-1]
+#				
+#			if not interval:
+#				interval = 1
+#			
+#			self.interval = interval
+#				
+#			rule = ruleBuilder(begin,end)
+#			recurenceDatesSet = set((x.date() for x in rule[::interval])) #putting interval as a slice on rule here allows us to  go backwards if we want.
+#			 	   	   	   	   	   	   	   	   	   	   	   	   	   	   	  #which is required to allow SymbolDateIterator to have proper slice notation
+#			availableDatesSet = set(self.availableDates)
 			
 			
 			#interval is really funny.  right now, it takes every other day out of the recurenceRule set, which means that if the
@@ -324,24 +459,62 @@ class Market(object):
 			# but now my skip would be
 			# 2,4,6,10
 					
-			self.realdates = sorted(list(recurenceDatesSet.intersection(availableDatesSet)))
-			self.max = len(self.realdates)
+#			self.realdates = sorted(list(recurenceDatesSet.intersection(availableDatesSet)))
+#			self.max = len(self.realdates)
 			
-			self.index = 0
+#			self.index = 0
 			
-		def next(self):
-			""" This iterator simply pops off the next date from some internally built range of dates and provides a closed
-			SymbolDate object for that date. """
-			if self.index == self.max:
-				raise StopIteration()
-			self.index += 1
-			return self.market.getSymbolDate(self.symbolText, self.realdates[self.index-1])
+#	def next(self):
+#		""" This iterator simply pops off the next date from some internally built range of dates and provides a closed
+#		SymbolDate object for that date. """
+#		if self.index == self.max:
+#			raise StopIteration()
+#		self.index += 1
+#		return self.market.getSymbolDate(self.symbolText, self.dates[self.index-1]
+
+			
+#		def getnext(self, index, rrule, :
+		
+		#three options:
+		#a replace rule - that is, it must replace the date with another date that is NOT after the next real recurrance rule.
+		#a continue rule - return None, meaning advice can't find anything
+		#
+		
+		
+		#
+		#
+		#
+		#
+		
 		
 		def __iter__(self):
 			""" The iterator resets itself every time this function is called, otherwise, the SymbolDateIterator object is itself
 			iterable. """
-			self.index = 0
-			return self
+			
+			for tradingDate in self.dates:
+				yield self.market.getSymbolDate(self.symbolText, tradingDate)
+# The way this iterator works is the following: I maintain two recurance rules and an index.  The first recurrance rule drives my 
+# date-span.  If it is monthly, I for instance, need to be able to get the first and last day of that month, or the begining
+# and end date as specified by the user.  Then, I use that span and a .between on my AllTradingDays recurance rule to get 
+# all the trading days of that month.  Then I use my index to get the 'nth trading day of that month. 			
+			
+#			allAvailableTradingDates = (AllTradingDays.between(spanStart,spanEnd) for (spanStart,spanEnd) in izip(self.spanStartRule,self.spanEndRule))
+#			nthTradingDates = (currentAvailableTradingDays[self.indexRule] for currentAvailableTradingDays in allAvailableTradingDates)
+#			for tradingDate in nthTradingDates:
+#				yield tradingDate
+				
+#				if trialDate >= date:
+#					continue
+					#date does not take out weekends or holidays, advice does.  so if date is still smaller, it means i've hit a
+					#weekend or a holiday and date hasn't caught up yet.
+					
+					#alternatives to this include the fact that the daily iterator should be the same no matter what, it's only
+					#the monthly and weekly iterators where i need advice.
+				
+#				trialDate = self.skipPolicy.advice(datetime.datetime(date.year,date.month,date.day)) #this function only takes datetimes, not dates
+#				if not trialDate and not self._strict:
+#					continue
+#				yield self.market.getSymbolDate(self.symbolText, trialDate)
 		
 		def __getitem__(self, sliceOrIndex):
 			""" Slicing notation is a little complicated.  If you just want a single date, you can actually get that from 
@@ -355,13 +528,20 @@ class Market(object):
 			
 			if isinstance(sliceOrIndex, datetime.date):
 				#in the case of a single datetime, i don't really want this thing to act like an iterator.
-				index = self.availableDates.index(sliceOrIndex) #done so that list throws an error if i look for a date i dont have
+				index = self.dates.index(sliceOrIndex) #done so that list throws an error if i look for a date i dont have
 				return self.market.getSymbolDate(self.symbolText, self.availableDates[index])				
 			elif isinstance(sliceOrIndex, slice):
 				begin = sliceOrIndex.start
 				end = sliceOrIndex.stop
 				interval = sliceOrIndex.step
-				return self.market.SymbolDateIterator(self.symbol, self.ruleBuilder, self.market, begin, end, interval)
+#				return self.market.SymbolDateIterator(self.symbol,  self.ruleBuilder, self.market, begin, end, interval)
+	   	   	   	helper = FinancialDate.FuzzyPolicy(FinancialDate.FuzzyPolicy.RoundUp())
+	   	   	   	candidateBegin = helper.advice(begin, self.dates) if begin else None
+	   	   	   	candidateEnd = helper.advice(end, self.dates) if end else None
+	   	   	   	newdatesBegin = self.dates.index(candidateBegin) if candidateBegin else None
+	   	   	   	newdatesEnd = self.dates.index(candidateEnd) if candidateEnd else None
+	   	   	   	newdates = self.dates[newdatesBegin:newdatesEnd:interval]
+	   	   	   	return self.market.SymbolDateIterator(self.symbolText, newdates, self.market)
 			else:
 				raise TypeError("A datetime.date or slice of datetime.dates is required")
 				
