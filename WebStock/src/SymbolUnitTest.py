@@ -18,3 +18,6 @@ class SymbolTestCase(unittest.TestCase):
         
     def tearDown(self):
         pass
+       
+#TODO: test that repeats don't occur in the date iterators 
+#TODO: test that all dates on a specific stock are in the iterator and visaversa, use an old stock like DD
