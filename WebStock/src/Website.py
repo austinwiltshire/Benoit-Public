@@ -163,7 +163,7 @@ class DateNotFound(Exception):
 		
 		self.symbol = symbol
 		self.date = date
-		print type(self), "********************"
+
 		super(DateNotFound,self).__init__(*args, **kwargs)
 		
 		self.myMessage = "Symbol \"%s\" does not support date : %s" % (self.symbol, str(self.date))

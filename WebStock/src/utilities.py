@@ -2,6 +2,14 @@ import re
 import datetime
 import copy
 
+def getBy(iterable, n=1):
+	iterable = iter(iterable)
+	for x in iterable:
+		args = [x]
+		for addition in xrange(n-1):
+			args.append(iterable.next())
+		yield tuple(args)
+		
 
 def publicInterface(anObject):
 	""" Returns all functions on this objects public interface that are not appended with a _.

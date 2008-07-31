@@ -1,9 +1,194 @@
 """
 This module contains the beginings of a Financial Calendering API.  Currently it contains date policies, which
 are standard, module helper classes for distinguishing date resolution.
+
+Also contains stubs for Year and Quarter types, which should provide convienient, unified access to dates.
 """
 
 import datetime
+from dateutil.rrule import *
+import dateutil.relativedelta
+
+def lastDayOfMonth(aDate):
+	return datetime.datetime(aDate.year,(aDate.month+1)%12,1) - dateutil.relativedelta.relativedelta(days=1)
+
+def YearDay(aDate):
+	#could also add week and weekday
+	baseyear = datetime.datetime(aDate.year, 1, 1)
+	return (aDate - baseyear).days + 1
+
+def NthTradingDayAfter(aDate, n):
+	trialDate = aDate
+	
+	if n==0: #in case we actually just want the trading day we passed in
+		if aDate in AllTradingDays:
+			return aDate
+		else:
+			return AllTradingDays.after(aDate)
+		
+	
+	for x in range(n):
+		trialDate = AllTradingDays.after(trialDate)
+	return trialDate
+
+def NthTradingDayBefore(aDate, n):
+	trialDate = aDate
+	
+	if n==0: #in case we actually just want the trading day we passed in
+		if aDate in AllTradingDays:
+			return aDate
+		else:
+			return AllTradingDays.after(aDate)
+	
+	for x in range(n):
+		trialDate = AllTradingDays.before(trialDate)
+	return trialDate
+
+		 
+
+#def LocalDailyRule(baserule):
+#	if baserule._freq == DAILY:
+#		return baserule
+#	if baserule._freq == WEEKLY:
+#		return rrule(DAILY,byweekday=baserule._byweekday,bymonth=baserule._dtstart.month,byyear=baserule._dtstart.year)
+#	if baserule._freq == MONTHLY:
+#		return rrule(DAILY,byweekday=baserule._byweekday,bymonth=baserule._dtstart.month,byyear=baserule._dtstart.year)
+#	if baserule._freq == YEARLY:
+#		return rrule(DAILY,byweekday=baserule._byweekday,bymonth=baserule._bymonth,byyear=baserule._dtstart.year)
+
+#TODO: were these always market holidays?  I can change up the dates by manipulating dtstart and until, for example, I might
+#change MLK day to be a market holiday only after 1989 or something.  more research needed
+def BuildTradingDateRule(beginDate=datetime.date(1900,1,1), otherIncRules=None, otherExRules=None, otherIncDates=None, otherExDates=None):
+	
+	days_of_mourning = {"Eisenhower":datetime.datetime(1969,3,31), 
+					    "MartinLutherKing":datetime.datetime(1968,4,9),
+						"Truman":datetime.datetime(1972,12,28),
+						"JFK":datetime.datetime(1963,11,25),
+						"LBJ":datetime.datetime(1973,1,25),
+ 					  	"Nixon":datetime.datetime(1994,4,27),
+ 		 		  	   	"Reagan":datetime.datetime(2004,6,11),
+			 		  	"Ford":datetime.datetime(2007,1,2) }
+	
+	acts_of_god = {"SnowDay":datetime.datetime(1969,2,10), #apparently horrible weather and snow.
+				   "NewYorkCityBlackout":datetime.datetime(1977,7,14), 
+				   "HurricaneGloria":datetime.datetime(1985,9,27)}
+	
+	acts_of_war = {"WorldTradeCenter1":datetime.datetime(2001,9,11),
+				   "WorldTradeCenter2":datetime.datetime(2001,9,12),
+				   "WorldTradeCenter3":datetime.datetime(2001,9,13),
+				   "WorldTradeCenter4":datetime.datetime(2001,9,14) }
+				
+	paper_crisis_additions = {"LincolnsBirthday":datetime.datetime(1968,2,12),
+							  "DayAfterIndependenceDay":datetime.datetime(1968,7,5), 	
+							  "VeteransDay":datetime.datetime(1968,11,11) }
+								 
+	one_small_step_for_man = {"MoonLanding":datetime.datetime(1969,7,21) } # first lunar landing
+	
+	exception_dates = {}
+	exception_dates.update(days_of_mourning)
+	exception_dates.update(acts_of_god)
+	exception_dates.update(acts_of_war)
+	exception_dates.update(paper_crisis_additions)
+	exception_dates.update(one_small_step_for_man)
+
+	#check out : www.chronos-st.org/NYSE_Observed_Holidays-1885-Present.html
+	
+	Holidays = {"PaperCrisis":rrule(WEEKLY,bymonth=(6,7,8,9,10,11,12),byweekday=(WE),dtstart=datetime.datetime(1968,6,6),until=datetime.datetime(1969,1,1)),
+			 	"ElectionDayEveryYear":rrule(YEARLY,bymonth=11,bymonthday=(2,3,4,5,6,7,8),byweekday=(TU),dtstart=beginDate,until=datetime.datetime(1969,1,1)),
+			 	"ElectionDayPresidential":rrule(YEARLY,bymonth=11,bymonthday=(2,3,4,5,6,7,8),byweekday=(TU),interval=4,dtstart=datetime.datetime(1972,1,1),until=datetime.datetime(1984,1,1)),			 	
+			 	"WashingtonsBirthdayWeek":rrule(YEARLY,bymonthday=22,bymonth=2,byweekday=(MO,TU,WE,TH,FR),dtstart=beginDate,until=datetime.datetime(1971,1,1)),
+			 	"WashingtonsBirthdaySun":rrule(YEARLY,bymonthday=23,bymonth=2,byweekday=(MO),dtstart=beginDate,until=datetime.datetime(1971,1,1)),
+			 	"WashingtonsBirthdaySat":rrule(YEARLY,bymonthday=21,bymonth=2,byweekday=(FR),dtstart=beginDate,until=datetime.datetime(1971,1,1)),
+			 	"OldMemorialDayWeek":rrule(YEARLY,bymonthday=30,bymonth=5,byweekday=(MO,TU,WE,TH,FR),dtstart=beginDate,until=datetime.datetime(1970,1,1)),
+			 	"OldMemorialDaySun":rrule(YEARLY,bymonthday=31,bymonth=5,byweekday=(MO),dtstart=beginDate,until=datetime.datetime(1970,1,1)),
+			 	"OldMemorialDaySat":rrule(YEARLY,bymonthday=29,bymonth=5,byweekday=(FR),dtstart=beginDate,until=datetime.datetime(1970,1,1)), #there was no celebration of memorial day in 1970
+			 	"NewYearsDayWeek":rrule(YEARLY,bymonthday=1,bymonth=1,byweekday=(MO,TU,WE,TH,FR),dtstart=beginDate),
+			 	"NewYearsDaySun":rrule(YEARLY,bymonthday=2,bymonth=1,byweekday=(MO),dtstart=beginDate),
+		  	    "IndependenceDayWeek":rrule(YEARLY,bymonth=7,bymonthday=(4),byweekday=(MO,TU,WE,TH,FR),dtstart=beginDate),
+		  	    "IndependenceDaySun":rrule(YEARLY,bymonth=7,bymonthday=5,byweekday=(MO),dtstart=beginDate),
+		  	    "IndependenceDaySat":rrule(YEARLY,bymonth=7,bymonthday=3,byweekday=(FR),dtstart=beginDate),
+		  	    "ChristmasWeek":rrule(YEARLY,bymonth=12,bymonthday=25,byweekday=(MO,TU,WE,TH,FR),dtstart=beginDate),
+		  	    "ChristmasSun":rrule(YEARLY,bymonth=12,bymonthday=26,byweekday=(MO),dtstart=beginDate),
+		  	    "ChristmasSat":rrule(YEARLY,bymonth=12,bymonthday=24,byweekday=(FR),dtstart=beginDate),
+		  	    "GoodFriday":rrule(YEARLY,byeaster=-2,dtstart=beginDate),
+		  	    "MartinLutherKingDay":rrule(YEARLY,bymonth=1,byweekday=MO(+3),dtstart=datetime.datetime(1998,1,1)),
+		  	    "PresidentsDay":rrule(YEARLY,bymonth=2,byweekday=MO(+3),dtstart=datetime.datetime(1971,1,1)),
+		  	    "LaborDay":rrule(YEARLY,bymonth=9,byweekday=MO(+1), dtstart=beginDate),
+		  	    "NewMemorialDay":rrule(YEARLY,bymonth=5,byweekday=MO(-1),dtstart=datetime.datetime(1971,1,1)),
+		  	    "ThanksgivingDay":rrule(YEARLY,bymonth=11,byweekday=TH(4),dtstart=beginDate)}
+	
+	PaperCrisisRule = rrule(WEEKLY,bymonth=(6,7,8,9,10,11,12),byweekday=(WE),dtstart=datetime.datetime(1968,6,6),until=datetime.datetime(1969,1,1))
+	PaperCrisisSet = rruleset()
+	PaperCrisisSet.rrule(PaperCrisisRule)
+	PaperCrisisSet.exdate(datetime.datetime(1968,6,5))
+	PaperCrisisSet.exdate(datetime.datetime(1968,7,3))
+	PaperCrisisSet.exdate(datetime.datetime(1968,9,4))
+	PaperCrisisSet.exdate(datetime.datetime(1968,11,6))
+	PaperCrisisSet.exdate(datetime.datetime(1968,11,13))
+	PaperCrisisSet.exdate(datetime.datetime(1968,11,27))
+	Holidays["PaperCrisis"] = PaperCrisisSet
+	
+	
+	tradingDates = rruleset(cache=True)
+	tradingDates.rrule(rrule(DAILY,byweekday=(MO,TU,WE,TH,FR),dtstart=beginDate))
+	for holiday in Holidays.values():
+		tradingDates.exrule(holiday)
+	
+	if otherIncRules:
+		for rule in otherIncRules:
+			tradingDates.rrule(rule)
+			
+	if otherExRules:
+		for rule in otherExRules:
+			tradingDates.rrule(rule)
+			
+	if otherIncDates:
+		for date in otherIncDates:
+			tradingDates.rdate(date)
+	
+	if otherExDates:
+		for date in otherExDates:
+			tradingDates.exdate(date)	
+			
+	for exception_day in exception_dates.values():
+		tradingDates.exdate(exception_day)
+	
+	return tradingDates
+
+AllTradingDays = BuildTradingDateRule() #builds the most conservative date rule - this tends to be slow to access!
+
+class Year(object):
+	""" Represents a financial year and provides convienience operations to derive information based on financial years. """
+	def __init__(self, seedDate):
+		""" Right now assumes a datetime date, but really most of these Year and Quarter types are going to have to do a lot of
+		isinstance stuff to resolve all sorts of dates into a single format. """
+		self.value = seedDate.year
+	
+	def __repr__(self):
+		return str(self.value)
+	
+	def getValue(self):
+		return self.value
+	
+class Quarter(object):
+	""" Represents a financial year and provides convieneince opteraions to derive information based on financial quarters. """
+	Quarters = [(0,4,1),(0,7,1),(0,10,1),(1,1,1)] #used for base quarter calcuations
+	QuarterStrings = {1:"First Quarter",2:"Second Quarter",3:"Third Quarter",4:"Fourth Quarter"}
+	def __init__(self, seedDate):
+		""" Right now assumes a datetime date, but really msot of these Year and Quarter types rae going to have to do a lot of
+		isinstance stuff to resolve all sorts of dates into a single format. """ 
+		self.date = seedDate
+		quarterFinder = FuzzyPolicy(FuzzyPolicy.RoundUp())
+		closestQuarter = quarterFinder.advice(seedDate, Quarter.genQuarters(Year(seedDate)))
+		self.value = Quarter.genQuarters(Year(seedDate)).index(closestQuarter) + 1
+		
+	@staticmethod
+	def genQuarters(year):
+		return [datetime.date(yearmod+year.getValue(),month,day) for (yearmod,month,day) in Quarter.Quarters]
+	
+	def __repr__(self):
+		return QuarterStrings[self.value]
+		
 
 class DatePolicy(object):
 	"""
@@ -76,6 +261,10 @@ class FuzzyPolicy(DatePolicy):
 		>>> dp.advice(datetime.date(2004,1,2), [datetime.date(2003,12,30), datetime.date(2004,1,1), datetime.date(2004,6,2)])
 		datetime.date(2004, 6, 2)
 		
+		Returns the first date if the date that's passed in is before all dates in the list:
+		>>> dp.advice(datetime.date(2004,3,2), [datetime.date(2004,4,1), datetime.date(2004,7,1), datetime.date(2004,10,1), datetime.date(2005,1,1)])
+		datetime.date(2004, 4, 1)
+		
 		Returns the date passed in if it exists in the dateList:
 		>>> dp.advice(datetime.date(2004,1,2), [datetime.date(2004,1,1), datetime.date(2004,1,2), datetime.date(2004,2,3)])
 		datetime.date(2004, 1, 2)
@@ -100,7 +289,7 @@ class FuzzyPolicy(DatePolicy):
 				isinstance(__return__,datetime.date) or __return__ is None
 			 
 		"""
-		  	dateList = sorted(dateList)
+		  	dateList = [datetime.date(1900,1,1)] + sorted(dateList)
 			toReturn = [upperBound for (lowerBound,upperBound) in zip(dateList[:-1],dateList[1:]) if lowerBound < aDate < upperBound]
 			if toReturn:
 				return toReturn[0]
@@ -122,6 +311,10 @@ class FuzzyPolicy(DatePolicy):
 		>>> dp.advice(datetime.date(2004,1,2), [datetime.date(2004,1,1), datetime.date(2004,1,2), datetime.date(2004,2,3)])
 		datetime.date(2004, 1, 2)
 		
+		Returns the last date if the date passed in after all dates in the list:
+		>>> dp.advice(datetime.date(2005,1,2), [datetime.date(2004,1,1), datetime.date(2004,1,2), datetime.date(2004,2,3)])
+		datetime.date(2004, 2, 3)
+		
 		Returns None if there is no date earlier than the date passed in:
 		>>> dp.advice(datetime.date(2003,12,31), [datetime.date(2004,1,1), datetime.date(2004,1,2), datetime.date(2004,1,3)]) == None
 		True
@@ -142,7 +335,7 @@ class FuzzyPolicy(DatePolicy):
 				isinstance(__return__,datetime.date) or __return__ is None
 			
 			"""	
-			dateList = sorted(dateList)
+			dateList = sorted(dateList) + [datetime.date(2100,1,1)]
 			toReturn = [lowerBound for (lowerBound,upperBound) in zip(dateList[:-1],dateList[1:]) if lowerBound < aDate < upperBound]
 			if toReturn:
 				return toReturn[0]

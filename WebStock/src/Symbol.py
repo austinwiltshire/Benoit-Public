@@ -218,15 +218,47 @@ class Market(object):
 		""" Is used to build recurrence rules with the date start and date end bound later """
 		return lambda begin,end: rrule(freq=freq_, dtstart=begin, until=end, **kwargs)
 		
-	def Daily(self, symbol):
+	def Daily(self, symbol, startDate=None, endDate=None):
 		""" This convienience method returns an iterator who's iteration is set to days a stock is traded.  This 
 		range of dates is in order of earlier dates to later dates, and the iterator returns an InnerSymbolDate object
 		that allows access to a stock's bloomberg data closed on date. 
 		"""
-		return self.SymbolDateIterator(symbol.getSymbolText(), CreateRuleWithSpan(Span(symbol.getDates()),freq=DAILY), self)
+		
+		if not startDate:
+			sd = symbol.getDates()[0]
+			startDate = datetime.datetime(sd.year, sd.month, sd.day)
+		if not endDate:
+			ed = symbol.getDates()[-1]
+			endDate = datetime.datetime(ed.year, ed.month, ed.day)
+			
+		return (self.getSymbolDate(symbol.getSymbolText(), tradingDay) for tradingDay in FinancialDate.AllTradingDays.between(startDate, endDate, True))
+		
+		#return self.SymbolDateIterator(symbol.getSymbolText(), CreateRuleWithSpan(Span(symbol.getDates()),freq=DAILY), self)
 	
 	def MonthlyByDate(self):
 		pass
+	
+	#dunno about this one - better think about it
+	def WeeklyByNth(self, symbol, weekday=MO, startDate=None, endDate=None):
+		""" Returns monthly iterator access to symbol.  tradingDay argument represents which trading day in the month to iterate over,
+		while startDate and endDate limit the span of the iterator. """
+		
+		if not startDate:
+			sd = symbol.getDates()[0]
+			startDate = datetime.datetime(sd.year, sd.month, sd.day)
+		if not endDate:
+			ed = symbol.getDates()[-1]
+			endDate = datetime.datetime(ed.year, ed.month, ed.day)
+		
+		startingWeek = datetime.datetime(startDate.year, startDate.month, 1)
+		
+		months = rrule(MONTHLY,dtstart=startingMonth,until=endDate,bymonthday=1)
+
+		nthTradingDays = (FinancialDate.NthTradingDayAfter(month,tradingDay-1) for month in months)
+		
+		prunedNthTradingDays = (tradingDay for tradingDay in nthTradingDays if (startDate <= tradingDay <= endDate)) #deal with the first and last dates appropriately 
+			
+		return (self.getSymbolDate(symbol.getSymbolText(), tradingDay) for tradingDay in prunedNthTradingDays)
 	
 	def MonthlyByNth(self, symbol, tradingDay=1, startDate=None, endDate=None):
 		""" Returns monthly iterator access to symbol.  tradingDay argument represents which trading day in the month to iterate over,
@@ -246,8 +278,8 @@ class Market(object):
 		nthTradingDays = (FinancialDate.NthTradingDayAfter(month,tradingDay-1) for month in months)
 		
 		prunedNthTradingDays = (tradingDay for tradingDay in nthTradingDays if (startDate <= tradingDay <= endDate)) #deal with the first and last dates appropriately 
-		
-		return self.SymbolDateIterator(symbol.getSymbolText(), prunedNthTradingDays, self)
+			
+		return (self.getSymbolDate(symbol.getSymbolText(), tradingDay) for tradingDay in prunedNthTradingDays)
 	
 	
 	# rrule(MONTHLY, byweekday=(MO,TU,WE,TH,FR), bysetpos=n, dtstart=begin, until=end)
@@ -257,12 +289,34 @@ class Market(object):
 	# but in the case of this iteration i need to make sure i stay within the month.  perhaps i should construct this daily rrule
 	# in each and every first use?
 	#basic rules:
-	#1. take the n'th trading day of a certain 
+	#1. take the n'th trading day of a certain
 	
-	def Yearly(self, symbol):
+	def YearlyByDate(self):
+		pass 
+	
+	def YearlyByNth(self, symbol, tradingDay, startDate=None, endDate=None):
 		""" This convienience function builds an iterator who's period is based on years, returning one day per year 
 		of a given stock, in order of earlier dates to later dates, with access to its bloomberg data. """
-		return self.SymbolDateIterator(symbol.getSymbolText(), IterateOverDates(symbol.getDates(),freq=YEARLY), self)
+		
+		if not startDate:
+			sd = symbol.getDates()[0]
+			startDate = datetime.datetime(sd.year, sd.month, sd.day)
+		if not endDate:
+			ed = symbol.getDates()[-1]
+			endDate = datetime.datetime(ed.year, ed.month, ed.day)
+		
+		startingYear = datetime.datetime(startDate.year, 1, 1)
+		
+		years = rrule(YEARLY,dtstart=startingYear,until=endDate,byyearday=1)
+
+		nthTradingDays = (FinancialDate.NthTradingDayAfter(year,tradingDay-1) for year in years)
+	
+		prunedNthTradingDays = (tradingDay for tradingDay in nthTradingDays if (startDate <= tradingDay <= endDate)) #deal with the first and last dates appropriately 
+			
+		return (self.getSymbolDate(symbol.getSymbolText(), tradingDay) for tradingDay in prunedNthTradingDays)
+		
+		
+#		return self.SymbolDateIterator(symbol.getSymbolText(), IterateOverDates(symbol.getDates(),freq=YEARLY), self)
 
 	def Quarterly(self, symbol):
 		""" The quarterly and annual iterators depend on special information from a bloomberg that provides SEC document
