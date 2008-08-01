@@ -9,6 +9,12 @@ import datetime
 from dateutil.rrule import *
 import dateutil.relativedelta
 
+def toDatetime(aDate):
+	return datetime.datetime(aDate.year,aDate.month,aDate.day)
+
+def toDate(aDate):
+	return datetime.date(aDate.year,aDate.month,aDate.day)
+
 def lastDayOfMonth(aDate):
 	return datetime.datetime(aDate.year,(aDate.month+1)%12,1) - dateutil.relativedelta.relativedelta(days=1)
 

@@ -239,7 +239,7 @@ class Market(object):
 		pass
 	
 	#dunno about this one - better think about it
-	def WeeklyByNth(self, symbol, weekday=MO, startDate=None, endDate=None):
+	def WeeklyByNth(self, symbol, tradingDay=0, startDate=None, endDate=None):
 		""" Returns monthly iterator access to symbol.  tradingDay argument represents which trading day in the month to iterate over,
 		while startDate and endDate limit the span of the iterator. """
 		
@@ -252,9 +252,9 @@ class Market(object):
 		
 		startingWeek = datetime.datetime(startDate.year, startDate.month, 1)
 		
-		months = rrule(MONTHLY,dtstart=startingMonth,until=endDate,bymonthday=1)
+		weeks = rrule(WEEKLY,dtstart=startingWeek,until=endDate,byweekday=tradingDay)
 
-		nthTradingDays = (FinancialDate.NthTradingDayAfter(month,tradingDay-1) for month in months)
+		nthTradingDays = (FinancialDate.NthTradingDayAfter(week,0) for week in weeks)
 		
 		prunedNthTradingDays = (tradingDay for tradingDay in nthTradingDays if (startDate <= tradingDay <= endDate)) #deal with the first and last dates appropriately 
 			
@@ -291,10 +291,25 @@ class Market(object):
 	#basic rules:
 	#1. take the n'th trading day of a certain
 	
-	def YearlyByDate(self):
-		pass 
+	def YearlyByDate(self, symbol, tradingMonth=1, tradingDay=1, startDate=None, endDate=None):
+		if not startDate:
+			sd = symbol.getDates()[0]
+			startDate = datetime.datetime(sd.year, sd.month, sd.day)
+		if not endDate:
+			ed = symbol.getDates()[-1]
+			endDate = datetime.datetime(ed.year, ed.month, ed.day)
+			
+		startingYear = datetime.datetime(startDate.year, 1, 1)
+		
+		years = rrule(YEARLY,dtstart=startingYear,until=endDate,bymonth=tradingMonth,bymonthday=tradingDay)
+		
+		tradingDays = (tradingDay for tradingDay in years if tradingDay in FinancialDate.AllTradingDays)
+		
+		prunedTradingDays = (tradingDay for tradingDay in tradingDays if (startDate <= tradingDay <= endDate))
+		
+		return (self.getSymbolDate(symbol.getSymbolText(), tradingDay) for tradingDay in prunedTradingDays)
 	
-	def YearlyByNth(self, symbol, tradingDay, startDate=None, endDate=None):
+	def YearlyByNth(self, symbol, tradingDay=1, startDate=None, endDate=None):
 		""" This convienience function builds an iterator who's period is based on years, returning one day per year 
 		of a given stock, in order of earlier dates to later dates, with access to its bloomberg data. """
 		
@@ -318,18 +333,56 @@ class Market(object):
 		
 #		return self.SymbolDateIterator(symbol.getSymbolText(), IterateOverDates(symbol.getDates(),freq=YEARLY), self)
 
-	def Quarterly(self, symbol):
+	def Quarterly(self, symbol, startDate=None, endDate=None):
 		""" The quarterly and annual iterators depend on special information from a bloomberg that provides SEC document
 		information.  Hence, they iterate over the quarterly dates of which quaterly SEC information exists, and can thus be 
-		queried from the InnerSymbolDate object they return.  Other information that requires a date can also be queried. """
-		return self.SymbolQuarterlyIterator(symbol, self)
+		queried from the InnerSymbolDate object they return.  Other information that requires a date can also be queried. 
+		Importantly, dates for which not all SEC information is available cannot be queried in this way - so if the balance
+		sheet is available but the cash flows are not, then we will not iterate over that date. Dates that exist before the
+		stock was traded are also not iterated over, since they would not allow the getting of pricing information."""
+		
+		if not startDate:
+			sd = symbol.getDates()[0]
+			startDate = datetime.datetime(sd.year, sd.month, sd.day)
+		if not endDate:
+			ed = symbol.getDates()[-1]
+			endDate = datetime.datetime(ed.year, ed.month, ed.day)
+			
+		cashdates = set(symbol.getQuarterlyCashFlowDates())
+		incomedates = set(symbol.getQuarterlyIncomeStatementDates())
+		balancedates = set(symbol.getQuarterlyBalanceSheetDates())
+		
+		allDates = cashdates.intersection(incomedates).intersection(balancedates)
+		allDates = [FinancialDate.toDatetime(date) for date in allDates]
+		allDates = sorted(allDates)
+
+		return (self.getSymbolDate(symbol.getSymbolText(), FinancialDate.toDate(tradingDay)) for tradingDay in allDates if startDate <= tradingDay <= endDate)
 	
-	def Annually(self, symbol):
+	def Annually(self, symbol, startDate=None, endDate=None):
 		""" The quarterly and annual iterators depend on special information from a bloomberg that provides SEC document date
 		information.  Hence, this object iterates over the annual data, on the days the documents were filed, earliest dates
 		to later dates.  The iterator returns a closed InnerSymbolDate on which sec information can be queried, as well as any
-		other bloomberg information that requires a date."""
-		return self.SymbolAnnualIterator(symbol, self)
+		other bloomberg information that requires a date.  This will not return dates for which information is not completely
+		available - so if cash flows are available but balance sheets are not, the date will not be iterated over.  Dates that
+		exist before the stock was traded are also not iterated over, since they would not allow the getting of pricing information."""
+		
+		if not startDate:
+			sd = symbol.getDates()[0]
+			startDate = datetime.datetime(sd.year, sd.month, sd.day)
+		if not endDate:
+			ed = symbol.getDates()[-1]
+			endDate = datetime.datetime(ed.year, ed.month, ed.day)
+		
+		cashdates = set(symbol.getAnnualCashFlowDates())
+		incomedates = set(symbol.getAnnualIncomeStatementDates())
+		balancedates = set(symbol.getAnnualBalanceSheetDates())
+		
+		allDates = cashdates.intersection(incomedates).intersection(balancedates)
+		allDates = [FinancialDate.toDatetime(date) for date in allDates]
+		allDates = sorted(allDates)
+
+		return (self.getSymbolDate(symbol.getSymbolText(), FinancialDate.toDate(tradingDay)) for tradingDay in allDates if startDate <= tradingDay <= endDate)
+		
 
 	class SymbolQuarterlyIterator(object):
 		""" Quarterly and Annual iterators can not depend on simple date rules since quarterly information and annual information
