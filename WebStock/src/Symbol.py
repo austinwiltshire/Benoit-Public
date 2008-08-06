@@ -16,33 +16,70 @@ True
 
 Multiple iterator functions are provided: 
 
->>> for day in market.Daily(IRBT)[datetime.date(2006,1,1):datetime.date(2006,1,10)]:
-... 	print day.getHigh(), ",",  day.getAssociatedDate()
-34.39, 2006-01-03
-32.96, 2006-01-04
-34.12, 2006-01-05
-34.95, 2006-01-06
-33.65, 2006-01-09
+>>> for day in market.Daily(IRBT,startDate=datetime.datetime(2006,1,1),endDate=datetime.datetime(2006,1,10)):
+... 	print day.getHigh(), day.getAssociatedDate()
+34.39 2006-01-03
+32.96 2006-01-04
+34.12 2006-01-05
+34.95 2006-01-06
+33.65 2006-01-09
+35.4 2006-01-10
 
->>> for day in market.Monthly(IRBT)[datetime.date(2007,3,5):datetime.date(2007,6,5)]:
-...		print day.getLow(), ",", day.getAssociatedDate()
----
+>>> for day in market.MonthlyByNth(IRBT,tradingDay=4,startDate=datetime.datetime(2007,3,1),endDate=datetime.datetime(2007,7,1)):
+...		print day.getLow(), day.getAssociatedDate()
+13.34 2007-03-06
+14.12 2007-04-05
+15.18 2007-05-04
+16.15 2007-06-06
 
->>> for day in market.Yearly(DD)[datetime.date(1999,4,20):datetime.date(2008,4,20)]:
-...		print day.getVolume(), ",", day.getAssociatedDate()
----
+>>> DD = market.getSymbol("DD")
+>>> for day in market.YearlyByNth(DD, 5, startDate=datetime.datetime(1999,1,1),endDate=datetime.datetime(2005,1,1)):
+...		print day.getVolume(), day.getAssociatedDate()
+3723000.0 1999-01-08
+5251400.0 2000-01-07
+2447800.0 2001-01-08
+2239900.0 2002-01-08
+3497000.0 2003-01-08
+3481900.0 2004-01-08
 
->>> for quarter in market.Quarterly(IRBT)[datetime.date(2007,1,1):]: # all quarters after 2007
-... 	print quarter.getQuarterlyOperatingCashFlow(), quarter.getDate(), FinancialDate.Quarter(quarter.getDate())
-1000, 2007-3-31, First Quarter
-1000, 2007-6-31, Second Quarter
-1000, 2007-9-31, Third Quarter
-1000, 2007-12-31, Fourth Quarter
+>>> SBUX = market.getSymbol("SBUX")
+>>> for quarter in market.Quarterly(SBUX):
+... 	print quarter.getQuarterlyCashFromOperatingActivities(), quarter.getAssociatedDate(), FinancialDate.Quarter(quarter.getAssociatedDate())
+291.38 2007-09-30 Third Quarter
+807.6 2007-12-30 Fourth Quarter
+-42.5 2008-03-30 First Quarter
+313.6 2008-06-29 Second Quarter
 
+>>> GE = market.getSymbol("GE")
+>>> for year in market.Annually(GE):
+...		print year.getAnnualTotalAssets(), year.getAssociatedDate(), FinancialDate.Year(year.getAssociatedDate())
+750617.0 2004-12-31 2004
+673321.0 2005-12-31 2005
+696683.0 2006-12-31 2006
+795337.0 2007-12-31 2007
 
->>> for year in market.Annually(IRBT)[:datetime.date(2006,1,1)]: #all years before 2006
-...		print year.getTotalAssets(), year.getDate(), FinancialDate.Year(year.getDate())
-1000, 2005-3-31, 2005
+>>> GM = market.getSymbol("GM")
+>>> for year in market.YearlyByDate(GM, 2, 21, startDate=datetime.datetime(1999,1,1), endDate=datetime.datetime(2003,2,25)):
+...		print year.getOpen(), year.getAssociatedDate()
+53.55 2001-02-21
+52.0 2002-02-21
+33.62 2003-02-21
+
+>>> for month in market.MonthlyByDate(GM, 10, startDate=datetime.datetime(2005,1,1), endDate=datetime.datetime(2005,6,20)):
+...		print month.getClose(), month.getAssociatedDate()
+38.49 2005-01-10
+36.68 2005-02-10
+34.61 2005-03-10
+31.53 2005-05-10
+34.51 2005-06-10
+
+>>> for week in market.WeeklyByNth(SBUX, 1, startDate=datetime.datetime(2004,6,20), endDate=datetime.datetime(2004,7,20)):
+...		print week.getHigh(), week.getAssociatedDate()
+44.25 2004-06-21
+43.6 2004-06-28
+46.39 2004-07-06
+45.97 2004-07-12
+47.17 2004-07-19
 
 
 # add test for google meta data since it doesnt ever take date
@@ -167,7 +204,7 @@ class Market(object):
 			def getAssociatedDate(self):
 				""" This is a public function to allow access to the date that this object has been set to, which is convienient
 				especially when this object is being used by iterators. """
-				return self.date
+				return FinancialDate.toDate(self.date)
 			
 		for method in publicInterface(bloomberg):
 			setattr(InnerMarketSymbolDate,method,self._delegateCallDate(bloomberg,method))
@@ -238,8 +275,12 @@ class Market(object):
 	def MonthlyByDate(self):
 		pass
 	
+	#****************** MAKE SURE ITS DOCUMENTED THAT THE END DATE IS INCLUDED.  ADD A TEST TO MAKE SURE END DATE IS INCLUDED AND START
+	# DATE IS INCLDUED
+	#TODO: ^^^^^^^^
+	
 	#dunno about this one - better think about it
-	def WeeklyByNth(self, symbol, tradingDay=0, startDate=None, endDate=None):
+	def WeeklyByNth(self, symbol, tradingDay=1, startDate=None, endDate=None):
 		""" Returns monthly iterator access to symbol.  tradingDay argument represents which trading day in the month to iterate over,
 		while startDate and endDate limit the span of the iterator. """
 		
@@ -252,7 +293,8 @@ class Market(object):
 		
 		startingWeek = datetime.datetime(startDate.year, startDate.month, 1)
 		
-		weeks = rrule(WEEKLY,dtstart=startingWeek,until=endDate,byweekday=tradingDay)
+		weeks = rrule(WEEKLY,dtstart=startingWeek,until=endDate,byweekday=(tradingDay-1))
+		#for ease of use, we go with 1 = monday, 2 = tuesday... at the caller.  But rrule goes with 0 = monday, etc..
 
 		nthTradingDays = (FinancialDate.NthTradingDayAfter(week,0) for week in weeks)
 		

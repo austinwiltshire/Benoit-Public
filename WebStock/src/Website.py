@@ -1802,8 +1802,9 @@ class Google(Website):
 		results = getattr(self._SECCache[symbol], method)()	
 			
 		if date:
+			date = FinancialDate.toDate(date)
 			try:
-				#print sorted(results.keys()), date, self.datePolicy.advice(date, sorted(results.keys()))
+#				print sorted(results.keys()), date, self.datePolicy.advice(date, sorted(results.keys()))
 				keydate = self.datePolicy.advice(date, results.keys())
 				results = results[keydate]
 			except KeyError, e:

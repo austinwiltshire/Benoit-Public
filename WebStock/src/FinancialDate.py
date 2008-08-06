@@ -24,14 +24,14 @@ def YearDay(aDate):
 	return (aDate - baseyear).days + 1
 
 def NthTradingDayAfter(aDate, n):
-	trialDate = aDate
+	
+	if aDate in AllTradingDays: #start so i'm always on a trading day.
+		trialDate = aDate
+	else:
+		trialDate = AllTradingDays.after(aDate) 
 	
 	if n==0: #in case we actually just want the trading day we passed in
-		if aDate in AllTradingDays:
-			return aDate
-		else:
-			return AllTradingDays.after(aDate)
-		
+		return trialDate
 	
 	for x in range(n):
 		trialDate = AllTradingDays.after(trialDate)
@@ -193,7 +193,7 @@ class Quarter(object):
 		return [datetime.date(yearmod+year.getValue(),month,day) for (yearmod,month,day) in Quarter.Quarters]
 	
 	def __repr__(self):
-		return QuarterStrings[self.value]
+		return Quarter.QuarterStrings[self.value]
 		
 
 class DatePolicy(object):
