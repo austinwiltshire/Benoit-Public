@@ -38,7 +38,7 @@ class QuarterlyBalanceSheet(BalanceSheet,Entity):
 	
 	_CashAndEquivalents = Field(Float(precision=4))
 	CashAndEquivalents = Registry.getService(Service("CashAndEquivalents",Signature((unicode,"symbol"),(datetime.date, "date"))),
-											 SignatureMap({"symbol":"Symbol", "date":"Date"}), _CashAndEquivalents)
+											 SignatureMap({"symbol":"Symbol", "date":"Date"}), "_CashAndEquivalents")
 	
 	def __repr__(self):
 		return str(self)
