@@ -296,7 +296,7 @@ class XMLObject(object):
 
 def xml_to_dict():
 	#google divisions  
-	webpage = lxml.objectify.parse("google.xml").getroot()
+	webpage = lxml.objectify.parse(r"C:\Users\John\Workspace\Webstock\src\google.xml").getroot()
 	
 	
 	toReturn = {}
@@ -318,7 +318,7 @@ def xml_to_dict():
 	toReturn['regular_expressions'] = regex
 	
 	#sec_stuff
-	secDocumentDefinitions = lxml.objectify.parse("general.xml").getroot()
+	secDocumentDefinitions = lxml.objectify.parse(r"C:\Users\John\Workspace\Webstock\src\general.xml").getroot()
 	
 	sec_definition = {}
 	
