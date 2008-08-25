@@ -28,10 +28,7 @@ class Signature(object):
 			self.arguments.append(Signature.Argument(keyword,argType))
 		
 	def __hash__(self):
-		hashVal = 0
-		for argument,prime in itertools.izip(self.arguments,primes()):
-			hashVal += hash(argument) * prime
-		return hashVal
+		return hash("".join([str(x) for x in self.arguments]))
 	
 	def __eq__(self, other):
 		return all(x==y for (x,y) in zip(self.arguments,other.arguments))

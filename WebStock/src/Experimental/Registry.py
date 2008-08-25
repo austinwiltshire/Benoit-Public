@@ -1,5 +1,7 @@
 from Service import Service
 import inspect
+from elixir import session
+from os import path
 
 class Registry(object):
 	""" Provides functions for mapping "Hosts" to "Interfaces".  Hosts are things that say they can provide a certain service
@@ -24,11 +26,12 @@ class Registry(object):
 						serviceFunction = Registry.registeredHosts[self.service]
 						#resolve arguments
 						setattr(inst, dbCache, serviceFunction(**self.service.resolveArguments(self.signatureMap.bind(inst))))
+						session.commit()
 					return getattr(inst, dbCache)
 				else:
 					serviceFunction = Registry.registeredHosts[self.service]
 					#resolve arguments
-					setattr(inst, dbCache, serviceFunction(**self.service.resolveArguments(self.signatureMap.bind(inst))))
+					return serviceFunction(**self.service.resolveArguments(self.signatureMap.bind(inst)))
 					 
 			
 			def __set__(self, instance, value):
@@ -58,17 +61,33 @@ class BoundMethod(Callback):
 		
 	def __call__(self, *args, **kwargs):
 		if not self.instance:
-			self.classBinding = getattr(__import__(self.modulename[:-3]), self.classname)
+			self.classBinding = getattr(__import__(self.modulename), self.classname)
 			self.instance = self.classBinding()
 		return self.unboundMethod(self.instance, *args, **kwargs)
+	
+	def __repr__(self):
+		return str(self)
+	
+	def __str__(self):
+		return "<Bound Method %s on class %s in module %s with instance %s>" % (self.unboundMethod, self.classname, self.modulename, self.instance)
 
 def Register(service):
 	
 	def decorator(func):
-		classname = inspect.stack()[1][3]
-		modulename = inspect.stack()[1][1]
+		callerFrame = GetCallerFrame()
+		classname = GetClassName(callerFrame)
+		modulename = GetModuleName(callerFrame) 
 		Registry.hostService(service, BoundMethod(modulename, classname, func))
 		return func
 	return decorator
 		
-	
+def GetModuleName(stackFrame):
+	qualifiedName = stackFrame[1]
+	moduleName = path.basename(qualifiedName)
+	return moduleName.strip(".py")
+
+def GetClassName(stackFrame):
+	return stackFrame[3]
+
+def GetCallerFrame():
+	return inspect.stack()[2]

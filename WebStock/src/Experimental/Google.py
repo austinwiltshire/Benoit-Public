@@ -2,7 +2,7 @@
 
 from Registry import Register
 import datetime
-from BalanceSheet import Bloomberg
+from SECFiling import Bloomberg
 from Service import Service
 from Signature import Signature
 import inspect
@@ -22,13 +22,25 @@ class Google(Website):
 	
 	def __init__(self):
 		self.scraper = Website2.Google()
+		
+	@Register(Service("CashAndEquivalents",Signature((unicode,"symbol"),(datetime.date,"date")),{"frequency":"annually"}))
+	def AnnualCashAndEquivalents(self, symbol, date):
+		return self.scraper.getAnnualCashAndEquivalents(symbol, date)
 	
-	@Register(Service("CashAndEquivalents",Signature((unicode,"symbol"),(datetime.date,"date"))))
-	def CashAndEquivalents(self, symbol, date):
+	@Register(Service("CashAndEquivalents",Signature((unicode,"symbol"),(datetime.date,"date")),{"frequency":"quarterly"}))
+	def QuarterlyCashAndEquivalents(self, symbol, date):
 		""" This is just, right now, a mapping down to the old Google for prototyping purposes.  It also registers itself
 		as a host, meaning if someone's looking for "CashAndEquivalents" and they provide the given signature, then
 		Bloomberg can map the two together """
 		return self.scraper.getQuarterlyCashAndEquivalents(symbol, date)
+	
+	@Register(Service("Revenue",Signature((unicode,"symbol"),(datetime.date,"date")),{"frequency":"annually"}))
+	def AnnualRevenue(self, symbol, date):
+		return self.scraper.getAnnualRevenue(symbol, date)
+	
+	@Register(Service("Revenue",Signature((unicode,"symbol"),(datetime.date,"date")),{"frequency":"quarterly"}))
+	def QuarterlyRevenue(self, symbol, date):
+		return self.scraper.getQuarterlyRevenue(symbol, date)
 	
 	
 	#TODO: do a protocol implementation that maps FinancialDate.Quarter to just a datetime.date
