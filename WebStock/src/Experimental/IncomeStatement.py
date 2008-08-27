@@ -20,10 +20,11 @@ metadata.bind.echo = True
 and Annual Balance Sheets.  A Balance sheet can be represented as a row in a database. """
 
 class IncomeStatement(SECFiling):
-	services = {"Revenue":lambda : Field(Float(precision=4))}
+	Revenue = Field(Float(precision=4))
+#	services = {"Revenue":lambda : Field(Float(precision=4))}
 
-AnnualIncomeStatement = BuilderMeta.Builder("AnnualIncomeStatement",IncomeStatement,AnnualFiling)
-QuarterlyIncomeStatement = BuilderMeta.Builder("QuarterlyIncomeStatement",IncomeStatement,QuarterlyFiling)
+AnnualIncomeStatement = AnnualFiling("AnnualIncomeStatement",IncomeStatement)
+QuarterlyIncomeStatement = QuarterlyFiling("QuarterlyIncomeStatement",IncomeStatement)
 
 #class AnnualIncomeStatement(Entity, AnnualFiling):
 #	""" Represents a Quarterly Balance sheet and provides interface access to members of the quarterly balance sheet, closed over

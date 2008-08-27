@@ -66,17 +66,17 @@ class BoundSignatureMap(object):
 			
 	
 	
-def primes(): 
-	# Based on primes.py from python cvs
-	primes = [2]
-	yield 2
-	
-	newcount = (1+(i*2) for i in itertools.count(1))
-	
-	for i in newcount:
-		for p in primes:
-			if i % p == 0 or p * p > i:
-				break
-		if i % p != 0:
-			primes.append(i)
-			yield i
+#def primes(): 
+#	# Based on primes.py from python cvs
+#	primes = [2]
+#	yield 2
+#	
+#	newcount = (1+(i*2) for i in itertools.count(1))
+#	
+#	for i in newcount:
+#		for p in primes:
+#			if i % p == 0 or p * p > i:
+#				break
+#		if i % p != 0:
+#			primes.append(i)
+#			yield i

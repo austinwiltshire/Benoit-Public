@@ -4,6 +4,7 @@ import datetime
 from elixir import *
 from Registry import Registry
 from sqlalchemy import UniqueConstraint
+import copy
 
 class Bloomberg(object):
 	""" Provides functions for mapping "Hosts" to "Interfaces".  Hosts are things that say they can provide a certain service
@@ -18,15 +19,44 @@ def initfunction(cls):
 		self.Date = date
 	return init
 
-class BloombergEntry(Entity):
-	Symbol = Field(Unicode(10))
-	Date = Field(Unicode(10))
-	using_options(UniqueConstraint("Symbol","Date"))
-	using_options(inheritance="single")
+#class BloombergEntry(Entity):
+#	Symbol = Field(Unicode(10))
+#	Date = Field(Unicode(10))
+#	using_options(UniqueConstraint("Symbol","Date"))
+#	using_options(inheritance="single")
 	
+def buildServiceDict(services, filing):
+	for serviceName, fieldType in services:
+		fieldkey = "".join(["_",serviceName])
+		fieldval = copy.deepcopy(fieldType)
+		propertykey = serviceName
+		propertyval = Registry.getService(*filing.buildService(serviceName))
+		dictbuild.append((fieldkey,fieldval))
+		dictbuild.append((propertykey,propertyval))
+	return dict(dictbuilt)
+
+def ServicesSupported(cls):
+	return [(name,getattr(cls,name)) for service in dict(cls) if isinstance(Field,service)]
 	
-class BuilderMeta(EntityMeta):
+class QuarterlyFiling(SECFiling_):
+	def __new__(cls, name, bs):
+		return super(cls,QuarterlyFiling).__new__(cls, name, bs, QuarterlyFiling._)
 	
+	class _(SECFiling):
+		@staticmethod
+		def getConfig(cls):
+			return {"frequency":"quarterly"}
+
+class AnnualFiling(SECFiling_):
+	def __new__(cls, name, bs):
+		return super(cls,AnnualFiling).__new__(cls, name, bs, AnnualFiling._)
+	
+	class _(SECFiling):
+		@staticmethod
+		def getConfig(cls):
+			return {"frequency":"annually"}
+
+class SECFiling_(EntityMeta):
 	class ATABLE(object):
 		#TODO: add this at the outside scope, to be passed in.
 		constraints = [UniqueConstraint("Symbol","Date")]
@@ -37,32 +67,24 @@ class BuilderMeta(EntityMeta):
 #		using_table_options(useexisting=True)
 		for constraint in constraints:
 			using_options(constraint)
-	
-	def __new__(cls, name, bases, dct, bs, filing):
-		bases = list(bases)
-		bases.append(SECFiling)
-		bases.append(Entity)
-		bases.append(BuilderMeta.ATABLE)
-		bases = tuple(bases)
+			
+	def __new__(cls, name, bs, filing):
+		bases = []
+		dct = {}
 		
-		def init(self, symbol, date):
-			print self, cls
-			# You are here.  how do i call super when the type isn't created yet?
-			super(cls, self).__init__()
-			self.Symbol = symbol
-			self.Date = date
+		bases = (SECFiling, Entity, BuilderMeta.ATABLE)
 		
-		dictbuild = []
-		for service,sig in bs.services.items():
-			fieldkey = "".join(["_",service])
-			fieldval = sig()
-			propertykey = service
-			propertyval = Registry.getService(*filing.buildService(service))
-			dictbuild.append((fieldkey,fieldval))
-			dictbuild.append((propertykey,propertyval))
-		dictbuilt = dict(dictbuild)
-		dct.update(dictbuilt)
-		dct["__init__"] = init
+#		def init(self, symbol, date):
+#			print self, cls
+#			# You are here.  how do i call super when the type isn't created yet?
+#			super(cls, self).__init__()
+#			self.Symbol = symbol
+#			self.Date = date
+		
+#		dictbuild = []
+		
+		dct.update(buildServiceDict(ServicesSupported(bs), filing))
+		dct["__init__"] = initfunction(cls)
 		dct["Symbol"] = Field(Unicode(10))
 		dct["Date"] = Field(DateTime)
 #		cls.Symbol = Field(Unicode(10))
@@ -70,7 +92,7 @@ class BuilderMeta(EntityMeta):
 		
 		return super(BuilderMeta, cls).__new__(cls, name, bases, dct)
 	
-	def __init__(cls, name, bases, dct, bs, filing):
+#	def __init__(cls, name, bases, dct, bs, filing):
 		
 #		dictbuild = []
 #		for service,sig in bs.services.items():
@@ -89,13 +111,13 @@ class BuilderMeta(EntityMeta):
 #		bases.append(BuilderMeta.ATABLE)
 #		bases = tuple(bases)
 		
-		super(BuilderMeta, cls).__init__(name, bases, dct)
+#		super(BuilderMeta, cls).__init__(name, bases, dct)
 		
 #		cls.Symbol = Field(Unicode(10))
 #		cls.Date = Field(DateTime)
 
-	@classmethod
-	def Builder(cls, name, bs, filing):
+#	@classmethod
+#	def Builder(cls, name, bs, filing):
 #		dictbuild = []
 #		for service,sig in bs.services.items():
 #			fieldkey = "".join(["_",service])
@@ -106,7 +128,7 @@ class BuilderMeta(EntityMeta):
 #			dictbuild.append((propertykey,propertyval))
 #		dictbuilt = dict(dictbuild)
 		
-		return cls(name, (), {}, bs, filing)
+#		return cls(name, (), {}, bs, filing)
 
 		# you are here.  move the below function into the meta class.
 		# then figure out whether you can, at this point in __init__, introspect the class before its returned and
@@ -140,17 +162,5 @@ class SECFiling(Bloomberg):
 			 	SignatureMap({"symbol":"Symbol", "date":"Date"}), cache]
 		
 	def getConfig(self):
-		return {}
-		
-class AnnualFiling(SECFiling):
-	
-	@classmethod
-	def getConfig(cls):
-		return {"frequency":"annually"}
-	
-class QuarterlyFiling(SECFiling):
-	
-	@classmethod
-	def getConfig(cls):
-		return {"frequency":"quarterly"}
+		raise Exception("Not Implemented")
 	

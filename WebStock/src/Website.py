@@ -626,6 +626,7 @@ class Google(Website):
 			quarterlyMethod = lambda : self._webparse(quarterlyVariableName, searchRe\
 												  , quarterlyDiv, self._getDates(quarterlyDiv, quarterlyDateKey))
 			
+			#**** TODO: right here is where i would put my registry decorators.  the annual one then the quartelry one, based on the secDoc.S
 			self.__setattr__(annualMethodName, annualMethod)
 			self.__setattr__(quarterlyMethodName, quarterlyMethod)
 			self.__setattr__(annualVariableName, None)

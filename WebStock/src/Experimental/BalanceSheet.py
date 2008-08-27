@@ -21,15 +21,16 @@ and Annual Balance Sheets.  A Balance sheet can be represented as a row in a dat
 class BalanceSheet(SECFiling):
 	""" Balance sheet contains ... well, balance sheet information.  There are two types, Quarterly and Annual, and this is just a 
 	semantic reference """
-	services = {"CashAndEquivalents":lambda : Field(Float(precision=4))}
+	CashAndEquivalents = Field(Float(precision=4))
+#	services = {"CashAndEquivalents":lambda : Field(Float(precision=4))}
 		
 	
 #qbcDict = {"Symbol":Field(Unicode(10)), "Date":Field(DateTime), "__init__":init, "_CashAndEquivalents":Field(Float(precision=4)), 
 #		"CashAndEquivalents":Registry.getService(*QuarterlyFiling.buildService("CashAndEquivalents"))}
 
 #QuarterlyBalanceSheet = BalanceSheetBuilder("QuarterlyBalanceSheet", (QuarterlyFiling,Entity), qbcDict)
-QuarterlyBalanceSheet = BuilderMeta.Builder("QuarterlyBalanceSheet",BalanceSheet,QuarterlyFiling)
-AnnualBalanceSheet = BuilderMeta.Builder("AnnualBalanceSheet",BalanceSheet,AnnualFiling)
+QuarterlyBalanceSheet = QuarterlyFiling("QuarterlyBalanceSheet",BalanceSheet)
+AnnualBalanceSheet = AnnualFiling("AnnualBalanceSheet",BalanceSheet)
 
 #class QuarterlyBalanceSheet(QuarterlyFiling, Entity):
 #	""" Represents a Quarterly Balance sheet and provides interface access to members of the quarterly balance sheet, closed over

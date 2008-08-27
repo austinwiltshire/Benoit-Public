@@ -1,3 +1,24 @@
+"""
+This introduces the symbol object, which provides convienient object oriented access to 
+stock info.  This stock info is both closed, or capable of being closed, on the symbol name
+and the date it's collected.  Special dates are provided for quarters and annuals, as well
+as for things that happen every day, like prices.
+
+IRBT = Symbol("IRBT")
+IRBT.BalanceSheet.Quarter(datetime.datetime(2008,6,28)).CashAndEquivalents
+___
+IRBT.CashFlowStatement.Annual(datetime.datetime(2008, 1, 1)).CapitalExpenditures
+___
+IRBT.IncomeStatement.Quarter(datetime.datetime(2008,6,28)).Revenue
+___
+IRBT.Prices(datetime.datetime(2008,6,28)).High
+___
+IRBT.Technicals.MACD(datetime.datetime(....))
+___
+IRBT.Fundamentals.FreeCashFlow.Quarter....
+___
+
+"""
 from elixir import *
 import Registry
 import Google
