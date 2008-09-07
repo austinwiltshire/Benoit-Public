@@ -18,9 +18,8 @@ def initfunction(cls):
 		#i dont quite understand what this line is supposed to do.  who's init function is 
 		#this supposed to call anyway?
 #		print "calling init, symbol = ", symbol, "date = ", date
-#		self.Symbol = symbol
-#		self.Date = date
-		pass
+		self.Symbol = symbol
+		self.Date = date
 	return init
 
 #class BloombergEntry(Entity):
@@ -34,12 +33,10 @@ def buildServiceDict(services, filing):
 	for serviceName, fieldType in services:
 		fieldkey = "".join(["_",serviceName])
 		fieldval = copy.deepcopy(fieldType)
-		print "in buildsd loop", fieldType
 		propertykey = serviceName
 		propertyval = Registry.getService(*filing.buildService(serviceName))
 		dictbuilt[fieldkey] = fieldval
 		dictbuilt[propertykey] = propertyval
-	print "in build servicedict ", dictbuilt
 	return dictbuilt
 
 def ServicesSupported(cls):
@@ -108,9 +105,7 @@ class SECFiling_(EntityMeta):
 		dct["Symbol"] = Field(Unicode(10))
 		dct["Date"] = Field(DateTime)
 		
-		print dir(cls), "before init"
 		super(SECFiling_, cls).__init__(name, bases, dct)
-		print dir(cls),  "after init"
 		
 #		cls.Symbol = Field(Unicode(10))
 #		cls.Date = Field(DateTime)
