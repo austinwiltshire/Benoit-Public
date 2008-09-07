@@ -9,7 +9,7 @@ from elixir import *
 from sqlalchemy import UniqueConstraint
 #metadata.bind = "sqlite:///balancesheet.sqlite"
 #metadata.bind.echo = True
-from SECFiling import SECFiling, AnnualFiling, QuarterlyFiling, BuilderMeta
+from SECFiling import SECFiling, AnnualFiling, QuarterlyFiling
 
 
 # going with:

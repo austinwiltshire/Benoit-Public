@@ -14,9 +14,13 @@ class Bloomberg(object):
 
 def initfunction(cls):
 	def init(self, symbol, date):
-		super(cls,self).__init__()
-		self.Symbol = symbol
-		self.Date = date
+#		super(cls,self).__init__()
+		#i dont quite understand what this line is supposed to do.  who's init function is 
+		#this supposed to call anyway?
+#		print "calling init, symbol = ", symbol, "date = ", date
+#		self.Symbol = symbol
+#		self.Date = date
+		pass
 	return init
 
 #class BloombergEntry(Entity):
@@ -26,36 +30,22 @@ def initfunction(cls):
 #	using_options(inheritance="single")
 	
 def buildServiceDict(services, filing):
+	dictbuilt = {}
 	for serviceName, fieldType in services:
 		fieldkey = "".join(["_",serviceName])
 		fieldval = copy.deepcopy(fieldType)
+		print "in buildsd loop", fieldType
 		propertykey = serviceName
 		propertyval = Registry.getService(*filing.buildService(serviceName))
-		dictbuild.append((fieldkey,fieldval))
-		dictbuild.append((propertykey,propertyval))
-	return dict(dictbuilt)
+		dictbuilt[fieldkey] = fieldval
+		dictbuilt[propertykey] = propertyval
+	print "in build servicedict ", dictbuilt
+	return dictbuilt
 
 def ServicesSupported(cls):
-	return [(name,getattr(cls,name)) for service in dict(cls) if isinstance(Field,service)]
+	#print cls, [type(x) for x in dir(cls)], "inside _services supported"
+	return [(service,getattr(cls,service)) for service in dir(cls) if isinstance(getattr(cls,service),Field)]
 	
-class QuarterlyFiling(SECFiling_):
-	def __new__(cls, name, bs):
-		return super(cls,QuarterlyFiling).__new__(cls, name, bs, QuarterlyFiling._)
-	
-	class _(SECFiling):
-		@staticmethod
-		def getConfig(cls):
-			return {"frequency":"quarterly"}
-
-class AnnualFiling(SECFiling_):
-	def __new__(cls, name, bs):
-		return super(cls,AnnualFiling).__new__(cls, name, bs, AnnualFiling._)
-	
-	class _(SECFiling):
-		@staticmethod
-		def getConfig(cls):
-			return {"frequency":"annually"}
-
 class SECFiling_(EntityMeta):
 	class ATABLE(object):
 		#TODO: add this at the outside scope, to be passed in.
@@ -72,7 +62,7 @@ class SECFiling_(EntityMeta):
 		bases = []
 		dct = {}
 		
-		bases = (SECFiling, Entity, BuilderMeta.ATABLE)
+		bases = (Entity, SECFiling_.ATABLE, SECFiling)
 		
 #		def init(self, symbol, date):
 #			print self, cls
@@ -90,9 +80,9 @@ class SECFiling_(EntityMeta):
 #		cls.Symbol = Field(Unicode(10))
 #		cls.Date = Field(DateTime)
 		
-		return super(BuilderMeta, cls).__new__(cls, name, bases, dct)
-	
-#	def __init__(cls, name, bases, dct, bs, filing):
+		return super(SECFiling_, cls).__new__(cls, name, bases, dct)
+
+	def __init__(cls, name, bs, filing):
 		
 #		dictbuild = []
 #		for service,sig in bs.services.items():
@@ -110,8 +100,17 @@ class SECFiling_(EntityMeta):
 #		bases.append(Entity)
 #		bases.append(BuilderMeta.ATABLE)
 #		bases = tuple(bases)
+
+		bases = (SECFiling, Entity, SECFiling_.ATABLE)
+		dct = {}
+		dct.update(buildServiceDict(ServicesSupported(bs), filing))
+		dct["__init__"] = initfunction(cls)
+		dct["Symbol"] = Field(Unicode(10))
+		dct["Date"] = Field(DateTime)
 		
-#		super(BuilderMeta, cls).__init__(name, bases, dct)
+		print dir(cls), "before init"
+		super(SECFiling_, cls).__init__(name, bases, dct)
+		print dir(cls),  "after init"
 		
 #		cls.Symbol = Field(Unicode(10))
 #		cls.Date = Field(DateTime)
@@ -136,7 +135,8 @@ class SECFiling_(EntityMeta):
 		# then quarterly and annual balance sheet cna do inheritance from BalanceSheet proper, like i think elixir expects
 		# but their registered functions WILL be, in fact, pointed at different services(one getting the quarterly info, etc)
 		# i should probably make it multi inheritance since i dont want date/symbol conflicts on the begining of each year
-	
+		
+
 class SECFiling(Bloomberg):
 	@classmethod
 	def fetch(cls, symbol, date):
@@ -161,6 +161,30 @@ class SECFiling(Bloomberg):
 		return [Service(serviceName, Signature((unicode,"symbol"),(datetime.date,"date")),cls.getConfig()), 
 			 	SignatureMap({"symbol":"Symbol", "date":"Date"}), cache]
 		
-	def getConfig(self):
+	@staticmethod
+	def getConfig():
 		raise Exception("Not Implemented")
+	
+class QuarterlyFiling(SECFiling_, SECFiling):
+	def __new__(cls, name, bs):
+		return super(QuarterlyFiling, cls).__new__(cls, name, bs, QuarterlyFiling)
+	
+	def __init__(cls, name, bs):
+		return super(QuarterlyFiling, cls).__init__(name, bs, QuarterlyFiling)
+	
+	@staticmethod
+	def getConfig():
+		return {"frequency":"quarterly"}
+
+class AnnualFiling(SECFiling_, SECFiling):
+	def __new__(cls, name, bs):
+		return super(AnnualFiling, cls).__new__(cls, name, bs, AnnualFiling)
+	
+	def __init__(cls, name, bs):
+		return super(AnnualFiling, cls).__init__(name, bs, AnnualFiling)
+	
+	@staticmethod
+	def getConfig():
+		return {"frequency":"annually"}
+	
 	

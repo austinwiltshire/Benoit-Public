@@ -1,5 +1,6 @@
 import BeautifulSoup
 import re
+import sys
 
 #import xml.etree.ElementTree as ETree
 import lxml.objectify
@@ -296,7 +297,13 @@ class XMLObject(object):
 
 def xml_to_dict():
 	#google divisions  
-	webpage = lxml.objectify.parse(r"C:\Users\John\Workspace\Webstock\src\google.xml").getroot()
+	if sys.getwindowsversion() == (5, 1, 2600, 2, 'Service Pack 3'):
+		parseroot = r"C:\Docume~1\JohnGr~1\workspace\Webstock\src" # I'm on the laptop
+	else:
+		parseroot = r"C:\Users\John\Workspace\Webstock\src" #im on the new computer
+	
+	
+	webpage = lxml.objectify.parse(parseroot+r"\google.xml").getroot()
 	
 	
 	toReturn = {}
@@ -318,7 +325,8 @@ def xml_to_dict():
 	toReturn['regular_expressions'] = regex
 	
 	#sec_stuff
-	secDocumentDefinitions = lxml.objectify.parse(r"C:\Users\John\Workspace\Webstock\src\general.xml").getroot()
+
+	secDocumentDefinitions = lxml.objectify.parse(parseroot+r"\general.xml").getroot()
 	
 	sec_definition = {}
 	

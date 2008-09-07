@@ -7,7 +7,7 @@ from Registry import Registry
 from Service import Service
 from elixir import *
 from sqlalchemy import UniqueConstraint
-from SECFiling import SECFiling, AnnualFiling, QuarterlyFiling, BuilderMeta
+from SECFiling import SECFiling, AnnualFiling, QuarterlyFiling
 
 metadata.bind = "sqlite:///SEC.sqlite"
 metadata.bind.echo = True

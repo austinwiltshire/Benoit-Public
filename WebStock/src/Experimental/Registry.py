@@ -25,6 +25,7 @@ class Registry(object):
 					if not getattr(inst, dbCache):
 						serviceFunction = Registry.registeredHosts[self.service]
 						#resolve arguments
+						print inst, dbCache, getattr(inst, dbCache), inst.__dict__, "in __get__"
 						setattr(inst, dbCache, serviceFunction(**self.service.resolveArguments(self.signatureMap.bind(inst))))
 						session.commit()
 					return getattr(inst, dbCache)

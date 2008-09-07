@@ -4,7 +4,7 @@ import contract
 import unittest
 import Market
 
-contract.checkmod(Market)
+#contract.checkmod(Market)
 
 class DoctestWrapper(unittest.TestSuite):
 	def __init__(self):
