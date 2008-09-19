@@ -629,6 +629,9 @@ class Google(Website):
 			#**** TODO: right here is where i would put my registry decorators.  the annual one then the quartelry one, based on the secDoc.S
 			self.__setattr__(annualMethodName, annualMethod)
 			self.__setattr__(quarterlyMethodName, quarterlyMethod)
+#			Register(Service(name), Signature((unicode,"symbol"),(datetime.date,"date")),{"frequency":"quarterly"})(getattr(self,quarterlyMethodName))
+#			Register(Service(name), Signature((unicode,"symbol"),(datetime.date,"date")),{"frequency":"annual"})(getattr(self,annualMethodName))
+			
 			self.__setattr__(annualVariableName, None)
 			self.__setattr__(quarterlyVariableName, None)
 		

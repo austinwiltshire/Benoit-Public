@@ -11,36 +11,28 @@ class Registry(object):
 	registeredHosts = {}
 	
 	@staticmethod
-	def getService(service, signatureMap, dbCache=None):
+	def getService(service, signatureMap, cacheName):
 		""" A factory method that returns the __get__ method for a potential descriptor, in this case binding __get__ to a service
 		call back to this registry, currently does not support arguments. """
 		
-		class ServiceDescriptor(object):
-			def __init__(self, service):
-				self.service = service
-				self.signatureMap = signatureMap
-			
+		#TODO: it'd be nice if i could seperate this database memoization from the 
+		# call to the service function.
+		class ServiceDescriptor(object):	
 			def __get__(self, inst, owner):
-				if dbCache:
-					if not getattr(inst, dbCache):
-						serviceFunction = Registry.registeredHosts[self.service]
+				if not getattr(inst, cacheName):
+						serviceFunction = Registry.registeredHosts[service]
 						#resolve arguments
-						setattr(inst, dbCache, serviceFunction(**self.service.resolveArguments(self.signatureMap.bind(inst))))
+						setattr(inst, cacheName, serviceFunction(**service.resolveArguments(signatureMap.bind(inst))))
 						session.commit()
-					return getattr(inst, dbCache)
-				else:
-					serviceFunction = Registry.registeredHosts[self.service]
-					#resolve arguments
-					return serviceFunction(**self.service.resolveArguments(self.signatureMap.bind(inst)))
-					 
+				return getattr(inst, cacheName)
 			
 			def __set__(self, instance, value):
 				raise Exception("Setting an immutable value")
 			
 			def __delete__(self, instance):
 				raise Exception("Cannot delete immutable value")
-			
-		return ServiceDescriptor(service)
+		
+		return ServiceDescriptor()
 	
 	@staticmethod
 	def hostService(service, callback):

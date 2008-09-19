@@ -19,13 +19,7 @@ IRBT.Fundamentals.FreeCashFlow.Quarter....
 ___
 
 """
-from elixir import *
-import Registry
-import Google
-import BalanceSheet
-import IncomeStatement
-
-setup_all(True)
+from SEC import BalanceSheet, IncomeStatement
 
 class Symbol(object):
 	""" Symbol closes it's accessors on the stock symbol name """
@@ -47,7 +41,7 @@ class Symbol(object):
 			self.symbol = symbol
 			self.quarter = quarter
 			
-			#self.BalanceSheet = BalanceSheet.BalanceSheet.fetchQuarterlyBalanceSheet(self.symbol, self.quarter)
+			self.BalanceSheet = BalanceSheet.AnnualBalanceSheet.fetch(self.symbol, self.quarter)
 			#self.CashFlowStatement = CashFlowStatement.CashFlowStatement.fetchQuarterlyCashFlowStatement(self.symbol, self.quarter)
 			self.IncomeStatement = IncomeStatement.AnnualIncomeStatement.fetch(self.symbol, self.quarter)
 			

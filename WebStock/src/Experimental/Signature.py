@@ -1,3 +1,5 @@
+#TODO: document how this works
+
 import itertools
 
 class Signature(object):
@@ -63,20 +65,3 @@ class BoundSignatureMap(object):
 		for argument in arguments:
 			kwargs[argument.keyword] = getattr(self.bindingInstance, self.map[argument.keyword])
 		return kwargs
-			
-	
-	
-#def primes(): 
-#	# Based on primes.py from python cvs
-#	primes = [2]
-#	yield 2
-#	
-#	newcount = (1+(i*2) for i in itertools.count(1))
-#	
-#	for i in newcount:
-#		for p in primes:
-#			if i % p == 0 or p * p > i:
-#				break
-#		if i % p != 0:
-#			primes.append(i)
-#			yield i
