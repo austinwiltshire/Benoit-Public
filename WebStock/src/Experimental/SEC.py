@@ -10,6 +10,6 @@ import IncomeStatement
 from elixir import metadata, setup_all
 
 metadata.bind = "sqlite:///SEC.sqlite"
-metadata.bind.echo = True
+metadata.bind.echo = False #used to debug SQL statements
 
 setup_all(True)

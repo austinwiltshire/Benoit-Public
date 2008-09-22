@@ -38,6 +38,11 @@ class Registry(object):
 	def hostService(service, callback):
 		""" This is used to register a service call with the Registry.  A potential host calls this method to register itself
 		as a callback. """
+		#if service in  Registry.registeredHosts:
+		#	raise Exception("Registering two functions on one service.")
+		#TODO: inside website.google is an ugly little thing inside SECData or _addAttribute or something.  it re-registers methods
+		#EACH TIME the thing is instantiated.  this should work for now, but i need to basically relook at yahoo and google given
+		#this new framework for 'google' and 'bloomberg' and what not.
 		Registry.registeredHosts[service] = callback
 		
 class Callback(object):
@@ -63,23 +68,22 @@ class BoundMethod(Callback):
 	def __str__(self):
 		return "<Bound Method %s on class %s in module %s with instance %s>" % (self.unboundMethod, self.classname, self.modulename, self.instance)
 
-def Register(service):
-	
+def Register(service, moduleName, className):
 	def decorator(func):
-		callerFrame = GetCallerFrame()
-		classname = GetClassName(callerFrame)
-		modulename = GetModuleName(callerFrame) 
-		Registry.hostService(service, BoundMethod(modulename, classname, func))
+#		callerFrame = GetCallerFrame()
+#		classname = GetClassName(callerFrame)
+#		modulename = GetModuleName(callerFrame) 
+		Registry.hostService(service, BoundMethod(moduleName, className, func))
 		return func
 	return decorator
 		
-def GetModuleName(stackFrame):
-	qualifiedName = stackFrame[1]
-	moduleName = path.basename(qualifiedName)
-	return moduleName.strip(".py")
+#def GetModuleName(stackFrame):
+#	qualifiedName = stackFrame[1]
+#	moduleName = path.basename(qualifiedName)
+#	return moduleName.strip(".py")
 
-def GetClassName(stackFrame):
-	return stackFrame[3]
+#def GetClassName(stackFrame):
+#	return stackFrame[3]
 
-def GetCallerFrame():
-	return inspect.stack()[2]
+#def GetCallerFrame():
+#	return inspect.stack()[2]

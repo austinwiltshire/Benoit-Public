@@ -28,6 +28,7 @@ class Symbol(object):
 		self.name = name
 		
 	class QuarterClosure(object):
+		#TODO: look into using partial application from the functools module for this.
 		def __init__(self, symbol, quarter):
 			self.symbol = symbol
 			self.quarter = quarter
