@@ -8,14 +8,16 @@ from Signature import Signature
 
 import sys
 sys.path.append(r"C:\Users\John\Workspace\Webstock\src")
-import Website as Website2
+import Website
+import Yahoo
 
-class Website(Bloomberg):
-	""" Website not only provides Bloomberg functions, but also provides access to BeautifulSoup and urllib2 stuff.  It also
-	denotes that the object is a singleton - all websites are singletons.  There are no mutators. """ 
-	pass
+#class Website(Bloomberg):
+#	""" Website not only provides Bloomberg functions, but also provides access to BeautifulSoup and urllib2 stuff.  It also
+#	denotes that the object is a singleton - all websites are singletons.  There are no mutators. """ 
+#	pass
 
-Website2.Google().getQuarterlyCashAndEquivalents("IRBT", datetime.date(2008,6,28)) #hack to get this google's stuff registered
+#I have to seed google to run once.
+Website.Google().getQuarterlyCashAndEquivalents("IRBT", datetime.date(2008,6,28)) #hack to get this google's stuff registered
 
 #===============================================================================
 # class Google(Website):

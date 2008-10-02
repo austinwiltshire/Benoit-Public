@@ -66,6 +66,12 @@ import FinancialXML
 import SymbolLookup
 import FinancialDate
 
+import sys
+sys.path.append(r"C:\Users\John\Workspace\Webstock\src\Experimental")
+from Registry import Register
+from Service import Service
+from Signature import Signature
+
 from utilities import publicInterface, isString, isRegex, checkCache, delegateInterface
 
 class SymbolNotFound(Exception):
@@ -629,8 +635,8 @@ class Google(Website):
 			#**** TODO: right here is where i would put my registry decorators.  the annual one then the quartelry one, based on the secDoc.S
 			self.__setattr__(annualMethodName, annualMethod)
 			self.__setattr__(quarterlyMethodName, quarterlyMethod)
-#			Register(Service(name), Signature((unicode,"symbol"),(datetime.date,"date")),{"frequency":"quarterly"})(getattr(self,quarterlyMethodName))
-#			Register(Service(name), Signature((unicode,"symbol"),(datetime.date,"date")),{"frequency":"annual"})(getattr(self,annualMethodName))
+			Register(Service(name, Signature((unicode,"symbol"),(datetime.date,"date")),{"frequency":"quarterly"}), "Website", "Google")(lambda self, symbol, date: getattr(self,quarterlyMethodName)(symbol, date))
+			Register(Service(name, Signature((unicode,"symbol"),(datetime.date,"date")),{"frequency":"annually"}), "Website", "Google")(lambda self,symbol, date: getattr(self,annualMethodName)(symbol, date))
 			
 			self.__setattr__(annualVariableName, None)
 			self.__setattr__(quarterlyVariableName, None)
@@ -1280,6 +1286,8 @@ class Google(Website):
 				if self.industryRe.search(industryDiv.next.string):
 					self.industry = industryDiv.next.next.string
 			return self.industry
+		
+		Register(Service("Industry", Signature((unicode,"symbol")),{"meta":True}), "Website", "Google")(lambda self,symbol: getattr(self,"getIndustry")(symbol))
 			
 		def hasIndustry(self):
 			""" Returns whether or not this page supports Industry information.

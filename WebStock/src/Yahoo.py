@@ -7,6 +7,12 @@ import re
 from Website import SymbolNotFound, DateNotFound
 import SymbolLookup
 
+import sys
+sys.path.append(r"C:\Users\John\Workspace\Webstock\src\Experimental")
+from Registry import Register
+from Service import Service
+from Signature import Signature
+
 class Yahoo(Website.Website):
 	""" Class represents a scraping framework for the yahoo website.  Currently provides price information. 
 	
@@ -737,3 +743,5 @@ class Yahoo(Website.Website):
 			
 		return self._tradingDateCollectionCache[symbol].hasDate(date)
 delegateInterface(Yahoo,Yahoo.TradingDay,Yahoo._priceWrapper)
+
+Register(Service("High", Signature((unicode,"symbol"),(datetime.date,"date")),{"frequency":"daily"}), "Yahoo", "Yahoo")(lambda self, symbol, date: getattr(self,"getHigh")(symbol, date))

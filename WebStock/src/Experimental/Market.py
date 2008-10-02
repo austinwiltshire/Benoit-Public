@@ -19,13 +19,26 @@ IRBT.Fundamentals.FreeCashFlow.Quarter....
 ___
 
 """
-from SEC import BalanceSheet, IncomeStatement
+from SEC import BalanceSheet, IncomeStatement, CashFlowStatement, TradingDay, Metadata
 
 class Symbol(object):
 	""" Symbol closes it's accessors on the stock symbol name """
 	
 	def __init__(self, name):
 		self.name = name
+		
+	class MetaClosure(object):
+		def __init__(self, symbol):
+			self.symbol = symbol
+			
+			self.Metadata = Metadata.Metadata.fetch(self.symbol)
+	
+	class DailyClosure(object):
+		def __init__(self, symbol, day):
+			self.symbol = symbol
+			self.day = day
+			
+	   	   	self.TradingDay = TradingDay.TradingDay.fetch(self.symbol, self.day)
 		
 	class QuarterClosure(object):
 		#TODO: look into using partial application from the functools module for this.
@@ -34,7 +47,7 @@ class Symbol(object):
 			self.quarter = quarter
 			
 	   	   	self.BalanceSheet = BalanceSheet.QuarterlyBalanceSheet.fetch(self.symbol, self.quarter)
-			#self.CashFlowStatement = CashFlowStatement.CashFlowStatement.fetchQuarterlyCashFlowStatement(self.symbol, self.quarter)
+			self.CashFlowStatement = CashFlowStatement.QuarterlyCashFlowStatement.fetch(self.symbol, self.quarter)
 			self.IncomeStatement = IncomeStatement.QuarterlyIncomeStatement.fetch(self.symbol, self.quarter)
 	
 	class AnnualClosure(object):
@@ -43,7 +56,7 @@ class Symbol(object):
 			self.quarter = quarter
 			
 			self.BalanceSheet = BalanceSheet.AnnualBalanceSheet.fetch(self.symbol, self.quarter)
-			#self.CashFlowStatement = CashFlowStatement.CashFlowStatement.fetchQuarterlyCashFlowStatement(self.symbol, self.quarter)
+			self.CashFlowStatement = CashFlowStatement.AnnualCashFlowStatement.fetch(self.symbol, self.quarter)
 			self.IncomeStatement = IncomeStatement.AnnualIncomeStatement.fetch(self.symbol, self.quarter)
 			
 	def Annual(self, date):
@@ -51,4 +64,11 @@ class Symbol(object):
 	
 	def Quarter(self, date):
 		return Symbol.QuarterClosure(self.name, date)
+	
+	def Daily(self, date):
+		return Symbol.DailyClosure(self.name, date)
+	
+	@property
+	def Meta(self):
+		return Symbol.MetaClosure(self.name)
 		 

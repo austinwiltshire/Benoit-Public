@@ -18,7 +18,7 @@ class Bloomberg(object):
 	pass
 
 
-def initfunction(cls):
+def initfunction():
 	def init(self, symbol, date):
 #		super(cls,self).__init__()
 		#i dont quite understand what this line is supposed to do.  who's init function is 
@@ -56,9 +56,7 @@ class SECFiling(EntityMeta):
 		bases = (Entity, filingType)
 		
 		dct.update(buildServiceDict(ServicesSupported(document), filingType))
-		dct["__init__"] = initfunction(cls)
-		dct["Symbol"] = Field(Unicode(10))
-		dct["Date"] = Field(DateTime)
+		dct.update(filingType.buildDct())
 		
 		return super(SECFiling, cls).__new__(cls, name, bases, dct)
 
@@ -77,6 +75,19 @@ class SECFiling_(Bloomberg):
 	constraints = [UniqueConstraint("Symbol","Date")]
 	for constraint in constraints:
 		using_options(constraint)
+	
+	@staticmethod
+	def buildDct():
+		dct = {"__init__" : SECFiling_.buildInitFunction(),
+			   "Symbol" : Field(Unicode(10)),
+			   "Date" : Field(DateTime)}
+		return dct	
+		
+	@staticmethod
+	def buildInitFunction():
+		def init(self, symbol):
+			self.Symbol = symbol
+		return init
 	
 	@classmethod
 	def fetch(cls, symbol, date):
@@ -115,5 +126,49 @@ class Annual(SECFiling_):
 	@staticmethod
 	def getConfig():
 		return {"frequency":"annually"}
+
+class Daily(SECFiling_):
+	@staticmethod
+	def getConfig():
+		return {"frequency":"daily"}
 	
+class Meta(SECFiling_):
+	@staticmethod
+	def getConfig():
+		return {"meta":True}
+	
+	@staticmethod
+	def buildInitFunction():
+		def init(self, symbol):
+			self.Symbol = symbol
+		return init
+
+	@staticmethod
+	def buildDct():
+		dct = {"__init__" : SECFiling_.buildInitFunction(),
+			   "Symbol" : Field(Unicode(10))}
+		return dct
+	
+	@classmethod
+	def fetch(cls, symbol):
+		dbCache = cls.query.filter_by(Symbol=symbol).all()
+		if not dbCache:
+			return cls(symbol)
+		else:
+			if len(dbCache) > 1:
+				raise Exception("Returned multiple results on query for: %s (%s)" % (cls, symbol))
+			else:
+				return dbCache[0]
+	
+	@classmethod		
+	def buildService(cls, serviceName, cache=None):
+		""" Builds a very common argument list for the caller, based around the name of the service being built.  By 
+		convention, if cache(the name of the dbCache field) is not given, all we do is append a _ to the front.  This
+		is assumed to be an attribute on the calling class."""
+		
+		if not cache:
+			cache = "".join(["_",serviceName])
+		
+		return [Service(serviceName, Signature((unicode,"symbol")),cls.getConfig()), 
+			 	SignatureMap({"symbol":"Symbol"}), cache]
 	

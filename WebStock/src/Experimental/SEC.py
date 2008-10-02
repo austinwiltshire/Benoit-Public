@@ -5,6 +5,9 @@ import Registry
 #import ORM stuff
 import BalanceSheet
 import IncomeStatement
+import CashFlowStatement
+import TradingDay
+import Metadata
 
 #setup ORM
 from elixir import metadata, setup_all

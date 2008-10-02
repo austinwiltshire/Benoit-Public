@@ -24,4 +24,16 @@ class MarketTestCase(unittest.TestCase):
 		self.assertAlmostEquals(self.symbol.Quarter(datetime.datetime(2008,6,28)).IncomeStatement.Revenue, 67.2)
 		
 	def testAnnualCashAndEquivalents(self):
-		self.assertAlmostEqual(self.symbol.Quarter(datetime.datetime(2007,12,29)).BalanceSheet.CashAndEquivalents, 26.73)
+		self.assertAlmostEqual(self.symbol.Annual(datetime.datetime(2007,12,29)).BalanceSheet.CashAndEquivalents, 26.73)
+		
+	def testAnnualNetIncomeStartingLine(self):
+		self.assertAlmostEquals(self.symbol.Quarter(datetime.datetime(2008,6,28)).CashFlowStatement.NetIncomeStartingLine, -4.51)
+		
+	def testQuarterlyNetIncomeStartingLine(self):
+		self.assertAlmostEqual(self.symbol.Annual(datetime.datetime(2007,12,29)).CashFlowStatement.NetIncomeStartingLine, 9.06)
+		
+	def testDailyHigh(self):
+		self.assertAlmostEqual(self.symbol.Daily(datetime.date(2008,4,21)).TradingDay.High, 17.78)
+		
+	def testIndustry(self):
+		self.assertEqual(self.symbol.Meta.Metadata.Industry, u"Appliance & Tool")
