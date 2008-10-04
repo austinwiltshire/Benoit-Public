@@ -635,8 +635,8 @@ class Google(Website):
 			#**** TODO: right here is where i would put my registry decorators.  the annual one then the quartelry one, based on the secDoc.S
 			self.__setattr__(annualMethodName, annualMethod)
 			self.__setattr__(quarterlyMethodName, quarterlyMethod)
-			Register(Service(name, Signature((unicode,"symbol"),(datetime.date,"date")),{"frequency":"quarterly"}), "Website", "Google")(lambda self, symbol, date: getattr(self,quarterlyMethodName)(symbol, date))
-			Register(Service(name, Signature((unicode,"symbol"),(datetime.date,"date")),{"frequency":"annually"}), "Website", "Google")(lambda self,symbol, date: getattr(self,annualMethodName)(symbol, date))
+#			Register(Service(name, Signature((unicode,"symbol"),(datetime.date,"date")),{"frequency":"quarterly"}), "Website", "Google")(lambda self, symbol, date: getattr(self,quarterlyMethodName)(symbol, date))
+#			Register(Service(name, Signature((unicode,"symbol"),(datetime.date,"date")),{"frequency":"annually"}), "Website", "Google")(lambda self,symbol, date: getattr(self,annualMethodName)(symbol, date))
 			
 			self.__setattr__(annualVariableName, None)
 			self.__setattr__(quarterlyVariableName, None)
@@ -1864,6 +1864,23 @@ def addSECData(cls):
 addSECData(Google.SECData)
 delegateInterface(Google,Google.SECData,Google._SECWrapper)
 delegateInterface(Google,Google.Metadata,Google._metaWrapper)
+	
+#because lambda's don't bind right :(
+def helper(method):
+	def _(self, symbol, date):
+		return getattr(self,method)(symbol,date)
+	return _
+
+for method in publicInterface(Google):
+	method_work = method[3:] #strip 'get'
+	if method_work[:6] == 'Annual': #annual method
+		method_name = method_work[6:]
+		Register(Service(method_name, Signature((unicode,"symbol"),(datetime.date,"date")),{"frequency":"annually"}), "Website", "Google")(helper(method))
+	elif method_work[:9] == 'Quarterly':
+		method_name = method_work[9:]
+		#print method_name, method
+		Register(Service(method_name, Signature((unicode,"symbol"),(datetime.date,"date")),{"frequency":"quarterly"}), "Website", "Google")(helper(method))
+																											
 
 		
 		#should I make predicates safe/throw and then have private implementations that

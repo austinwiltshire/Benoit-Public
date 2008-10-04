@@ -94,7 +94,6 @@ class SECFiling_(Bloomberg):
 	def fetch(cls, symbol, date):
 		dbCache = cls.query.filter_by(Symbol=symbol,Date=date).all()
 		if not dbCache:
-			print cls, symbol, date
 			return cls(symbol, date)
 		else:
 			if len(dbCache) > 1:
@@ -147,7 +146,7 @@ class Meta(SECFiling_):
 
 	@staticmethod
 	def buildDct():
-		dct = {"__init__" : SECFiling_.buildInitFunction(),
+		dct = {"__init__" : Meta.buildInitFunction(),
 			   "Symbol" : Field(Unicode(10))}
 		return dct
 	
@@ -173,4 +172,5 @@ class Meta(SECFiling_):
 		
 		return [Service(serviceName, Signature((unicode,"symbol")),cls.getConfig()), 
 			 	SignatureMap({"symbol":"Symbol"}), cache]
-	
+
+#TODO: do a protocol implementation that maps FinancialDate.Quarter to just a datetime.date
