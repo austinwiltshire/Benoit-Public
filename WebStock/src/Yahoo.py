@@ -408,6 +408,8 @@ class Yahoo(Website.Website):
 			"""
 			if(isinstance(index,slice)):
 				return self._getitem_slice_(index)
+			elif(isinstance(index, datetime.datetime)): #maitenence.  passing datetimes around everywhere else, and dates here. added support for dates.
+				return self._getitem_date_(datetime.date(index.year,index.month,index.day))
 			elif(isinstance(index,datetime.date)):
 				return self._getitem_date_(index)
 			#should i handle integer arguments as well?
@@ -593,7 +595,7 @@ class Yahoo(Website.Website):
 						self.volume >= 0.0,
 						self.adjclose >= 0.0])
 	
-	def _priceWrapper(self, method, symbol, dateTo=None, dateFrom=None, zipDate=False):
+	def _priceWrapper(self, method, symbol, dateTo=None, dateFrom=None, zipDate=False, **kwargs):
 		""" Wraps the delegated interface TradingDay.  Symbol is used as a dict
 		lookup to find a corresponding PriceCollection, to which date range
 		information is passed to get a collection of TradingDay objects, where
@@ -621,7 +623,13 @@ class Yahoo(Website.Website):
 		"""
 #		if symbol not in self._tradingDateCollectionCache:
 #			self._tradingDateCollectionCache[symbol] = Yahoo.TradingDayCollection(self._soupFactory,symbol)
-		
+
+	   #maintenence. the Registry paradigm passes in a date keyword, while this actual wrapper takes in a 'dateTo' 
+	   #and 'dateFrom'.  I unfortunately did way more to yahoo than just provide a web interface to find certain things
+	   #which is bad.  
+		if "date" in kwargs and not dateTo:
+			dateTo = kwargs["date"]
+			
 		#resolve to yahoo style symbols
 		symbol = self.resolver.getYahoo(symbol)
 		
@@ -744,4 +752,4 @@ class Yahoo(Website.Website):
 		return self._tradingDateCollectionCache[symbol].hasDate(date)
 delegateInterface(Yahoo,Yahoo.TradingDay,Yahoo._priceWrapper)
 
-Register(Service("High", Signature((unicode,"symbol"),(datetime.date,"date")),{"frequency":"daily"}), "Yahoo", "Yahoo")(lambda self, symbol, date: getattr(self,"getHigh")(symbol, date))
+Register(Service.Daily("High"))(Yahoo.getHigh)

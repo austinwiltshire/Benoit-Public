@@ -1,7 +1,21 @@
 from Service import Service
-import inspect
+from inspect import ismethod
 from elixir import session
 from os import path
+
+class FunctionHelper(object):
+	
+	storedObjects = {}
+	
+	@classmethod
+	def MethodToFunction(cls, method):
+		cls.storedObjects[method.im_class] = method.im_class()
+		
+		def _(*args, **kwargs):
+			return method(cls.storedObjects[method.im_class], *args, **kwargs)
+		return _
+			
+	
 
 class Registry(object):
 	""" Provides functions for mapping "Hosts" to "Interfaces".  Hosts are things that say they can provide a certain service
@@ -20,10 +34,14 @@ class Registry(object):
 		class ServiceDescriptor(object):	
 			def __get__(self, inst, owner):
 				if not getattr(inst, cacheName):
+					try:
 						serviceFunction = Registry.registeredHosts[service]
 						#resolve arguments
 						setattr(inst, cacheName, serviceFunction(**service.resolveArguments(signatureMap.bind(inst))))
 						session.commit()
+					except KeyError:
+						raise Exception("Service %s is not registered" % str(service))
+						
 				return getattr(inst, cacheName)
 			
 			def __set__(self, instance, value):
@@ -68,15 +86,32 @@ class BoundMethod(Callback):
 	def __str__(self):
 		return "<Bound Method %s on class %s in module %s with instance %s>" % (self.unboundMethod, self.classname, self.modulename, self.instance)
 
-def Register(service, moduleName, className):
-	def decorator(func):
+#def Register(service, moduleName, className):
+#	def decorator(func):
 #		callerFrame = GetCallerFrame()
 #		classname = GetClassName(callerFrame)
 #		modulename = GetModuleName(callerFrame) 
-		Registry.hostService(service, BoundMethod(moduleName, className, func))
+#		Registry.hostService(service, BoundMethod(moduleName, className, func))
+#		return func
+#	return decorator
+
+def isboundmethod(func):
+	""" Returns true if this method is bound, false otherwise.  Assumes that this is a method being passed in. """
+	return isinstance(func.im_self, func.im_class)
+
+def Register(service):
+	def decorator(func):
+		
+		if ismethod(func):
+			if not isboundmethod(func):
+				cleanFunc = FunctionHelper.MethodToFunction(func)
+		else:
+			cleanFunc = func
+			
+		Registry.hostService(service, cleanFunc)
 		return func
 	return decorator
-		
+
 #def GetModuleName(stackFrame):
 #	qualifiedName = stackFrame[1]
 #	moduleName = path.basename(qualifiedName)

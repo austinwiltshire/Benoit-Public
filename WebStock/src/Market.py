@@ -19,7 +19,7 @@ IRBT.Fundamentals.FreeCashFlow.Quarter....
 ___
 
 """
-from SEC import BalanceSheet, IncomeStatement, CashFlowStatement, TradingDay, Metadata
+from SEC import BalanceSheet, IncomeStatement, CashFlowStatement, TradingDay, Metadata, Fundamentals
 
 class Symbol(object):
 	""" Symbol closes it's accessors on the stock symbol name """
@@ -40,6 +40,7 @@ class Symbol(object):
 			self.day = day
 			
 	   	   	self.TradingDay = TradingDay.TradingDay.fetch(self.symbol, self.day)
+	   	   	self.Fundamentals = Fundamentals.Fundamentals.fetch(self.symbol, self.day)
 		
 	class QuarterClosure(object):
 		#TODO: look into using partial application from the functools module for this.

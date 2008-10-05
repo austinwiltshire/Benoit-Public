@@ -38,5 +38,5 @@ class MarketTestCase(unittest.TestCase):
 	def testIndustry(self):
 		self.assertEqual(self.symbol.Meta.Industry, u"Appliance & Tool")
 		
-#	def testIndustry2(self):
-#		self.assertEqual(self.symbol.Meta2.Industry, u"Appliance & Tool")
+	def testPE(self):
+		self.assertAlmostEqual(self.symbol.Daily(datetime.date(2008,4,21)).Fundamentals.PriceToEarnings, 47.13, places = 2)

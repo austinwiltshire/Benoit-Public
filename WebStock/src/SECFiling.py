@@ -18,15 +18,15 @@ class Bloomberg(object):
 	pass
 
 
-def initfunction():
-	def init(self, symbol, date):
+#ef initfunction():
+#def init(self, symbol, date):
 #		super(cls,self).__init__()
 		#i dont quite understand what this line is supposed to do.  who's init function is 
 		#this supposed to call anyway?
 
-		self.Symbol = symbol
-		self.Date = date
-	return init
+#	self.Symbol = symbol
+#	self.Date = date
+#return init
 
 #class BloombergEntry(Entity):
 #	Symbol = Field(Unicode(10))
@@ -169,8 +169,11 @@ class Meta(SECFiling_):
 		
 		if not cache:
 			cache = "".join(["_",serviceName])
+			
+		return [Service.Meta(serviceName), SignatureMap({"symbol":"Symbol"}), cache]
 		
-		return [Service(serviceName, Signature((unicode,"symbol")),cls.getConfig()), 
-			 	SignatureMap({"symbol":"Symbol"}), cache]
+#	return [Service(serviceName, Signature((unicode,"symbol")),cls.getConfig()), 
+#		 	SignatureMap({"symbol":"Symbol"}), cache]
+	
 
 #TODO: do a protocol implementation that maps FinancialDate.Quarter to just a datetime.date

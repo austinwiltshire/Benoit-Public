@@ -1,6 +1,7 @@
 #import stuff needed to register SEC stuff
 import Website #for sec data from google
 import Yahoo #for price data from yahoo
+import Ratios #for fundamentals
 import Registry
 
 #import ORM stuff
@@ -9,6 +10,7 @@ import IncomeStatement
 import CashFlowStatement
 import TradingDay
 import Metadata
+import Fundamentals
 
 #setup ORM
 from elixir import metadata, setup_all

@@ -1282,7 +1282,7 @@ class Google(Website):
 					self.industry = industryDiv.next.next.string
 			return self.industry
 		
-		Register(Service("Industry", Signature((unicode,"symbol")),{"meta":True}), "Website", "Google")(lambda self,symbol: getattr(self,"getIndustry")(symbol))
+#		Register(Service("Industry", Signature((unicode,"symbol")),{"meta":True}), "Website", "Google")(lambda self,symbol: getattr(self,"getIndustry")(symbol)
 			
 		def hasIndustry(self):
 			""" Returns whether or not this page supports Industry information.
@@ -1859,22 +1859,28 @@ def addSECData(cls):
 addSECData(Google.SECData)
 delegateInterface(Google,Google.SECData,Google._SECWrapper)
 delegateInterface(Google,Google.Metadata,Google._metaWrapper)
-	
-#because lambda's don't bind right :(
-def helper(method):
-	def _(self, symbol, date):
-		return getattr(self,method)(symbol,date)
-	return _
 
+#i have to register outside for a few reasons, my internal register just isn't going to work
+#this is because when methods are defined, they are defined as functions.  it's only when a class is entirely defined that
+#python turns them into methods.  so i will never know INSIDE that i'm registering a method
+#registering methods also has it's own pitfalls, even outside a class, as the object must be instantiated.
+#i'm using some singleton assumptions there in a wrapper inside register.
+#finally, i can use stack inspect and other magic but i prefer not to because that tends to make any further
+#analysis/meta functions, etc, on top of this, brittle.
+#in 2.6, it might be possible to have a mark-n-register wrapper, where each class method is 'registered', but is simply marked.
+#outside of that registration, the entire class itself is decorated with a register, and it's that final class registration that
+#finds all the marked 'registers' and loads them.
+Register(Service.Meta("Industry"))(Google.getIndustry)
+
+#and this is ugly
 for method in publicInterface(Google):
 	method_work = method[3:] #strip 'get'
 	if method_work[:6] == 'Annual': #annual method
 		method_name = method_work[6:]
-		Register(Service(method_name, Signature((unicode,"symbol"),(datetime.date,"date")),{"frequency":"annually"}), "Website", "Google")(helper(method))
+		Register(Service.Annually(method_name))(getattr(Google,method))
 	elif method_work[:9] == 'Quarterly':
 		method_name = method_work[9:]
-		#print method_name, method
-		Register(Service(method_name, Signature((unicode,"symbol"),(datetime.date,"date")),{"frequency":"quarterly"}), "Website", "Google")(helper(method))
+		Register(Service.Quarterly(method_name))(getattr(Google,method))
 																											
 
 		
