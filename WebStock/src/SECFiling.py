@@ -45,7 +45,20 @@ def buildServiceDict(services, filing):
 		dictbuilt[fieldkey] = fieldval
 		dictbuilt[propertykey] = propertyval
 		dictbuilt[fieldInitKey] = Field(Boolean())
+		
+		
+	#prefecth problems...
+	#prefetch method must be accessed via the 'fetch' method from market.symbol...., otherwise, multiple entries get put into 
+	#the database since that is the only way to get access to 'fetched' data.  i need to look further into enforcing uniqueness of
+	#data by symbol and date.  the constraints don't seem to be able to be enforced...
+	dictbuilt["prefetch"] = buildPrefetchMethod([serviceName for serviceName,_ in services])
+	
 	return dictbuilt
+
+def buildPrefetchMethod(services):
+	def _(self):
+		return dict([(service, getattr(self,service)) for service in services])
+	return _
 
 def ServicesSupported(cls):
 	return [(service,getattr(cls,service)) for service in dir(cls) if isinstance(getattr(cls,service),Field)]
