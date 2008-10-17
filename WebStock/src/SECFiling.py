@@ -37,12 +37,14 @@ class Bloomberg(object):
 def buildServiceDict(services, filing):
 	dictbuilt = {}
 	for serviceName, fieldType in services:
+		fieldInitKey = "".join(["_initialized_",serviceName])
 		fieldkey = "".join(["_",serviceName])
 		fieldval = copy.deepcopy(fieldType)
 		propertykey = serviceName
 		propertyval = Registry.getService(*filing.buildService(serviceName))
 		dictbuilt[fieldkey] = fieldval
 		dictbuilt[propertykey] = propertyval
+		dictbuilt[fieldInitKey] = Field(Boolean())
 	return dictbuilt
 
 def ServicesSupported(cls):
@@ -102,16 +104,19 @@ class SECFiling_(Bloomberg):
 				return dbCache[0]
 	
 	@classmethod		
-	def buildService(cls, serviceName, cache=None):
+	def buildService(cls, serviceName, cache=None, initialized=None):
 		""" Builds a very common argument list for the caller, based around the name of the service being built.  By 
 		convention, if cache(the name of the dbCache field) is not given, all we do is append a _ to the front.  This
 		is assumed to be an attribute on the calling class."""
 		
 		if not cache:
 			cache = "".join(["_",serviceName])
+			
+		if not initialized:
+			initialized = "".join(["_initialized_",serviceName])
 		
 		return [Service(serviceName, Signature((unicode,"symbol"),(datetime.date,"date")),cls.getConfig()), 
-			 	SignatureMap({"symbol":"Symbol", "date":"Date"}), cache]
+			 	SignatureMap({"symbol":"Symbol", "date":"Date"}), cache, initialized]
 		
 	@staticmethod
 	def getConfig():
@@ -162,7 +167,7 @@ class Meta(SECFiling_):
 				return dbCache[0]
 	
 	@classmethod		
-	def buildService(cls, serviceName, cache=None):
+	def buildService(cls, serviceName, cache=None, initialized=None):
 		""" Builds a very common argument list for the caller, based around the name of the service being built.  By 
 		convention, if cache(the name of the dbCache field) is not given, all we do is append a _ to the front.  This
 		is assumed to be an attribute on the calling class."""
@@ -170,7 +175,10 @@ class Meta(SECFiling_):
 		if not cache:
 			cache = "".join(["_",serviceName])
 			
-		return [Service.Meta(serviceName), SignatureMap({"symbol":"Symbol"}), cache]
+		if not initialized:
+			initialized = "".join(["_initialized_",serviceName])
+			
+		return [Service.Meta(serviceName), SignatureMap({"symbol":"Symbol"}), cache, initialized]
 		
 #	return [Service(serviceName, Signature((unicode,"symbol")),cls.getConfig()), 
 #		 	SignatureMap({"symbol":"Symbol"}), cache]

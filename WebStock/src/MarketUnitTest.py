@@ -40,3 +40,9 @@ class MarketTestCase(unittest.TestCase):
 		
 	def testPE(self):
 		self.assertAlmostEqual(self.symbol.Daily(datetime.date(2008,4,21)).Fundamentals.PriceToEarnings, 47.13, places = 2)
+		
+	def testUnusualIncome(self):
+		self.assertAlmostEqual(self.symbol.Quarter(datetime.datetime(2007,12,29)).IncomeStatement.UnusualExpense, 1.68)
+		
+	def testNoneType(self):
+		self.assertEqual(self.symbol.Quarter(datetime.datetime(2008,3,29)).IncomeStatement.UnusualExpense, None)

@@ -1,7 +1,16 @@
 from Service import Service
 from inspect import ismethod
-from elixir import session
+from elixir import session, Boolean
 from os import path
+
+def dashesToNull(func):
+	def _(*args, **kwargs):
+		result = func(*args, **kwargs)
+		if result=='-':
+			return None
+		else:
+			return result
+	return _
 
 class FunctionHelper(object):
 	
@@ -25,7 +34,7 @@ class Registry(object):
 	registeredHosts = {}
 	
 	@staticmethod
-	def getService(service, signatureMap, cacheName):
+	def getService(service, signatureMap, cacheName, initializerName):
 		""" A factory method that returns the __get__ method for a potential descriptor, in this case binding __get__ to a service
 		call back to this registry, currently does not support arguments. """
 		
@@ -33,11 +42,12 @@ class Registry(object):
 		# call to the service function.
 		class ServiceDescriptor(object):	
 			def __get__(self, inst, owner):
-				if not getattr(inst, cacheName):
+				if not getattr(inst, initializerName):
 					try:
 						serviceFunction = Registry.registeredHosts[service]
 						#resolve arguments
 						setattr(inst, cacheName, serviceFunction(**service.resolveArguments(signatureMap.bind(inst))))
+						setattr(inst, initializerName, True)
 						session.commit()
 					except KeyError:
 						raise Exception("Service %s is not registered" % str(service))
@@ -61,7 +71,8 @@ class Registry(object):
 		#TODO: inside website.google is an ugly little thing inside SECData or _addAttribute or something.  it re-registers methods
 		#EACH TIME the thing is instantiated.  this should work for now, but i need to basically relook at yahoo and google given
 		#this new framework for 'google' and 'bloomberg' and what not.
-		Registry.registeredHosts[service] = callback
+		#added dashes to null wrapper to turn dashes found by the webframework into None.
+		Registry.registeredHosts[service] = dashesToNull(callback)
 		
 class Callback(object):
 	pass
