@@ -44,11 +44,11 @@ class Registry(object):
 			def __get__(self, inst, owner):
 				if not getattr(inst, initializerName):
 					try:
-						print "loading ", cacheName 
 						serviceFunction = Registry.registeredHosts[service]
 						#resolve arguments
 						setattr(inst, cacheName, serviceFunction(**service.resolveArguments(signatureMap.bind(inst))))
 						setattr(inst, initializerName, True)
+						print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 						session.commit()
 					except KeyError:
 						raise Exception("Service %s is not registered" % str(service))

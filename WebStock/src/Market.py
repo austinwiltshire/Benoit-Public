@@ -20,6 +20,7 @@ ___
 
 """
 from SEC import BalanceSheet, IncomeStatement, CashFlowStatement, TradingDay, Metadata, Fundamentals
+from utilities import Lazy
 
 class Symbol(object):
 	""" Symbol closes it's accessors on the stock symbol name """
@@ -44,22 +45,39 @@ class Symbol(object):
 		
 	class QuarterClosure(object):
 		#TODO: look into using partial application from the functools module for this.
+		
+		@Lazy
+		def BalanceSheet(self):
+			return BalanceSheet.QuarterlyBalanceSheet.fetch(self.symbol, self.quarter)
+		
+		@Lazy
+		def CashFlowStatement(self):
+			return CashFlowStatement.QuarterlyCashFlowStatement.fetch(self.symbol, self.quarter)
+		
+		@Lazy
+		def IncomeStatement(self):
+			return IncomeStatement.QuarterlyIncomeStatement.fetch(self.symbol, self.quarter)
+		
 		def __init__(self, symbol, quarter):
 			self.symbol = symbol
 			self.quarter = quarter
-			
-	   	   	self.BalanceSheet = BalanceSheet.QuarterlyBalanceSheet.fetch(self.symbol, self.quarter)
-			self.CashFlowStatement = CashFlowStatement.QuarterlyCashFlowStatement.fetch(self.symbol, self.quarter)
-			self.IncomeStatement = IncomeStatement.QuarterlyIncomeStatement.fetch(self.symbol, self.quarter)
 	
 	class AnnualClosure(object):
 		def __init__(self, symbol, quarter):
 			self.symbol = symbol
 			self.quarter = quarter
 			
-			self.BalanceSheet = BalanceSheet.AnnualBalanceSheet.fetch(self.symbol, self.quarter)
-			self.CashFlowStatement = CashFlowStatement.AnnualCashFlowStatement.fetch(self.symbol, self.quarter)
-			self.IncomeStatement = IncomeStatement.AnnualIncomeStatement.fetch(self.symbol, self.quarter)
+		@Lazy
+		def BalanceSheet(self):
+			return BalanceSheet.AnnualBalanceSheet.fetch(self.symbol, self.quarter)
+	
+		@Lazy
+		def CashFlowStatement(self):
+			return CashFlowStatement.AnnualCashFlowStatement.fetch(self.symbol, self.quarter)
+		
+		@Lazy
+		def IncomeStatement(self):
+			return IncomeStatement.AnnualIncomeStatement.fetch(self.symbol, self.quarter)
 			
 	def Annual(self, date):
 		return Symbol.AnnualClosure(self.name, date)

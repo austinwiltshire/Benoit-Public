@@ -6,9 +6,9 @@ import Market
 
 #contract.checkmod(Market)
 
-class DoctestWrapper(unittest.TestSuite):
-	def __init__(self):
-		unittest.TestSuite.__init__(self, doctest.DocTestSuite(Market))
+#class DoctestWrapper(unittest.TestSuite):
+#	def __init__(self):
+#		unittest.TestSuite.__init__(self, doctest.DocTestSuite(Market))
 
 class MarketTestCase(unittest.TestCase):
 	def setUp(self):

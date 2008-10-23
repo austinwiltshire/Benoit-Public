@@ -104,6 +104,18 @@ def checkCache(new, old, key):
 	""" Used as a convienience function for contracts.  Ensures that cache's grow when they should and don't when they shouldnt. """
 	return (len(new.keys()) - len(old.keys()) == 1) if (key not in old.keys()) else (len(new.keys()) - len(old.keys()) == 0)
 
+class Lazy(object):
+	def __init__(self, func):
+		self._func = func
+		self.__name__ = func.__name__
+		self.__doc__ = func.__doc__
+		
+	def __get__(self, inst, cls=None):
+		if inst is None:
+			return None
+		result = inst.__dict__[self.__name__] = self._func(inst)
+		return result
+
 #def const(function):
 #	def constantFunc(*args, **kwargs):
 #		selfdict = copy.deepcopy(args[0].__dict__)

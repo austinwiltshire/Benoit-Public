@@ -6,7 +6,7 @@ and Annual Balance Sheets.  A Balance sheet can be represented as a row in a dat
 
 
 
-class BalanceSheet(SECFiling):
+class BalanceSheet(object):
 	""" Balance sheet contains ... well, balance sheet information.  There are two types, Quarterly and Annual, and this is just a 
 	semantic reference """
 	CashAndEquivalents = Field(Float(precision=4))

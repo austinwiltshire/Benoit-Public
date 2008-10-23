@@ -71,7 +71,7 @@ class SECFiling(EntityMeta):
 		bases = (Entity, filingType)
 		
 		dct.update(buildServiceDict(ServicesSupported(document), filingType))
-		dct.update(filingType.buildDct())
+		dct.update(filingType.buildDct(document))
 		
 		return super(SECFiling, cls).__new__(cls, name, bases, dct)
 
@@ -86,17 +86,20 @@ class SECFiling(EntityMeta):
 		
 
 class SECFiling_(Bloomberg):
-	using_options(inheritance="multi")
-	constraints = [UniqueConstraint("Symbol","Date")]
-	for constraint in constraints:
-		using_options(constraint)
+#	using_options(inheritance="multi")
+#	constraints = [UniqueConstraint("Symbol","Date")]
+#	for constraint in constraints:
+#		using_options(constraint)
 	
-	@staticmethod
-	def buildDct():
+	@classmethod
+	def buildDct(cls, documentName):
+		datesFunctionName = cls.buildDatesFunctionName()
 		dct = {"__init__" : SECFiling_.buildInitFunction(),
-			   "Symbol" : Field(Unicode(10)),
-			   "Date" : Field(DateTime)}
-		return dct	
+			   "Symbol" : copy.deepcopy(Field(Unicode(10))),
+			   "Date" : copy.deepcopy(Field(DateTime)),
+			   datesFunctionName : Registry.get(datesFunctionName) } #YOU ARE HERE: somehow i need to do this without having a cache'ed variable and i need a standard
+		#sig map too.
+		return copy.deepcopy(dct)	
 		
 	@staticmethod
 	def buildInitFunction():
@@ -104,6 +107,15 @@ class SECFiling_(Bloomberg):
 			self.Symbol = symbol
 			self.Date = date
 		return init
+	
+	@classmethod
+	def AvailableDates(cls, symbol):
+		print cls
+		return [x.Date for x in cls.query().filter_by(Symbol=symbol).all()]
+	
+	@classmethod
+	def BuildDatesFunctionName(cls, documentName):
+		return cls.prefix() + documentName + "Dates"
 	
 	@classmethod
 	def fetch(cls, symbol, date):
@@ -139,6 +151,10 @@ class Quarterly(SECFiling_):
 	@staticmethod
 	def getConfig():
 		return {"frequency":"quarterly"}
+	
+	@staticmethod
+	def BuildDatesFunction(name):
+		return "Quarterly" + name + "Dates"
 	
 
 class Annual(SECFiling_):

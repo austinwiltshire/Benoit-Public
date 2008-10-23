@@ -635,8 +635,8 @@ class Google(Website):
 			
 			self.__setattr__(annualVariableName, None)
 			self.__setattr__(quarterlyVariableName, None)
-		
-		def getQuarterlyCashFlowDates(self):
+				
+		def getQuarterlyCashFlowStatementDates(self):
 			""" Returns the dates for which annual balance sheet information is available.
 			
 			>>> scraper = Google()
@@ -650,7 +650,7 @@ class Google(Website):
 			"""			
 			return sorted(self._getDates(self.labels['CashFlowStatement']['Quarterly'],'quarterlyCashFlowDates'))
 		
-		def getAnnualCashFlowDates(self):
+		def getAnnualCashFlowStatementDates(self):
 			""" Returns the dates for which annual balance sheet information is available.
 			
 			>>> scraper = Google()
@@ -1871,6 +1871,14 @@ delegateInterface(Google,Google.Metadata,Google._metaWrapper)
 #outside of that registration, the entire class itself is decorated with a register, and it's that final class registration that
 #finds all the marked 'registers' and loads them.
 Register(Service.Meta("Industry"))(Google.getIndustry)
+
+Register(Service.Meta("QuarterlyCashFlowDates"))(Google.getQuarterlyCashFlowDates)
+#		getAnnualCashFlowDates
+#		getQuarterlyIncomeStatementDates
+#		getAnnualIncomeStatementDates
+#		getQuarterlyBalanceSheetDates
+#		getAnnualBalanceSheetDates
+
 
 #and this is ugly
 for method in publicInterface(Google):

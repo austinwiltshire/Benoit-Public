@@ -6,7 +6,7 @@ from SECFiling import SECFiling, Annual, Quarterly, Field, Float
 """ A Balance Sheet has a Symbol and a Date associated with it, as well as Balance Sheet information.  There are two types: Quarterly
 and Annual Balance Sheets.  A Balance sheet can be represented as a row in a database. """
 
-class IncomeStatement(SECFiling):
+class IncomeStatement(object):
 	Revenue = Field(Float(precision=4))
 	UnusualExpense = Field(Float(precision=4))
 
