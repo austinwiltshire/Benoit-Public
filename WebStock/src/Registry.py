@@ -34,6 +34,12 @@ class Registry(object):
 	registeredHosts = {}
 	
 	@staticmethod
+	def getStaticService(service, signatureMap):
+		def _(self, *args, **kwargs):
+			return Registry.registeredHosts[service](**service.resolveArguments(signatureMap.bind(self)))
+		return _
+	
+	@staticmethod
 	def getService(service, signatureMap, cacheName, initializerName):
 		""" A factory method that returns the __get__ method for a potential descriptor, in this case binding __get__ to a service
 		call back to this registry, currently does not support arguments. """
@@ -48,7 +54,6 @@ class Registry(object):
 						#resolve arguments
 						setattr(inst, cacheName, serviceFunction(**service.resolveArguments(signatureMap.bind(inst))))
 						setattr(inst, initializerName, True)
-						print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 						session.commit()
 					except KeyError:
 						raise Exception("Service %s is not registered" % str(service))

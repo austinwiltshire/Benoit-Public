@@ -1872,7 +1872,7 @@ delegateInterface(Google,Google.Metadata,Google._metaWrapper)
 #finds all the marked 'registers' and loads them.
 Register(Service.Meta("Industry"))(Google.getIndustry)
 
-Register(Service.Meta("QuarterlyCashFlowDates"))(Google.getQuarterlyCashFlowDates)
+Register(Service.Meta("QuarterlyCashFlowStatementDates"))(Google.getQuarterlyCashFlowStatementDates)
 #		getAnnualCashFlowDates
 #		getQuarterlyIncomeStatementDates
 #		getAnnualIncomeStatementDates

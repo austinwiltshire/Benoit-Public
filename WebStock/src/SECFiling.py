@@ -71,7 +71,7 @@ class SECFiling(EntityMeta):
 		bases = (Entity, filingType)
 		
 		dct.update(buildServiceDict(ServicesSupported(document), filingType))
-		dct.update(filingType.buildDct(document))
+		dct.update(filingType.buildDct(name))
 		
 		return super(SECFiling, cls).__new__(cls, name, bases, dct)
 
@@ -93,13 +93,20 @@ class SECFiling_(Bloomberg):
 	
 	@classmethod
 	def buildDct(cls, documentName):
-		datesFunctionName = cls.buildDatesFunctionName()
 		dct = {"__init__" : SECFiling_.buildInitFunction(),
 			   "Symbol" : copy.deepcopy(Field(Unicode(10))),
-			   "Date" : copy.deepcopy(Field(DateTime)),
-			   datesFunctionName : Registry.get(datesFunctionName) } #YOU ARE HERE: somehow i need to do this without having a cache'ed variable and i need a standard
+			   "Date" : copy.deepcopy(Field(DateTime)) }
+		dct = cls.buildDatesFunction(dct, documentName)
+	 #YOU ARE HERE: somehow i need to do this without having a cache'ed variable and i need a standard
 		#sig map too.
 		return copy.deepcopy(dct)	
+	
+	@classmethod
+	def buildDatesFunction(cls, dct, documentName):
+		name = documentName + "Dates"
+		print name
+		dct[name] = Registry.getStaticService(Service.Meta(name), SignatureMap({"symbol":"Symbol"}))
+		return dct
 		
 	@staticmethod
 	def buildInitFunction():
@@ -151,11 +158,6 @@ class Quarterly(SECFiling_):
 	@staticmethod
 	def getConfig():
 		return {"frequency":"quarterly"}
-	
-	@staticmethod
-	def BuildDatesFunction(name):
-		return "Quarterly" + name + "Dates"
-	
 
 class Annual(SECFiling_):
 	@staticmethod
@@ -179,7 +181,7 @@ class Meta(SECFiling_):
 		return init
 
 	@staticmethod
-	def buildDct():
+	def buildDct(documentName):
 		dct = {"__init__" : Meta.buildInitFunction(),
 			   "Symbol" : Field(Unicode(10))}
 		return dct
