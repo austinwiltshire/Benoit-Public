@@ -1,0 +1,465 @@
+<!-- Google Specific Stuff -->
+<webpage name='Google'>
+	<divisions>
+		<div>
+			<value>IncomeStatement</value>
+			<mapping frequency='Annual'>incannualdiv</mapping>
+			<mapping frequency='Quarterly'>incinterimdiv</mapping>
+		</div>
+		<div>
+			<value>BalanceSheet</value>
+			<mapping frequency='Annual'>balannualdiv</mapping>
+			<mapping frequency='Quarterly'>balinterimdiv</mapping>
+		</div>
+		<div>
+			<value>CashFlowStatement</value>
+			<mapping frequency='Annual'>casannualdiv</mapping>
+			<mapping frequency='Quarterly'>casinterimdiv</mapping>
+		</div>
+		<div>
+			<value>Dates</value>
+			<mapping frequency='Annual'>incannualdiv</mapping>
+			<mapping frequency='Quarterly'>incinterimdiv</mapping>
+		</div>
+	</divisions>
+	
+	<!-- Continued Google Specific RE's -->
+	<regular_expressions>
+		<regex>
+			<value>Revenue</value>
+			<definition><![CDATA[(?<!(Other |Total |st of ))Revenue]]></definition> <!-- Need to eliminate "Other Revenue", "Total Revenue" and "Cost of Revenue" -->
+		</regex>
+		<regex>
+			<value>OtherRevenue</value>
+			<definition><![CDATA[Other Revenue, Total]]></definition>
+		</regex>
+		<regex>
+			<value>TotalRevenue</value> <!-- Total Revenue -->
+			<definition><![CDATA[Total Revenue]]></definition>
+		</regex>
+		<regex>
+			<value>CostOfRevenue</value> <!-- Cost of Revenue, Total -->
+			<definition><![CDATA[Cost of Revenue, Total]]></definition>
+		</regex>
+		<regex>	
+			<value>GrossProfit</value> <!-- Gross Profit -->
+			<definition><![CDATA[Gross Profit]]></definition>
+		</regex>
+		<regex>
+			<value>SGAExpenses</value> <!-- Selling, General, and Administration Expenses, Total -->
+			<definition><![CDATA[Selling/General/Admin[.] Expenses, Total]]></definition>
+		</regex>
+		<regex>
+			<value>ResearchAndDevelopment</value> <!-- Research and Development -->
+			<definition><![CDATA[Research & Development]]></definition>
+		</regex>
+		<regex>
+			<value>DepreciationAmortization</value> <!-- Depreciation Amortization -->
+			<definition><![CDATA[Depreciation/Amortization]]></definition>
+		</regex>
+		<regex>
+			<value>InterestNetOperating</value> <!-- Interest Expense(Income), Net Operating -->
+			<definition><![CDATA[Interest Expense\(Income\) - Net Operating]]></definition>
+		</regex>
+		<regex>
+			<value>UnusualExpense</value> <!-- Unusual Expense(Income) -->
+			<definition><![CDATA[Unusual Expense \(Income\)]]></definition>
+		</regex>
+		<regex>
+			<value>OtherOperatingExpenses</value> <!-- Other Operating Expenses, Total -->
+			<definition><![CDATA[Other Operating Expenses, Total]]></definition>
+		</regex>
+		<regex>
+			<value>TotalOperatingExpense</value> <!-- Total Operating Expense -->
+			<definition><![CDATA[Total Operating Expense]]></definition>
+		</regex>
+		<regex>
+			<value>OperatingIncome</value> <!-- Operating Income -->
+			<definition><![CDATA[Operating Income]]></definition>
+		</regex>
+		<regex>
+			<value>InterestIncome</value> <!-- Interest Income(Expense), Net Non-Operating -->
+			<definition><![CDATA[Interest Income\(Expense\), Net Non-Operating]]></definition>
+		</regex>
+		<regex>
+			<value>GainOnSaleOfAssets</value> <!-- Gain(Loss) on Sale of Assets -->
+			<definition><![CDATA[Gain \(Loss\) on Sale of Assets]]></definition>
+		</regex>
+		<regex>
+			<value>OtherNet</value> <!-- Other, Net -->
+			<definition><![CDATA[Other, Net]]></definition>
+		</regex>
+		<regex>
+			<value>IncomeBeforeTax</value> <!-- Income Before Tax -->
+			<definition><![CDATA[Income Before Tax]]></definition>
+		</regex>
+		<regex>
+			<value>IncomeAfterTax</value> <!-- Income After Tax -->
+			<definition><![CDATA[Income After Tax]]></definition>
+		</regex>
+		<regex>
+			<value>MinorityInterest_Inc</value> <!-- Minority Interest -->
+			<definition><![CDATA[Minority Interest]]></definition>
+		</regex>
+		<regex>
+			<value>EquityInAffiliates</value> <!-- Equity In Affiliates -->
+			<definition><![CDATA[Equity In Affiliates]]></definition>
+		</regex>
+		<regex>
+			<value>NetIncomeBeforeExtraItems</value> <!-- Net Income Before Extraordinary Items -->
+			<definition><![CDATA[Net Income Before Extra[.] Items]]></definition>
+		</regex>
+		<regex>
+			<value>AccountingChange</value> <!-- Accounting Change -->
+			<definition><![CDATA[Accounting Change]]></definition>
+		</regex>
+		<regex>
+			<value>DiscontinuedOperations</value> <!-- Discontinued Operations -->
+			<definition><![CDATA[Discontinued Operations]]></definition>
+		</regex>
+		<regex>
+			<value>ExtraordinaryItem</value> <!-- Extraordinary Item -->
+			<definition><![CDATA[Extraordinary Items]]></definition>
+		</regex>
+		<regex>
+			<value>NetIncome</value> <!-- Net Income -->
+			<definition><![CDATA[Net Income(?!(([/]Starting Line)|( Before Extra[.] Items)))]]></definition>
+		</regex>
+		<regex>
+			<value>PreferredDividends</value> <!-- Preferred Dividends -->
+			<definition><![CDATA[Preferred Dividends]]></definition>
+		</regex>
+		<regex>
+			<value>IncomeAvailToCommonExclExtraItems</value> <!-- Income Available to Common Excluding Extraordinary Items -->
+			<definition><![CDATA[Income Available to Common Excl[.] Extra Items]]></definition>
+		</regex>
+		<regex>
+			<value>IncomeAvailToCommonInclExtraItems</value> <!-- Income Available to Common Including Extraordinary Items -->
+			<definition><![CDATA[Income Available to Common Incl[.] Extra Items]]></definition>
+		</regex>
+		<regex>
+			<value>BasicWeightedAverageShares</value> <!-- Basic Weighted Average Shares -->
+			<definition><![CDATA[Basic Weighted Average Shares]]></definition>
+		</regex>
+		<regex>
+			<value>BasicEPSExclExtraItems</value> <!-- Basic EPS Excluding Extraordinary Items -->
+			<definition><![CDATA[Basic EPS Excluding Extraordinary Items]]></definition>
+		</regex>
+		<regex>
+			<value>BasicEPSInclExtraItems</value> <!-- Basic EPS Including Extraordinary Items -->
+			<definition><![CDATA[Basic EPS Including Extraordinary Items]]></definition>
+		</regex>
+		<regex>
+			<value>DilutionAdjustment</value> <!-- Dilution Adjustment -->
+			<definition><![CDATA[Dilution Adjustment]]></definition>
+		</regex>
+		<regex>
+			<value>DilutedWeightedAverageShares</value> <!-- Diluted Weighted Average Shares -->
+			<definition><![CDATA[Diluted Weighted Average Shares]]></definition>
+		</regex>
+		<regex>
+			<value>DilutedEPSExclExtraItems</value> <!-- Diluted EPS Excluding Extraordinary Items -->
+			<definition><![CDATA[Diluted EPS Excluding Extraordinary Items]]></definition>
+		</regex>
+		<regex>
+			<value>DilutedEPSInclExtraItems</value> <!-- Diluted EPS Including Extraordinary Items -->
+			<definition><![CDATA[Diluted EPS Including Extraordinary Items]]></definition>
+		</regex>
+		<regex>
+			<value>DividendsPerShare</value> <!-- Dividends Per Share, Common Stock Primary Issue -->
+			<definition><![CDATA[Dividends per Share - Common Stock Primary Issue]]></definition>
+		</regex>
+		<regex>
+			<value>GrossDividends</value> <!-- Gross Dividends, Common Stock -->
+			<definition><![CDATA[Gross Dividends - Common Stock]]></definition>
+		</regex>
+		<regex>
+			<value>NetIncomeAfterCompExp</value> <!-- Net Income After Stock Based Comp. Expense -->
+			<definition><![CDATA[Net Income after Stock Based Comp[.] Expense]]></definition>
+		</regex>
+		<regex>
+			<value>BasicEPSAfterCompExp</value> <!-- Basic EPS After Stock Based Comp. Expense -->
+			<definition><![CDATA[Basic EPS after Stock Based Comp[.] Expense]]></definition>
+		</regex>
+		<regex>
+			<value>DilutedEPSAfterCompExp</value> <!-- Diluted EPS After Stock Based Comp. Expense -->
+			<definition><![CDATA[Diluted EPS after Stock Based Comp[.] Expense]]></definition>
+		</regex>
+		<regex>
+			<value>DepreciationSupplemental</value> <!-- Depreciation, Supplemental -->
+			<definition><![CDATA[Depreciation, Supplemental]]></definition>
+		</regex>
+		<regex>
+			<value>TotalSpecialItems</value> <!-- Total Special Items -->
+			<definition><![CDATA[Total Special Items]]></definition>
+		</regex>
+		<regex>
+			<value>NormalizedIncomeBeforeTaxes</value> <!-- NormalizedIncomeBeforeTaxes -->
+			<definition><![CDATA[Normalized Income Before Taxes]]></definition>
+		</regex>
+		<regex>
+			<value>EffectsOfSpecialItemsOnIncomeTaxes</value> <!-- Effects of Special Items on Income Taxes -->
+			<definition><![CDATA[Effect of Special Items on Income Taxes]]></definition>
+		</regex>
+		<regex>		
+			<value>IncomeTaxesExSpecialItems</value> <!-- Income Taxes Ex. Impact of Special Items -->
+			<definition><![CDATA[Income Taxes Ex[.] Impact of Special Items]]></definition>
+		</regex>
+		<regex>
+			<value>NormalizedIncomeAfterTaxes</value> <!-- Normalized Income After Taxes -->
+			<definition><![CDATA[Normalized Income After Taxes]]></definition>
+		</regex>
+		<regex>
+			<value>NormalizedIncomeAvailableCommon</value> <!-- Normalized Income Available to Common -->
+			<definition><![CDATA[Normalized Income Avail to Common]]></definition>
+		</regex>
+		<regex>
+			<value>BasicNormalizedEPS</value> <!-- Basic Normalized EPS -->
+			<definition><![CDATA[Basic Normalized EPS]]></definition>
+		</regex>
+		<regex>
+			<value>DilutedNormalizedEPS</value> <!-- Diluted Normalized EPS -->
+			<definition><![CDATA[Diluted Normalized EPS]]></definition>
+		</regex>
+		<regex>
+			<value>CashAndEquivalents</value> <!-- Cash and Cash Equivalents -->
+			<definition><![CDATA[Cash & Equivalents]]></definition>
+		</regex>
+		<regex>
+			<value>ShortTermInvestments</value> <!-- Short Term Investments -->
+			<definition><![CDATA[Short Term Investments]]></definition>
+		</regex>
+		<regex>
+			<value>CashAndShortTermInvestments</value> <!-- Cash and Short Term Investments -->
+			<definition><![CDATA[Cash and Short Term Investments]]></definition>
+		</regex>
+		<regex>
+			<value>AccountsReceivableTrade</value> <!--Accounts Receivable, Trade Net -->
+			<definition><![CDATA[Accounts Receivable - Trade, Net]]></definition>
+		</regex>
+		<regex>
+			<value>ReceivablesOther</value> <!-- Receivables, Other -->
+			<definition><![CDATA[Receivables - Other]]></definition>
+		</regex>
+		<regex>
+			<value>TotalReceivablesNet</value> <!-- Total Receivables, Net -->
+			<definition><![CDATA[Total Receivables, Net]]></definition>
+		</regex>
+		<regex>
+			<value>TotalInventory</value> <!-- Total Inventory -->
+			<definition><![CDATA[Total Inventory]]></definition>
+		</regex>
+		<regex>
+			<value>PrepaidExpenses</value> <!-- Prepaid Expenses -->
+			<definition><![CDATA[Prepaid Expenses]]></definition>
+		</regex>
+		<regex>
+			<value>OtherCurrentAssetsTotal</value> <!-- Other Current Assets, Total -->
+			<definition><![CDATA[Other Current Assets, Total]]></definition>
+		</regex>
+		<regex>
+			<value>TotalCurrentAssets</value> <!-- Total Current Assets -->
+			<definition><![CDATA[Total Current Assets]]></definition>
+		</regex>
+		<regex>
+			<value>PPE</value> <!-- Property, Plant, Equipment, Total Gross -->
+			<definition><![CDATA[Property/Plant/Equipment, Total - Gross]]></definition>
+		</regex>
+		<regex>
+			<value>Goodwill</value> <!-- Goodwill, Net -->
+			<definition><![CDATA[Goodwill, Net]]></definition>
+		</regex>
+		<regex>
+			<value>Intangibles</value> <!-- Intangibles, Net -->
+			<definition><![CDATA[Intangibles, Net]]></definition>
+		</regex>
+		<regex>
+			<value>LongTermInvestments</value> <!-- Long Term Investments -->
+			<definition><![CDATA[Long Term Investments]]></definition>
+		</regex>
+		<regex>
+			<value>OtherLongTermAssets</value> <!-- Other Long Term Assets, Total -->
+			<definition><![CDATA[Other Long Term Assets, Total]]></definition>
+		</regex>
+		<regex>
+			<value>TotalAssets</value> <!-- Total Assets -->
+			<definition><![CDATA[Total Assets]]></definition>
+		</regex>
+		<regex>
+			<value>AccountsPayable</value> <!-- Accounts Payable -->
+			<definition><![CDATA[Accounts Payable]]></definition>
+		</regex>
+		<regex>
+			<value>AccruedExpenses</value> <!-- Accrued Expenses -->
+			<definition><![CDATA[Accrued Expenses]]></definition>
+		</regex>
+		<regex>
+			<value>NotesPayable</value> <!-- Notes Payable, Short Term Debt -->
+			<definition><![CDATA[Notes Payable/Short Term Debt]]></definition>
+		</regex>
+		<regex>
+			<value>CurrentPortLTDebtToCapital</value> <!-- Current Port. of LT Debt/Capital Leases -->
+			<definition><![CDATA[Current Port[.] of LT Debt/Capital Leases]]></definition>
+		</regex>
+		<regex>
+			<value>OtherCurrentLiabilities</value> <!-- Other Current Liabilities, Total -->
+			<definition><![CDATA[Other Current liabilities, Total]]></definition>
+		</regex>
+		<regex>
+			<value>TotalCurrentLiabilities</value> <!-- Total Current Liabilities -->
+			<definition><![CDATA[Total Current Liabilities]]></definition>
+		</regex>
+		<regex>
+			<value>LongTermDebt</value> <!-- Long Term Debt -->
+			<definition><![CDATA[Long Term Debt]]></definition>
+		</regex>
+		<regex>
+			<value>CapitalLeaseObligations</value> <!-- Capital Lease Obligations -->
+			<definition><![CDATA[Capital Lease Obligations]]></definition>
+		</regex>
+		<regex>
+			<value>TotalLongTermDebt</value> <!-- Total Long Term Debt -->
+			<definition><![CDATA[Total Long Term Debt]]></definition>
+		</regex>
+		<regex>
+			<value>TotalDebt</value> <!-- Total Debt -->
+			<definition><![CDATA[Total Debt]]></definition>
+		</regex>
+		<regex>
+			<value>DeferredIncomeTax</value> <!-- Deferred Income Tax -->
+			<definition><![CDATA[Deferred Income Tax]]></definition>
+		</regex>
+		<regex>
+			<value>MinorityInterest_Bal</value> <!-- Minority Interest -->
+			<definition><![CDATA[Minority Interest]]></definition>
+		</regex>
+		<regex>
+			<value>OtherLiabilities</value> <!-- Other Liabilities, Total -->
+			<definition><![CDATA[Other Liabilities, Total]]></definition>
+		</regex>
+		<regex>
+			<value>TotalLiabilities</value> <!-- Total Liabilities -->
+			<definition><![CDATA[Total Liabilities]]></definition>
+		</regex>
+		<regex>
+			<value>RedeemablePreferredStock</value> <!-- Redeemable Preferred Stock, Total -->
+			<definition><![CDATA[Redeemable Preferred Stock, Total]]></definition>
+		</regex>
+		<regex>
+			<value>PreferredStockNonRedeemable</value> <!-- Preferred Stock, Non-Redeemable, Net -->
+			<definition><![CDATA[Preferred Stock - Non Redeemable, Net]]></definition>
+		</regex>
+		<regex>
+			<value>CommonStock</value> <!-- Common Stock, Total -->
+			<definition><![CDATA[Common Stock, Total]]></definition>
+		</regex>
+		<regex>
+			<value>AdditionalPaidInCapital</value> <!-- Additional Paid In Capital -->
+			<definition><![CDATA[Additional Paid-In Capital]]></definition>
+		</regex>
+		<regex>
+			<value>RetainedEarnings</value> <!-- Retained Earnings, Accumulated Deficit -->
+			<definition><![CDATA[Retained Earnings \(Accumulated Deficit\)]]></definition>
+		</regex>
+		<regex>
+			<value>TreasuryStock</value> <!-- Treasury Stock, Common -->
+			<definition><![CDATA[Treasury Stock - Common]]></definition>
+		</regex>
+		<regex>
+			<value>OtherEquity</value> <!-- Other Equity, Total -->
+			<definition><![CDATA[Other Equity, Total]]></definition>
+		</regex>
+		<regex>
+			<value>TotalEquity</value> <!-- Total Equity -->
+			<definition><![CDATA[Total Equity]]></definition>
+		</regex>
+		<regex>
+			<value>TotalLiabilitiesAndShareholdersEquity</value> <!-- Total Liabilities and Shareholders' Equity -->
+			<definition><![CDATA[Total Liabilities & Shareholders' Equity]]></definition>
+		</regex>
+		<regex>
+			<value>SharesOuts</value> <!-- Shares Outs, Common Stock Primary Issue -->
+			<definition><![CDATA[Shares Outs - Common Stock Primary Issue]]></definition>
+		</regex>
+		<regex>
+			<value>TotalCommonSharesOutstanding</value> <!-- Total Common Shares Outstanding -->
+			<definition><![CDATA[Total Common Shares Outstanding]]></definition>
+		</regex>
+		<regex>
+			<value>NetIncomeStartingLine</value> <!-- Net Income, Starting Line -->
+			<definition><![CDATA[Net Income/Starting Line]]></definition>
+		</regex>
+		<regex>
+			<value>DepreciationDepletion</value> <!-- Depreciation, Depletion -->
+			<definition><![CDATA[Depreciation/Depletion]]></definition>
+		</regex>
+		<regex>
+			<value>Amortization</value> <!-- Amortization -->
+			<definition><![CDATA[Amortization]]></definition>
+		</regex>
+		<regex>
+			<value>DeferredTaxes</value> <!-- Deferred Taxes -->
+			<definition><![CDATA[Deferred Taxes]]></definition>
+		</regex>
+		<regex>
+			<value>NonCashItems</value> <!-- Non-cash Items -->
+			<definition><![CDATA[Non-Cash Items]]></definition>
+		</regex>
+		<regex>
+			<value>ChangesInWorkingCapital</value> <!-- Changes in Working Capital -->
+			<definition><![CDATA[Changes in Working Capital]]></definition>
+		</regex>
+		<regex>
+			<value>CashFromOperatingActivities</value> <!-- Cash from Operating Activities -->
+			<definition><![CDATA[Cash from Operating Activities]]></definition>
+		</regex>
+		<regex>
+			<value>CapitalExpenditures</value> <!-- Capital Expenditures -->
+			<definition><![CDATA[Capital Expenditures]]></definition>
+		</regex>
+		<regex>
+			<value>OtherInvestingCashFlow</value> <!-- Other Investing Cash Flow Items, Total -->
+			<definition><![CDATA[Other Investing Cash Flow Items, Total]]></definition>
+		</regex>
+		<regex>
+			<value>CashFromInvestingActivities</value> <!-- Cash From Investing Activities -->
+			<definition><![CDATA[Cash from Investing Activities]]></definition>
+		</regex>
+		<regex>
+			<value>FinancingCashFlowItems</value> <!-- Financing Cash Flow Items -->
+			<definition><![CDATA[Financing Cash Flow Items]]></definition>
+		</regex>
+		<regex>
+			<value>TotalCashDividendsPaid</value> <!-- Total Cash Dividends Paid -->
+			<definition><![CDATA[Total Cash Dividends Paid]]></definition>
+		</regex>
+		<regex>
+			<value>IssuanceOfStock</value> <!-- Issuance(Retirement) of Stock, Net -->
+			<definition><![CDATA[Issuance \(Retirement\) of Stock, Net]]></definition>
+		</regex>
+		<regex>
+			<value>IssuanceOfDebt</value> <!-- Issuance(Retirement) of Debt, Net -->
+			<definition><![CDATA[Issuance \(Retirement\) of Debt, Net]]></definition>
+		</regex>
+		<regex>
+			<value>CashFromFinancingActivities</value> <!-- Cash From Financing Activities -->
+			<definition><![CDATA[Cash from Financing Activities]]></definition>
+		</regex>
+		<regex>
+			<value>ForeignExchangeEffects</value> <!-- Foreign Exchange Effects -->
+			<definition><![CDATA[Foreign Exchange Effects]]></definition>
+		</regex>
+		<regex>
+			<value>NetChangeInCash</value> <!-- Net Change In Cash -->
+			<definition><![CDATA[Net Change in Cash]]></definition>
+		</regex>
+		<regex>
+			<value>CashInterestPaid</value> <!-- Cash Interest Paid, Supplemental -->
+			<definition><![CDATA[Cash Interest Paid, Supplemental]]></definition>
+		</regex>
+		<regex>
+			<value>CashTaxesPaid</value> <!-- Cash Taxes Paid, Supplemental -->
+			<definition><![CDATA[Cash Taxes Paid, Supplemental]]></definition>
+		</regex>
+	</regular_expressions>
+</webpage>
