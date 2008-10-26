@@ -1,0 +1,121 @@
+<!-- The term 'MinorityInterest' appears twice.  It is both in the Income Statement and the -->
+<!-- Balance sheet.  In this xml file, they are differentiated by appending _Inc to the -->
+<!-- version on the income statement and _Bal to the version on the balance sheet. -->
+
+<sec_document_definitions>
+	<sec_doc name='IncomeStatement'>
+		<value>Revenue</value> <!-- Revenue -->
+		<value>OtherRevenue</value> <!-- Other Revenue, Total -->
+		<value>TotalRevenue</value> <!-- Total Revenue -->
+		<value>CostOfRevenue</value> <!-- Cost of Revenue, Total -->
+		<value>GrossProfit</value> <!-- Gross Profit -->
+		<value>SGAExpenses</value> <!-- Selling, General, and Administration Expenses, Total -->
+		<value>ResearchAndDevelopment</value> <!-- Research and Development -->
+		<value>DepreciationAmortization</value> <!-- Depreciation Amortization -->
+		<value>InterestNetOperating</value> <!-- Interest Expense(Income), Net Operating -->
+		<value>UnusualExpense</value> <!-- Unusual Expense(Income) -->
+		<value>OtherOperatingExpenses</value> <!-- Other Operating Expenses, Total -->
+		<value>TotalOperatingExpense</value> <!-- Total Operating Expense -->
+		<value>OperatingIncome</value> <!-- Operating Income -->
+		<value>InterestIncome</value> <!-- Interest Income(Expense), Net Non-Operating -->
+		<value>GainOnSaleOfAssets</value> <!-- Gain(Loss) on Sale of Assets -->
+		<value>OtherNet</value> <!-- Other, Net -->
+		<value>IncomeBeforeTax</value> <!-- Income Before Tax -->
+		<value>IncomeAfterTax</value> <!-- Income After Tax -->
+		<value>MinorityInterest_Inc</value> <!-- Minority Interest on the Income Statement -->
+		<value>EquityInAffiliates</value> <!-- Equity In Affiliates -->
+		<value>NetIncomeBeforeExtraItems</value> <!-- Net Income Before Extraordinary Items -->
+		<value>AccountingChange</value> <!-- Accounting Change -->
+		<value>DiscontinuedOperations</value> <!-- Discontinued Operations -->
+		<value>ExtraordinaryItem</value> <!-- Extraordinary Item -->
+		<value>NetIncome</value> <!-- Net Income -->
+		<value>PreferredDividends</value> <!-- Preferred Dividends -->
+		<value>IncomeAvailToCommonExclExtraItems</value> <!-- Income Available to Common Excluding Extraordinary Items -->
+		<value>IncomeAvailToCommonInclExtraItems</value> <!-- Income Available to Common Including Extraordinary Items -->
+		<value>BasicWeightedAverageShares</value> <!-- Basic Weighted Average Shares -->
+		<value>BasicEPSExclExtraItems</value> <!-- Basic EPS Excluding Extraordinary Items -->
+		<value>BasicEPSInclExtraItems</value> <!-- Basic EPS Including Extraordinary Items -->
+		<value>DilutionAdjustment</value> <!-- Dilution Adjustment -->
+		<value>DilutedWeightedAverageShares</value> <!-- Diluted Weighted Average Shares -->
+		<value>DilutedEPSExclExtraItems</value> <!-- Diluted EPS Excluding Extraordinary Items -->
+		<value>DilutedEPSInclExtraItems</value> <!-- Diluted EPS Including Extraordinary Items -->
+		<value>DividendsPerShare</value> <!-- Dividends Per Share, Common Stock Primary Issue -->
+		<value>GrossDividends</value> <!-- Gross Dividends, Common Stock -->
+		<value>NetIncomeAfterCompExp</value> <!-- Net Income After Stock Based Comp. Expense -->
+		<value>BasicEPSAfterCompExp</value> <!-- Basic EPS After Stock Based Comp. Expense -->
+		<value>DilutedEPSAfterCompExp</value> <!-- Diluted EPS After Stock Based Comp. Expense -->
+		<value>DepreciationSupplemental</value> <!-- Depreciation, Supplemental -->
+		<value>TotalSpecialItems</value> <!-- Total Special Items -->
+		<value>NormalizedIncomeBeforeTaxes</value> <!-- NormalizedIncomeBeforeTaxes -->
+		<value>EffectsOfSpecialItemsOnIncomeTaxes</value> <!-- Effects of Special Items on Income Taxes -->
+		<value>IncomeTaxesExSpecialItems</value> <!-- Income Taxes Ex. Impact of Special Items -->
+		<value>NormalizedIncomeAfterTaxes</value> <!-- Normalized Income After Taxes -->
+		<value>NormalizedIncomeAvailableCommon</value> <!-- Normalized Income Available to Common -->
+		<value>BasicNormalizedEPS</value> <!-- Basic Normalized EPS -->
+		<value>DilutedNormalizedEPS</value> <!-- Diluted Normalized EPS -->
+	</sec_doc>
+	<sec_doc name="BalanceSheet">
+		<value>CashAndEquivalents</value> <!-- Cash and Cash Equivalents -->
+		<value>ShortTermInvestments</value> <!-- Short Term Investments -->
+		<value>CashAndShortTermInvestments</value> <!-- Cash and Short Term Investments -->
+		<value>AccountsReceivableTrade</value> <!--Accounts Receivable, Trade Net -->
+		<value>ReceivablesOther</value> <!-- Receivables, Other -->
+		<value>TotalReceivablesNet</value> <!-- Total Receivables, Net -->
+		<value>TotalInventory</value> <!-- Total Inventory -->
+		<value>PrepaidExpenses</value> <!-- Prepaid Expenses -->
+		<value>OtherCurrentAssetsTotal</value> <!-- Other Current Assets, Total -->
+		<value>TotalCurrentAssets</value> <!-- Total Current Assets -->
+		<value>PPE</value> <!-- Property, Plant, Equipment, Total Gross -->
+		<value>Goodwill</value> <!-- Goodwill, Net -->
+		<value>Intangibles</value> <!-- Intangibles, Net -->
+		<value>LongTermInvestments</value> <!-- Long Term Investments -->
+		<value>OtherLongTermAssets</value> <!-- Other Long Term Assets -->
+		<value>TotalAssets</value> <!-- Total Assets -->
+		<value>AccountsPayable</value> <!-- Accounts Payable -->
+		<value>AccruedExpenses</value> <!-- Accrued Expenses -->
+		<value>NotesPayable</value> <!-- Notes Payable, Short Term Debt -->
+		<value>CurrentPortLTDebtToCapital</value> <!-- Current Port. of LT Debt/Capital Leases -->
+		<value>OtherCurrentLiabilities</value> <!-- Other Current Liabilities, Total -->
+		<value>TotalCurrentLiabilities</value> <!-- Total Current Liabilities -->
+		<value>LongTermDebt</value> <!-- Long Term Debt -->
+		<value>CapitalLeaseObligations</value> <!-- Capital Lease Obligations -->
+		<value>TotalLongTermDebt</value> <!-- Total Long Term Debt -->
+		<value>TotalDebt</value> <!-- Total Debt -->
+		<value>DeferredIncomeTax</value> <!-- Deferred Income Tax -->
+		<value>MinorityInterest_Bal</value> <!-- Minority Interest on the Balance Sheet -->
+		<value>OtherLiabilities</value> <!-- Other Liabilities, Total -->
+		<value>TotalLiabilities</value> <!-- Total Liabilities -->
+		<value>RedeemablePreferredStock</value> <!-- Redeemable Preferred Stock, Total -->
+		<value>PreferredStockNonRedeemable</value> <!-- Preferred Stock, Non-Redeemable, Net -->
+		<value>CommonStock</value> <!-- Common Stock, Total -->
+		<value>AdditionalPaidInCapital</value> <!-- Additional Paid In Capital -->
+		<value>RetainedEarnings</value> <!-- Retained Earnings, Accumulated Deficit -->
+		<value>TreasuryStock</value> <!-- Treasury Stock, Common -->
+		<value>OtherEquity</value> <!-- Other Equity, Total -->
+		<value>TotalEquity</value> <!-- Total Equity -->
+		<value>TotalLiabilitiesAndShareholdersEquity</value> <!-- Total Liabilities and Shareholders' Equity -->
+		<value>SharesOuts</value> <!-- Shares Outs, Common Stock Primary Issue -->
+		<value>TotalCommonSharesOutstanding</value> <!-- Total Common Shares Outstanding -->
+	</sec_doc>
+	<sec_doc name='CashFlowStatement'>
+		<value>NetIncomeStartingLine</value> <!-- Net Income, Starting Line -->
+		<value>DepreciationDepletion</value> <!-- Depreciation, Depletion -->
+		<value>Amortization</value> <!-- Amortization -->
+		<value>DeferredTaxes</value> <!-- Deferred Taxes -->
+		<value>NonCashItems</value> <!-- Non-cash Items -->
+		<value>ChangesInWorkingCapital</value> <!-- Changes in WorkingCapital -->
+		<value>CashFromOperatingActivities</value> <!-- Cash from Operating Activities -->
+		<value>CapitalExpenditures</value> <!-- Capital Expenditures -->
+		<value>OtherInvestingCashFlow</value> <!-- Other Investing Cash Flow Items -->
+		<value>CashFromInvestingActivities</value> <!-- Cash From Investing Activities -->
+		<value>FinancingCashFlowItems</value> <!-- Financing Cash Flow Items -->
+		<value>TotalCashDividendsPaid</value> <!-- Total Cash Dividends Paid -->
+		<value>IssuanceOfStock</value> <!-- Issuance(Retirement) of Stock, Net -->
+		<value>IssuanceOfDebt</value> <!-- Issuance(Retirement) of Debt, Net -->
+		<value>CashFromFinancingActivities</value> <!-- Cash From Financing Activities -->
+		<value>ForeignExchangeEffects</value> <!-- Foreign Exchange Effects -->
+		<value>NetChangeInCash</value> <!-- Net Change In Cash -->
+		<value>CashInterestPaid</value> <!-- Cash Interest Paid, Supplemental -->
+		<value>CashTaxesPaid</value> <!-- Cash Taxes Paid, Supplemental -->
+	</sec_doc>
+</sec_document_definitions>
