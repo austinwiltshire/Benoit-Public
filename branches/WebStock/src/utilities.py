@@ -1,6 +1,7 @@
 import re
 import datetime
 import copy
+import inspect
 
 def getBy(iterable, n=1):
 	iterable = iter(iterable)
@@ -115,6 +116,14 @@ class Lazy(object):
 			return None
 		result = inst.__dict__[self.__name__] = self._func(inst)
 		return result
+	
+def isClassMethod(cls, func=None):
+	if not func:
+		#syntax here is to just assume they passed us the method itself
+		return inspect.ismethod(cls) and cls.im_class is type
+	elif func and isString(func):
+		#passed in a string function to check against cls
+		return hasattr(cls, func) and inspect.ismethod(getattr(cls,func)) and issubclass(getattr(cls,func).im_class, type)
 
 #def const(function):
 #	def constantFunc(*args, **kwargs):

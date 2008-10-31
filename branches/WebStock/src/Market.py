@@ -19,8 +19,61 @@ IRBT.Fundamentals.FreeCashFlow.Quarter....
 ___
 
 """
-from SEC import BalanceSheet, IncomeStatement, CashFlowStatement, TradingDay, Metadata, Fundamentals
-from utilities import Lazy
+from SEC import TradingDay, Metadata, Fundamentals, Quarter, Annual
+from utilities import Lazy, isClassMethod
+
+class TimeAccess(object):
+	def __init__(self, symbol, module):
+		self.symbol = symbol
+		self.module = module
+	
+	class ShortCircuit(object):
+		def __init__(self, cls, symbol):
+			self.cls = cls
+			self.symbol = symbol
+			
+		def __getattr__(self, name):
+			if isClassMethod(self.cls, name):
+				return lambda *args, **kwargs : getattr(self.cls, name)(self.symbol, *args, **kwargs)
+			else:
+				raise AttributeError, name
+	
+	@Lazy
+	def BalanceSheet(self):
+		return TimeAccess.ShortCircuit(self.module.BalanceSheet, self.symbol)
+	
+	@Lazy
+	def CashFlowStatement(self):
+		return TimeAccess.ShortCircuit(self.module.CashFlowStatement, self.symbol)
+#		return self.module.CashFlowStatement.fetch(self.symbol, self.date)
+	
+	@Lazy
+	def IncomeStatement(self):
+		return self.module.IncomeStatement.fetch(self.symbol, self.date)
+	
+	def __call__(self, date):
+		return TimeClosure(self.symbol, date, self.module)	
+
+class TimeClosure(object):
+	def __init__(self, symbol, date, module):
+		self.symbol = symbol
+		self.date = date
+		self.module = module
+		
+		#ok, what if TIME CLOSURE had a state pattern?  if date was provided, we get fully closed annual or quarterly stuff.  if date is not provided,
+		#we get protected access to the class methods of the annual and quarterly versions?
+		
+	@Lazy
+	def BalanceSheet(self):
+		return self.module.BalanceSheet.fetch(self.symbol, self.date)
+	
+	@Lazy
+	def CashFlowStatement(self):
+		return self.module.CashFlowStatement.fetch(self.symbol, self.date)
+	
+	@Lazy
+	def IncomeStatement(self):
+		return self.module.IncomeStatement.fetch(self.symbol, self.date)		
 
 class Symbol(object):
 	""" Symbol closes it's accessors on the stock symbol name """
@@ -29,61 +82,40 @@ class Symbol(object):
 		self.name = name
 		self._metacache = None
 		
-	@property
+	@Lazy
 	def Meta(self):
-		if not self._metacache:
-			self._metacache = Metadata.Metadata.fetch(self.name)
-		return self._metacache
+		return Metadata.Metadata.fetch(self.name)
 	
 	class DailyClosure(object):
 		def __init__(self, symbol, day):
 			self.symbol = symbol
 			self.day = day
-			
-	   	   	self.TradingDay = TradingDay.TradingDay.fetch(self.symbol, self.day)
-	   	   	self.Fundamentals = Fundamentals.Fundamentals.fetch(self.symbol, self.day)
 		
-	class QuarterClosure(object):
+		@Lazy	
+		def TradingDay(self):
+			return TradingDay.TradingDay.fetch(self.symbol, self.day)
+		
+		@Lazy
+		def Fundamentals(self):
+			return Fundamentals.Fundamentals.fetch(self.symbol, self.day)
+		
 		#TODO: look into using partial application from the functools module for this.
-		
-		@Lazy
-		def BalanceSheet(self):
-			return BalanceSheet.QuarterlyBalanceSheet.fetch(self.symbol, self.quarter)
-		
-		@Lazy
-		def CashFlowStatement(self):
-			return CashFlowStatement.QuarterlyCashFlowStatement.fetch(self.symbol, self.quarter)
-		
-		@Lazy
-		def IncomeStatement(self):
-			return IncomeStatement.QuarterlyIncomeStatement.fetch(self.symbol, self.quarter)
-		
-		def __init__(self, symbol, quarter):
-			self.symbol = symbol
-			self.quarter = quarter
-	
-	class AnnualClosure(object):
-		def __init__(self, symbol, quarter):
-			self.symbol = symbol
-			self.quarter = quarter
 			
-		@Lazy
-		def BalanceSheet(self):
-			return BalanceSheet.AnnualBalanceSheet.fetch(self.symbol, self.quarter)
+			#could also turn this into some sort of describtor that discriminates between timeaccess and time closer between attribute and function access.
+
+	@Lazy
+	def Annual(self):
+		return TimeAccess(self.name, Annual)
+#	def Annual(self, date=None):
+#		if not date:
+#			return TimeAccess(self.name, Annual)
+#		else:
+#			return TimeClosure(self.name, date, Annual)
 	
-		@Lazy
-		def CashFlowStatement(self):
-			return CashFlowStatement.AnnualCashFlowStatement.fetch(self.symbol, self.quarter)
-		
-		@Lazy
-		def IncomeStatement(self):
-			return IncomeStatement.AnnualIncomeStatement.fetch(self.symbol, self.quarter)
-			
-	def Annual(self, date):
-		return Symbol.AnnualClosure(self.name, date)
-	
-	def Quarter(self, date):
-		return Symbol.QuarterClosure(self.name, date)
+	@Lazy
+	def Quarter(self):
+		return TimeAccess(self.name, Quarter)
+#	   return TimeClosure(self.name, date, Quarter)
 	
 	def Daily(self, date):
 		return Symbol.DailyClosure(self.name, date)

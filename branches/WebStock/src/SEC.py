@@ -5,9 +5,8 @@ import Ratios #for fundamentals
 import Registry
 
 #import ORM stuff
-import BalanceSheet
-import IncomeStatement
-import CashFlowStatement
+import Quarter
+import Annual
 import TradingDay
 import Metadata
 import Fundamentals
@@ -16,6 +15,6 @@ import Fundamentals
 from elixir import metadata, setup_all
 
 metadata.bind = "sqlite:///SEC.sqlite"
-metadata.bind.echo = True #used to debug SQL statements
+metadata.bind.echo = False #used to debug SQL statements
 
 setup_all(True)
