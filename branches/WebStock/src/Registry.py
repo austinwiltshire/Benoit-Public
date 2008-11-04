@@ -25,6 +25,11 @@ class FunctionHelper(object):
 		return _
 			
 	
+#*****************************************************************
+	@staticmethod
+	def getServiceFunction(service):
+		return Registry.registeredHosts[service]
+#******************************************************************
 
 class Registry(object):
 	""" Provides functions for mapping "Hosts" to "Interfaces".  Hosts are things that say they can provide a certain service

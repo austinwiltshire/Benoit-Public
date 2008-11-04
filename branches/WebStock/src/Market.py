@@ -22,6 +22,48 @@ ___
 from SEC import TradingDay, Metadata, Fundamentals, Quarter, Annual
 from utilities import Lazy, isClassMethod
 
+#*****************change ****************8
+#since most of the below has changed drastically, here's what needs to happen
+#i was gonna put a prefetch on each closure but perhaps its better that
+#the algorithm do all of this, nothing is really hidden anyway.
+def CheckForNewInfo(symbol):
+	""" checks for new info from the web for all documents,  returns
+	true if it finds anything """
+	
+	local = Symbol(symbol)
+	local.Meta.prefetch()
+	
+	#the reason we can't tie any of these together is that some 
+	#documents actually have different dates supported, sadly.
+	
+	for date in local.Quarter.BalanceSheet.NewDates():
+		local.Quarter(date).BalanceSheet.prefetch()
+		
+	for date in local.Quarter.IncomeStatement.NewDateS():
+		local.Quarter(date).IncomeStatement.prefetch()
+		
+	for date in local.Quarter.CashFlowStatement.NewDates():
+		local.Quarter(date).CashFlowStatement.prefetch()
+		
+	for date in local.Annual.BalanceSheet.NewDate():
+		local.Annual(date).BalanceSheet.prefetch()
+		
+	for date in local.Annual.IncomeStatement.NewDates():
+		local.Annual(date).IncomeStatement.prefetch()
+		
+	for date in local.Annual.CashFlowStatement.NewDates():
+		local.Annual(date).CashFlowStatement.prefetch()
+	
+	for date in local.Daily.TradingDay.NewDates():
+		local.Daily(date).TradingDay.prefetch()
+		local.Daily(date).Fundamentals.prefetch()
+		#local.Daily(date).Technicals.prefetch()
+
+def UpdateAll():
+	#beware, expensive function.  
+	for symbol in AllMySymbols:
+		CheckForNewInfo(symbol)
+
 class TimeAccess(object):
 	def __init__(self, symbol, module):
 		self.symbol = symbol
