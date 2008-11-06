@@ -417,7 +417,6 @@ class SymbolLookup(object):
 		post[]:
 			isinstance(__return__, bool)
 		"""
-		print potentialSymbol, type(potentialSymbol)
 		if self.simpleSymbol.match(potentialSymbol):
 			return True
 		return False

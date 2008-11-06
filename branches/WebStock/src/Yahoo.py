@@ -753,3 +753,5 @@ class Yahoo(Website.Website):
 delegateInterface(Yahoo,Yahoo.TradingDay,Yahoo._priceWrapper)
 
 Register(Service.Daily("High"))(Yahoo.getHigh)
+Register(Service.Meta("DailyTradingDayDates"))(Yahoo.getDates)
+Register(Service.Meta("DailyFundamentalsDates"))(Yahoo.getDates)

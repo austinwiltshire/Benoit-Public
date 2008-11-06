@@ -23,13 +23,6 @@ class FunctionHelper(object):
 		def _(*args, **kwargs):
 			return method(cls.storedObjects[method.im_class], *args, **kwargs)
 		return _
-			
-	
-#*****************************************************************
-	@staticmethod
-	def getServiceFunction(service):
-		return Registry.registeredHosts[service]
-#******************************************************************
 
 class Registry(object):
 	""" Provides functions for mapping "Hosts" to "Interfaces".  Hosts are things that say they can provide a certain service
@@ -37,6 +30,10 @@ class Registry(object):
 	Bloomberg does the job of matching up interfaces to hosts """
 	
 	registeredHosts = {}
+	
+	@staticmethod
+	def getServiceFunction(service):
+		return Registry.registeredHosts[service]
 	
 	@staticmethod
 	def getService(service, signatureMap):

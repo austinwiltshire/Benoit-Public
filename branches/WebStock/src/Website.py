@@ -1800,7 +1800,6 @@ class Google(Website):
 			#symbol in self._SECCache if not symbol in __old__.self._SECCache else self._SECCache[symbol] == __old__.self._SECCache[symbol]
 		"""
 		
-		symbol = self.resolver.getGoogle(symbol)
 		
 		if not self._SECCache.has_key(symbol):
 			self._SECCache[symbol] = self.SECData(self.factory.buildSECSoup(symbol))
@@ -1829,7 +1828,7 @@ class Google(Website):
 			all([hasattr(self,x) for x in publicInterface(self.SECData)])
 			
 		"""
-		#print isinstance(datePolicy,type) , "isinstance(datePolicy,type)?"
+		# isinstance(datePolicy,type) , "isinstance(datePolicy,type)?"
 		#print issubclass(datePolicy,FinancialDate.DatePolicy), "issubclass..."
 
 #		prototype = self.SECData()  # SECData's interface doesn't get fully set until it's built so I need an instantiated object
@@ -1873,6 +1872,11 @@ delegateInterface(Google,Google.Metadata,Google._metaWrapper)
 Register(Service.Meta("Industry"))(Google.getIndustry)
 
 Register(Service.Meta("QuarterlyCashFlowStatementDates"))(Google.getQuarterlyCashFlowStatementDates)
+Register(Service.Meta("QuarterlyBalanceSheetDates"))(Google.getQuarterlyBalanceSheetDates)
+Register(Service.Meta("QuarterlyIncomeStatementDates"))(Google.getQuarterlyIncomeStatementDates)
+Register(Service.Meta("AnnualCashFlowStatementDates"))(Google.getAnnualCashFlowStatementDates)
+Register(Service.Meta("AnnualBalanceSheetDates"))(Google.getAnnualBalanceSheetDates)
+Register(Service.Meta("AnnualIncomeStatementDates"))(Google.getAnnualIncomeStatementDates)
 #		getAnnualCashFlowDates
 #		getQuarterlyIncomeStatementDates
 #		getAnnualIncomeStatementDates
