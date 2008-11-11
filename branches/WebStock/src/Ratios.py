@@ -8,16 +8,22 @@ from Service import Service
 def PriceToEarnings(symbol, date):
 	""" stock price / eps """
 	
-	eps = EarningsPerShare(symbol, date)
-	
-	price_scraper = Yahoo.Yahoo()
-	price_on_day = price_scraper.getClose(symbol,date)
+	price_scraper = PriceToEarnings.yahoo
+	try:
+		eps = EarningsPerShare(symbol, date)
+		price_on_day = price_scraper.getClose(symbol,date)
+	#TODO: is there any better way to handle this?
+	except Website.DateNotFound, e:
+		return "-" #the 'not available' return
+			
 	
 	return price_on_day / eps
 
+PriceToEarnings.yahoo = Yahoo.Yahoo()
+
 def EarningsPerShare(symbol, date):
 	""" net revenues / outstanding shares """
-	financials_scraper = Website.Google()
+	financials_scraper = EarningsPerShare.google
 
 	shares_outstanding_filing_date = AnnualBalanceSheetDate(symbol, date)
 	
@@ -27,10 +33,12 @@ def EarningsPerShare(symbol, date):
 	
 	return NetRevenues(symbol, date) / shares_outstanding
 
+EarningsPerShare.google = Website.Google()
+
 def NetRevenues(symbol, date):
 	""" net income - preferred dividends """
-	financials_scraper = Website.Google()
-
+	financials_scraper = NetRevenues.google 
+	
 	earnings_filing_date = AnnualIncomeStatementDate(symbol, date)
 	
 	earnings_filing_date = FinancialDate.toDate(earnings_filing_date)	
@@ -45,9 +53,10 @@ def NetRevenues(symbol, date):
 		net_revenues = earnings - preferred_dividends_for_year
 		
 	return net_revenues
+NetRevenues.google = Website.Google()
 
 def AnnualIncomeStatementDate(symbol, date):
-	financials_scraper = Website.Google()
+	financials_scraper = AnnualIncomeStatementDate.google
 	earnings_dates = financials_scraper.getAnnualIncomeStatementDates(symbol)
 	
 	fixed_date = FinancialDate.toDate(date)
@@ -59,9 +68,11 @@ def AnnualIncomeStatementDate(symbol, date):
 		raise Website.DateNotFound(symbol,date)
 	
 	return FinancialDate.toDatetime(earnings_date)
+
+AnnualIncomeStatementDate.google = Website.Google()
 	
 def AnnualBalanceSheetDate(symbol, date):
-	financials_scraper = Website.Google()
+	financials_scraper = AnnualBalanceSheetDate.google
 	earnings_dates = financials_scraper.getAnnualBalanceSheetDates(symbol)
 	
 	fixed_date = FinancialDate.toDate(date)
@@ -73,3 +84,5 @@ def AnnualBalanceSheetDate(symbol, date):
 		raise Website.DateNotFound(symbol,date)
 	
 	return FinancialDate.toDatetime(earnings_date)	
+
+AnnualBalanceSheetDate.google = Website.Google()

@@ -7,6 +7,7 @@ import Registry
 #import ORM stuff
 import Quarter
 import Annual
+import Daily
 import TradingDay
 import Metadata
 import Fundamentals

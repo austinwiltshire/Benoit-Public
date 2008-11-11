@@ -1,4 +1,4 @@
-from SECFiling import Field, Float, Daily
+from SECFiling import Field, Float#, Daily
 
 
 """ A Balance Sheet has a Symbol and a Date associated with it, as well as Balance Sheet information.  There are two types: Quarterly
@@ -9,4 +9,4 @@ class Fundamentals(object):
 	semantic reference """
 	PriceToEarnings = Field(Float(precision=4))
 
-Fundamentals = Daily(Fundamentals)
+#Fundamentals = Daily(Fundamentals)

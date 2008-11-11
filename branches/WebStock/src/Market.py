@@ -19,8 +19,9 @@ IRBT.Fundamentals.FreeCashFlow.Quarter....
 ___
 
 """
-from SEC import TradingDay, Metadata, Fundamentals, Quarter, Annual
+from SEC import TradingDay, Metadata, Fundamentals, Quarter, Annual, Daily
 from utilities import Lazy, isClassMethod
+from elixir import session
 
 #*****************change ****************8
 #since most of the below has changed drastically, here's what needs to happen
@@ -31,32 +32,37 @@ def CheckForNewInfo(symbol):
 	true if it finds anything """
 	
 	local = Symbol(symbol)
+	local.commit_on_change = False
 	local.Meta.prefetch()
 	
 	#the reason we can't tie any of these together is that some 
 	#documents actually have different dates supported, sadly.
 	
 	for date in local.Quarter.BalanceSheet.NewDates():
-		local.Quarter(date).BalanceSheet.prefetch()
+		print local, local.Quarter(date).BalanceSheet.prefetch()
 		
-	for date in local.Quarter.IncomeStatement.NewDateS():
-		local.Quarter(date).IncomeStatement.prefetch()
+	for date in local.Quarter.IncomeStatement.NewDates():
+		print local, local.Quarter(date).IncomeStatement.prefetch()
 		
 	for date in local.Quarter.CashFlowStatement.NewDates():
-		local.Quarter(date).CashFlowStatement.prefetch()
+		print local, local.Quarter(date).CashFlowStatement.prefetch()
 		
-	for date in local.Annual.BalanceSheet.NewDate():
-		local.Annual(date).BalanceSheet.prefetch()
+	for date in local.Annual.BalanceSheet.NewDates():
+		print local, local.Annual(date).BalanceSheet.prefetch()
 		
 	for date in local.Annual.IncomeStatement.NewDates():
-		local.Annual(date).IncomeStatement.prefetch()
+		print local, local.Annual(date).IncomeStatement.prefetch()
 		
 	for date in local.Annual.CashFlowStatement.NewDates():
-		local.Annual(date).CashFlowStatement.prefetch()
+		print local, local.Annual(date).CashFlowStatement.prefetch()
+		
+	session.commit()
 	
 	for date in local.Daily.TradingDay.NewDates():
-		local.Daily(date).TradingDay.prefetch()
-		local.Daily(date).Fundamentals.prefetch()
+		print local, date, local.Daily(date).TradingDay.prefetch(), "getting trading day"
+		print local, date, local.Daily(date).Fundamentals.prefetch(), "getting fundamentals"
+		
+	session.commit()
 		#local.Daily(date).Technicals.prefetch()
 
 def UpdateAll():
@@ -91,7 +97,15 @@ class TimeAccess(object):
 	
 	@Lazy
 	def IncomeStatement(self):
-		return self.module.IncomeStatement.fetch(self.symbol, self.date)
+		return TimeAccess.ShortCircuit(self.module.IncomeStatement, self.symbol)
+	
+	@Lazy
+	def TradingDay(self):
+		return TimeAccess.ShortCircuit(self.module.TradingDay, self.symbol)
+	
+	@Lazy
+	def Fundamentals(self):
+		return TimeAccess.ShortCircuit(self.module.Fundamentals, self.symbol)
 	
 	def __call__(self, date):
 		return TimeClosure(self.symbol, date, self.module)	
@@ -115,7 +129,15 @@ class TimeClosure(object):
 	
 	@Lazy
 	def IncomeStatement(self):
-		return self.module.IncomeStatement.fetch(self.symbol, self.date)		
+		return self.module.IncomeStatement.fetch(self.symbol, self.date)
+	
+	@Lazy
+	def Fundamentals(self):
+		return self.module.Fundamentals.fetch(self.symbol, self.date)
+	
+	@Lazy
+	def TradingDay(self):
+		return self.module.TradingDay.fetch(self.symbol, self.date)		
 
 class Symbol(object):
 	""" Symbol closes it's accessors on the stock symbol name """
@@ -127,19 +149,6 @@ class Symbol(object):
 	@Lazy
 	def Meta(self):
 		return Metadata.Metadata.fetch(self.name)
-	
-	class DailyClosure(object):
-		def __init__(self, symbol, day):
-			self.symbol = symbol
-			self.day = day
-		
-		@Lazy	
-		def TradingDay(self):
-			return TradingDay.TradingDay.fetch(self.symbol, self.day)
-		
-		@Lazy
-		def Fundamentals(self):
-			return Fundamentals.Fundamentals.fetch(self.symbol, self.day)
 		
 		#TODO: look into using partial application from the functools module for this.
 			
@@ -159,6 +168,8 @@ class Symbol(object):
 		return TimeAccess(self.name, Quarter)
 #	   return TimeClosure(self.name, date, Quarter)
 	
-	def Daily(self, date):
-		return Symbol.DailyClosure(self.name, date)
+	@Lazy
+	def Daily(self):
+		return TimeAccess(self.name, Daily)
+		#return Symbol.DailyClosure(self.name, date)
 		 

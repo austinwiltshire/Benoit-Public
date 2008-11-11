@@ -100,6 +100,7 @@ class Yahoo(Website.Website):
 			""" Sets up stuff so I can begin looking up webpages """
 			self._basicSoupCache = Cache(lambda key: self._buildBasicSoup(key))
 			self._priceSoupCache = Cache(lambda key: self._buildPriceSoup(key))
+			print "building a new yahoo"
 			
 		
 		def buildPriceSoup(self, symbol):

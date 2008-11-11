@@ -75,7 +75,6 @@ class SECFiling(Bloomberg):
 						inst.__dict__[cacheKey] = function(inst)
 						inst.__dict__[initializerKey] = True
 						if inst.commit_on_change:
-							print "HERE"
 							session.commit()
 					except KeyError:
 						raise Exception("Service %s is not registered" % str(service))
@@ -134,7 +133,7 @@ class DateMixin(object):
 	def NewDates(cls, symbol):
 		available = set(cls.AvailableDates(symbol))
 		onTheWeb = set(cls.WebDates(symbol))
-		return onTheWeb - available
+		return list(onTheWeb - available)
 
 #	@classmethod
 #	def buildDatesFunction(cls, dct, documentName):
