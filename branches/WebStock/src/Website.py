@@ -68,7 +68,7 @@ import FinancialDate
 from Registry import Register
 from Service import Service
 from Signature import Signature
-from Cached import cached
+from Cached import cached_method
 
 from utilities import publicInterface, isString, isRegex, checkCache, delegateInterface
 
@@ -1423,7 +1423,7 @@ class Google(Website):
 			self._SECCache = {}
 			self._basicCache = {}
 			
-		@cached(100)
+		@cached_method(100)
 		def buildBasicSoup(self, symbol):
 			""" Public function that takes in a symbol and returns a Beautiful Soup object of that symbol's 
 			Basic information page parsed. This assumes nothing and is a way to capture search or 'symbol not found' pages.
@@ -1451,7 +1451,7 @@ class Google(Website):
 		
 		  	return BeautifulSoup.BeautifulSoup(urllib2.urlopen(self._buildBaseURL(symbol)))
 									
-		@cached(100)
+		@cached_method(100)
 		def buildMetaSoup(self, symbol):
 			""" Public function that takes in a symbol and returns a Beautiful Soup object of that symbol's
 			Meta information page parsed.  This assumes the symbol exists and will throw an error otherwise.
@@ -1484,7 +1484,7 @@ class Google(Website):
 					
 #			return self._metaCache[symbol]
 				
-		@cached(100)
+		@cached_method(100)
 		def buildSECSoup(self, symbol):
 			""" Public function that takes in a symbol and returns a Beautiful Soup object of that symbol's
 			financial page parsed.
