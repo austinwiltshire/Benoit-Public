@@ -68,6 +68,7 @@ import FinancialDate
 from Registry import Register
 from Service import Service
 from Signature import Signature
+from Cached import cached
 
 from utilities import publicInterface, isString, isRegex, checkCache, delegateInterface
 
@@ -1422,6 +1423,7 @@ class Google(Website):
 			self._SECCache = {}
 			self._basicCache = {}
 			
+		@cached(100)
 		def buildBasicSoup(self, symbol):
 			""" Public function that takes in a symbol and returns a Beautiful Soup object of that symbol's 
 			Basic information page parsed. This assumes nothing and is a way to capture search or 'symbol not found' pages.
@@ -1442,12 +1444,14 @@ class Google(Website):
 				symbol in self._basicCache if not symbol in __old__.self._basicCache else self._basicCache[symbol] == __old__.self._basicCache[symbol]
 			"""
 			
-			if not self._basicCache.has_key(symbol):
-				url = urllib2.urlopen(self._buildBaseURL(symbol))
-				self._basicCache[symbol] = BeautifulSoup.BeautifulSoup(url)
-			return self._basicCache[symbol]
-									
+		#	if not self._basicCache.has_key(symbol):
+		#		url = urllib2.urlopen(self._buildBaseURL(symbol))
+		#		self._basicCache[symbol] = BeautifulSoup.BeautifulSoup(url)
+		#	return self._basicCache[symbol]
 		
+		  	return BeautifulSoup.BeautifulSoup(urllib2.urlopen(self._buildBaseURL(symbol)))
+									
+		@cached(100)
 		def buildMetaSoup(self, symbol):
 			""" Public function that takes in a symbol and returns a Beautiful Soup object of that symbol's
 			Meta information page parsed.  This assumes the symbol exists and will throw an error otherwise.
@@ -1474,11 +1478,13 @@ class Google(Website):
 					raise SymbolNotFound(symbol)
 	   	   	   	if not self.hasMeta(symbol):
 					raise SymbolNotFound(symbol)
-				else:
-					self._metaCache[symbol] = self.buildBasicSoup(symbol) 
+				#else:
+				#	self._metaCache[symbol] = self.buildBasicSoup(symbol)
+				return self.buildBasicSoup(symbol) 
 					
-			return self._metaCache[symbol]
+#			return self._metaCache[symbol]
 				
+		@cached(100)
 		def buildSECSoup(self, symbol):
 			""" Public function that takes in a symbol and returns a Beautiful Soup object of that symbol's
 			financial page parsed.
@@ -1506,9 +1512,10 @@ class Google(Website):
 	   	   	   	if not self.hasSEC(symbol):
 					raise SymbolHasNoFinancials(symbol) 
 				else:
-					url = urllib2.urlopen(self._buildSECURL(symbol))
-					self._SECCache[symbol] = BeautifulSoup.BeautifulSoup(url) 
-			return self._SECCache[symbol]
+					return BeautifulSoup.BeautifulSoup(urllib2.urlopen(self._buildSECURL(symbol)))
+#					url = urllib2.urlopen(self._buildSECURL(symbol))
+#					self._SECCache[symbol] = BeautifulSoup.BeautifulSoup(url) 
+#			return self._SECCache[symbol]
 		
 		def _buildBaseURL(self, symbol):
 			""" Used internally to soup factory to build a base URL for all soup objects 
