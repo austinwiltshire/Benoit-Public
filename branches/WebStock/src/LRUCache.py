@@ -19,13 +19,13 @@ class LRUCache(object):
 				del self.refcount[k]
 				
 		if len(self.queue) > self.maxsize * 4:
-			for i in [None] * _len(queue):
-				k = queue_popleft()
+			for i in [None] * len(self.queue):
+				k = self.queue.popleft()
 				if self.refcount[k] == 1:
 					self.queue.append(k)
 				else:
 					self.refcount[k] -= 1
-			assert len(self.queue) == len(self.cache) == len(self.refcount) == sum(refcount.itervalues()) 
+			assert len(self.queue) == len(self.cache) == len(self.refcount) == sum(self.refcount.itervalues()) 
 				
 	def __getitem__(self, key):
 		self._update_(key)

@@ -6,6 +6,7 @@ import Website
 import re
 from Website import SymbolNotFound, DateNotFound
 import SymbolLookup
+from Cached import cached
 
 import sys
 sys.path.append(r"C:\Users\John\Workspace\Webstock\src\Experimental")
@@ -132,9 +133,12 @@ class Yahoo(Website.Website):
 			if not self.hasBasicSoup(symbol):
 				raise SymbolNotFound(symbol)
 		
-			return self._priceSoupCache[symbol]
+#			return self._priceSoupCache[symbol]
+			return self._buildPriceSoup(symbol)
 		
-		def _buildPriceSoup(self, symbol):
+		@classmethod
+		@cached(100)
+		def _buildPriceSoup(cls, symbol):
 			""" Builds a soup from a given symbol.  Assumes symbol exists. 
 			
 			pre:
@@ -144,7 +148,7 @@ class Yahoo(Website.Website):
 				isinstance(__return__,BeautifulSoup.BeautifulSoup)
 			
 			"""
-			url = self._buildPriceURL(symbol)
+			url = cls._buildPriceURL(symbol)
 			webpage = urllib2.urlopen(url)
 			return BeautifulSoup.BeautifulSoup(webpage)
 		
@@ -169,7 +173,8 @@ class Yahoo(Website.Website):
 				return False
 			return True
 		
-		def _buildPriceURL(self, symbol):
+		@classmethod
+		def _buildPriceURL(cls, symbol):
 			""" Returns the URL for the historical price information for this symbol.  Assumes
 			symbol is valid 
 			
@@ -179,7 +184,7 @@ class Yahoo(Website.Website):
 			post[]:
 				isString(__return__)
 			"""
-			soup = self.buildBasicSoup(symbol)
+			soup = cls.buildBasicSoup(symbol)
 			historicalPricesRE = re.compile("Historical Prices")
 			
 			#for future reference:
@@ -189,9 +194,10 @@ class Yahoo(Website.Website):
 			
 			for link in soup.findAll('a'):
 				if historicalPricesRE.search(str(link.string)):
-					return self._buildYahooURL(link['href'])
-					
-		def _buildYahooURL(self, relativeURL):
+					return cls._buildYahooURL(link['href'])
+		
+		@classmethod
+		def _buildYahooURL(cls, relativeURL):
 			""" Builds the URL to get from http://yahoo... 
 			
 			pre:
@@ -200,9 +206,10 @@ class Yahoo(Website.Website):
 				isinstance(__return__, basestring)
 			
 			"""
-			return "".join([self._yahooRoot,relativeURL])
+			return "".join([cls._yahooRoot,relativeURL])
 		
-		def _buildBasicURL(self, symbol):
+		@classmethod
+		def _buildBasicURL(cls, symbol):
 			""" Returns what should be the URL for the root page for this symbol. 
 			
 			pre:
@@ -210,9 +217,10 @@ class Yahoo(Website.Website):
 			post[]:
 				isString(__return__)
 			"""
-			return self._buildYahooURL("/q?s=%s" % symbol) 
+			return cls._buildYahooURL("/q?s=%s" % symbol) 
 			
-		def buildBasicSoup(self, symbol):
+		@classmethod
+		def buildBasicSoup(cls, symbol):
 			""" Finds the root yahoo page for this symbol.  Can be used to see if symbol exists.
 			The webpage looked up will be found no matter what, but analysis of whats in the soup 
 			is done by other functions like hasBasicSoup.  Cache's basic soup pages.
@@ -232,9 +240,12 @@ class Yahoo(Website.Website):
 				(len(self._basicSoupCache.keys()) - len(__old__.self._basicSoupCache.keys()) == 1) if (symbol not in __old__.self._basicSoupCache.keys()) else True
 			 """
 
-			return self._basicSoupCache[symbol]
+			return cls._buildBasicSoup(symbol)
+			#return self._basicSoupCache[symbol]
 		
-		def _buildBasicSoup(self, symbol):
+		@classmethod
+		@cached(100)
+		def _buildBasicSoup(cls, symbol):
 			""" Finds the root yahoo page for this symbol.  Does not cache. 
 			
 			pre:
@@ -242,7 +253,7 @@ class Yahoo(Website.Website):
 			post[]:
 				isinstance(__return__,BeautifulSoup.BeautifulSoup)
 			"""
-			url = self._buildBasicURL(symbol)
+			url = cls._buildBasicURL(symbol)
 			webpage = urllib2.urlopen(url)
 			return BeautifulSoup.BeautifulSoup(webpage)
 		
