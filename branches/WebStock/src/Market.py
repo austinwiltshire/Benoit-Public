@@ -35,34 +35,46 @@ def CheckForNewInfo(symbol):
 	local.commit_on_change = False
 	local.Meta.prefetch()
 	
+	session.configure(autoflush=True, transactional=True)
 	#the reason we can't tie any of these together is that some 
 	#documents actually have different dates supported, sadly.
+	trans = session.begin()
 	
 	for date in local.Quarter.BalanceSheet.NewDates():
-		print local, local.Quarter(date).BalanceSheet.prefetch()
+		#print local, local.Quarter(date).BalanceSheet.prefetch()
+		local.Quarter(date).BalanceSheet.prefetch()
 		
 	for date in local.Quarter.IncomeStatement.NewDates():
-		print local, local.Quarter(date).IncomeStatement.prefetch()
+		#print local, local.Quarter(date).IncomeStatement.prefetch()
+		local.Quarter(date).IncomeStatement.prefetch()
 		
 	for date in local.Quarter.CashFlowStatement.NewDates():
-		print local, local.Quarter(date).CashFlowStatement.prefetch()
+		#print local, local.Quarter(date).CashFlowStatement.prefetch()
+		local.Quarter(date).CashFlowStatement.prefetch()
 		
 	for date in local.Annual.BalanceSheet.NewDates():
-		print local, local.Annual(date).BalanceSheet.prefetch()
+		#print local, local.Annual(date).BalanceSheet.prefetch()
+		local.Annual(date).BalanceSheet.prefetch()
 		
 	for date in local.Annual.IncomeStatement.NewDates():
-		print local, local.Annual(date).IncomeStatement.prefetch()
+		#print local, local.Annual(date).IncomeStatement.prefetch()
+		local.Annual(date).IncomeStatement.prefetch()
 		
 	for date in local.Annual.CashFlowStatement.NewDates():
-		print local, local.Annual(date).CashFlowStatement.prefetch()
+		#print local, local.Annual(date).CashFlowStatement.prefetch()
+		local.Annual(date).CashFlowStatement.prefetch()
 		
-	session.commit()
+	trans.commit()
+	
+	trans = session.begin()
 	
 	for date in local.Daily.TradingDay.NewDates():
-		print local, date, local.Daily(date).TradingDay.prefetch(), "getting trading day"
-		print local, date, local.Daily(date).Fundamentals.prefetch(), "getting fundamentals"
+		#print local, date, local.Daily(date).TradingDay.prefetch(), "getting trading day"
+		local.Daily(date).TradingDay.prefetch()
+		#print local, date, local.Daily(date).Fundamentals.prefetch(), "getting fundamentals"
+		local.Daily(date).Fundamentals.prefetch()
 		
-	session.commit()
+	trans.commit()
 		#local.Daily(date).Technicals.prefetch()
 
 def UpdateAll():

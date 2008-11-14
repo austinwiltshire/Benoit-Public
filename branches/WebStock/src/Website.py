@@ -1450,7 +1450,6 @@ class Google(Website):
 		#		self._basicCache[symbol] = BeautifulSoup.BeautifulSoup(url)
 		#	return self._basicCache[symbol]
 		
-			print "calling basic soup"
 		  	return BeautifulSoup.BeautifulSoup(urllib2.urlopen(cls._buildBaseURL(symbol)))
 									
 		@classmethod

@@ -74,8 +74,6 @@ class SECFiling(Bloomberg):
 					try:
 						inst.__dict__[cacheKey] = function(inst)
 						inst.__dict__[initializerKey] = True
-						if inst.commit_on_change:
-							session.commit()
 					except KeyError:
 						raise Exception("Service %s is not registered" % str(service))
 				return inst.__dict__[cacheKey]

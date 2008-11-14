@@ -21,7 +21,7 @@ class FunctionHelper(object):
 		cls.storedObjects[method.im_class] = method.im_class()
 		
 		def _(*args, **kwargs):
-			print "calling", method, "on", method.im_class()
+#			print "calling", method, "on", method.im_class()
 			return method(cls.storedObjects[method.im_class], *args, **kwargs)
 		return _
 
