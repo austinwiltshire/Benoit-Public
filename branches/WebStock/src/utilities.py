@@ -2,6 +2,7 @@ import re
 import datetime
 import copy
 import inspect
+from itertools import chain
 
 def getBy(iterable, n=1):
 	iterable = iter(iterable)
@@ -124,6 +125,19 @@ def isClassMethod(cls, func=None):
 	elif func and isString(func):
 		#passed in a string function to check against cls
 		return hasattr(cls, func) and inspect.ismethod(getattr(cls,func)) and issubclass(getattr(cls,func).im_class, type)
+	
+class ClassAccess(object):
+	""" This is a pretty nasty hack to wrap a class, allowing access to it's class methods only, closed over any args you pass in in it's init """
+	def __init__(self, cls, *args, **kwargs):
+		self.cls = cls
+		self.args = args
+		self.kwargs = kwargs
+		
+	def __getattr__(self, name):
+		if isClassMethod(self.cls, name):
+			return lambda *args, **kwargs : getattr(self.cls, name)(*(self.args + args), **dict((key, value) for key,value in chain(self.kwargs.iteritems(), kwargs.iteritems())))
+		else:
+			raise AttributeError, name
 
 #def const(function):
 #	def constantFunc(*args, **kwargs):

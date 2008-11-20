@@ -90,14 +90,6 @@ class SECFiling(Bloomberg):
 		dictbuilt["prefetch"] = self.buildPrefetchMethod([serviceName for serviceName,_ in services])
 		return dictbuilt
 
-#********************change *****************8
-#since prefetch is a local method, and we also now have the class descriptor
-#in SECFiling itself, rather than registry, we can make 'coommit on change'
-#a local class variable set originally to true.  prefetch will turn
-#off this local variable when it runs, then return it back on.
-#this means strings of prefetches won't commit, allowing the user to 
-#decide when to commit... or whehter or not prefetch commits is passed
-#in as a bool.  this would probably be better.
 	def buildPrefetchMethod(self, services):
 		def _(self):
 			return dict([(service, getattr(self,service)) for service in services])
@@ -133,12 +125,6 @@ class DateMixin(object):
 		onTheWeb = set(cls.WebDates(symbol))
 		return list(onTheWeb - available)
 
-#	@classmethod
-#	def buildDatesFunction(cls, dct, documentName):
-#		name = documentName + "Dates"
-#		dct[name] = Registry.getStaticService(Service.Meta(name), SignatureMap({"symbol":"Symbol"}))
-#		return dct
-	
 	@classmethod
 	def getService(cls, serviceName):
 		return [cls.getSubService(serviceName), SignatureMap({"symbol":"Symbol","date":"Date"})]

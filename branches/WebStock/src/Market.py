@@ -105,7 +105,6 @@ class TimeAccess(object):
 	@Lazy
 	def CashFlowStatement(self):
 		return TimeAccess.ShortCircuit(self.module.CashFlowStatement, self.symbol)
-#		return self.module.CashFlowStatement.fetch(self.symbol, self.date)
 	
 	@Lazy
 	def IncomeStatement(self):
@@ -163,25 +162,15 @@ class Symbol(object):
 		return Metadata.Metadata.fetch(self.name)
 		
 		#TODO: look into using partial application from the functools module for this.
-			
-			#could also turn this into some sort of describtor that discriminates between timeaccess and time closer between attribute and function access.
 
 	@Lazy
 	def Annual(self):
 		return TimeAccess(self.name, Annual)
-#	def Annual(self, date=None):
-#		if not date:
-#			return TimeAccess(self.name, Annual)
-#		else:
-#			return TimeClosure(self.name, date, Annual)
 	
 	@Lazy
 	def Quarter(self):
 		return TimeAccess(self.name, Quarter)
-#	   return TimeClosure(self.name, date, Quarter)
 	
 	@Lazy
 	def Daily(self):
 		return TimeAccess(self.name, Daily)
-		#return Symbol.DailyClosure(self.name, date)
-		 
