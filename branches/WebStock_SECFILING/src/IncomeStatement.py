@@ -1,4 +1,4 @@
-from SECFiling import Field, Float
+from SECFiling import Field, Float, Bloomberg
 
 #TODO:
 # run test that uniqueness is enforced
@@ -6,7 +6,7 @@ from SECFiling import Field, Float
 """ A Balance Sheet has a Symbol and a Date associated with it, as well as Balance Sheet information.  There are two types: Quarterly
 and Annual Balance Sheets.  A Balance sheet can be represented as a row in a database. """
 
-class IncomeStatement(object):
+class IncomeStatement(Bloomberg):
 	Revenue = Field(Float(precision=4))
 	UnusualExpense = Field(Float(precision=4))
 

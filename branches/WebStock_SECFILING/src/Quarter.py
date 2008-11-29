@@ -5,9 +5,9 @@ from CashFlowStatement import CashFlowStatement
 from utilities import ClassAccess
 from functools import partial
 
-BalanceSheet = Quarterly(BalanceSheet)
-CashFlowStatement = Quarterly(CashFlowStatement)
-IncomeStatement = Quarterly(IncomeStatement)
+#BalanceSheet = Quarterly(BalanceSheet)
+#CashFlowStatement = Quarterly(CashFlowStatement)
+#IncomeStatement = Quarterly(IncomeStatement)
 
 class Meta(object):
 	BalanceSheet = partial(ClassAccess, BalanceSheet)

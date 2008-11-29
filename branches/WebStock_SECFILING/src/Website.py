@@ -1888,6 +1888,7 @@ delegateInterface(Google,Google.Metadata,Google._metaWrapper)
 #outside of that registration, the entire class itself is decorated with a register, and it's that final class registration that
 #finds all the marked 'registers' and loads them.
 Register(Service.Meta("Industry"))(Google.getIndustry)
+Register(Service.Meta("Symbol"))(lambda inst : inst.Symbol)
 
 Register(Service.Meta("QuarterlyCashFlowStatementDates"))(Google.getQuarterlyCashFlowStatementDates)
 Register(Service.Meta("QuarterlyBalanceSheetDates"))(Google.getQuarterlyBalanceSheetDates)
