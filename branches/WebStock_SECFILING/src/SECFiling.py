@@ -44,7 +44,6 @@ class BService(object):
 		
 	def getFunction(self, name, filing):
 		pass
-		return Registry.getService(*filing.getService(name))
 
 class RegisteredService(BService):
 	""" This sets a service such that asking for it does a look up. """
@@ -60,9 +59,21 @@ class AttributeService(BService):
 
 class Bloomberg(object):
 	@classmethod
-	def ServicesSupported(cls):
+	def ServicesDetected(cls):
 		return [(service,getattr(cls,service)) for service in dir(cls) if isinstance(getattr(cls,service),BService)]
+	
+	@classmethod
+	def DecorateServices(cls):
+		cls._services_ = cls.ServicesDetected()
+		cls._attribute_services_ = [serviceName for serviceName,_ in cls._services_ if isinstance(getattr(cls,serviceName), AttributeService)]
+		cls._registered_services_ = [serviceName for serviceName,_ in cls._services_ if isinstance(getattr(cls,serviceName), RegisteredService)] 
 		
+	@classmethod
+	def getServices(cls):
+		return cls._services_
+		
+	def prefetch(self): 
+		return dict([(serviceName, getattr(self,serviceName)) for serviceName,_ in self._registered_services_])
 
 #	#prefecth problems...
 #	#prefetch method must be accessed via the 'fetch' method from market.symbol...., otherwise, multiple entries get put into 
@@ -113,8 +124,10 @@ class ServiceDescriptor(object):
 
 def SECFiling_Decorator(filing, document, name):
 
-	document = copy.deepcopy(document)	
-	services = document.ServicesSupported()
+	document = copy.deepcopy(document)
+	
+	document.DecorateServices()	
+	services = document.getServices()
 
 	for serviceName, bservice in services:
 		bservice.decorate(serviceName, document, filing)
