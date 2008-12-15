@@ -1,4 +1,4 @@
-from SECFiling import PersistantHost
+from SECFiling import PersistantHost, Required, Provided
 from elixir import Float, Unicode, DateTime
 
 """ A Balance Sheet has a Symbol and a Date associated with it, as well as Balance Sheet information.  There are two types: Quarterly

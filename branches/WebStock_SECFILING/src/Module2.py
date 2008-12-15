@@ -21,7 +21,7 @@ class Symbol(object):
 	
 	@Lazy
 	def Meta(self):
-		return MetaData(self.name)
+		return Metadata.fetch(self.name)
 
 class StockDate(object):
 	def __init__(self, name, month, day, year):

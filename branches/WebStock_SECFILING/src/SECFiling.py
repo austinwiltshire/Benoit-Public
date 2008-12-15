@@ -34,6 +34,7 @@ def MakePeriodical(service, prefix):
 		
 		staticHost = DecoratePersistantHost(document, document_name, ServiceFunction)
 		staticHost.AvailableDates = AvailableDates
+		return staticHost
 	return _
 
 def Meta(document):

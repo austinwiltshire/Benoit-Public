@@ -1,4 +1,5 @@
-from SECFiling import Field, Float, Bloomberg
+from SECFiling import PersistantHost, Required, Provided
+from elixir import Float, Unicode, DateTime
 
 #TODO:
 # run test that uniqueness is enforced
@@ -6,9 +7,11 @@ from SECFiling import Field, Float, Bloomberg
 """ A Balance Sheet has a Symbol and a Date associated with it, as well as Balance Sheet information.  There are two types: Quarterly
 and Annual Balance Sheets.  A Balance sheet can be represented as a row in a database. """
 
-class IncomeStatement(Bloomberg):
-	Revenue = Field(Float(precision=4))
-	UnusualExpense = Field(Float(precision=4))
+class IncomeStatement(PersistantHost):
+	Symbol = Required(Unicode(60))
+	Date = Required(DateTime)
+	Revenue = Provided(Float(precision=4))
+	UnusualExpense = Provided(Float(precision=4))
 
 #how might prefetch work?
 #  given any SECFiling, a prefetch should first gather
