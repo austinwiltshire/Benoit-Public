@@ -3,7 +3,7 @@ from functools import partial
 from utilities import isClassMethod, Lazy
 from itertools import chain
 
-from SEC import Metadata#, Daily, FinancialPeriod
+from SEC import Metadata, Daily, FinancialPeriod
 
 class Technicals(object):
 	def __init__(self, name, date):
@@ -21,7 +21,7 @@ class Symbol(object):
 	
 	@Lazy
 	def Meta(self):
-		return Metadata.fetch(self.name)
+		return MetaData(self.name)
 
 class StockDate(object):
 	def __init__(self, name, month, day, year):

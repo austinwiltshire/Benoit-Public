@@ -11,126 +11,13 @@ import copy
 import elixir
 from elixir import Entity, Field
 
+from Bloomberg import Required, Provided, Attribute, PersistantHost, DecorateServices, ServicesDetected, DecoratePersistantHost
+from Periodic import AvailableDates
+
 #TODO: refactoring goals
 #build a generic memoization framework 
 #investigate PEAK and multimethods, and probably replace the registry with a more generic
 #out-of-the-box callback mechanism.
-
-class BService(object):
-	def __init__(self, fieldType, *args, **kwargs):
-		self.fieldType = fieldType
-	
-	def decorate(self, name, cls, service):
-		self.addField(cls, name)
-		self.addInitializer(cls, name)
-		self.addAccessor(cls, name, service)
-		
-	def addInitializer(self, cls, name):
-		initializerName = self.initializerName(name)
-		initializerField = elixir.Field(elixir.Boolean())
-		setattr(cls, initializerName, initializerField)
-		
-	def initializerName(self, name):
-		return "".join(["__initialized__",name])
-	
-	def fieldName(self, name):
-		return "".join(["_",name])
-		
-	def addAccessor(self, cls, name, service):
-		setattr(cls, name, self.buildDescriptor(self.initializerName(name), self.fieldName(name), self.getFunction(name, service)))
-	
-	def addField(self, cls, name):
-		fieldName = self.fieldName(name)
-		setattr(cls, fieldName, Field(self.fieldType))
-		
-	def buildDescriptor(self, initializerName, fieldName, function):
-		return ServiceDescriptor(initializerName, fieldName, function)
-		
-	def getFunction(self, name, filing):
-		pass
-
-class Provided(BService):
-	""" This sets a service such that asking for it does a look up. """
-	
-	def decorate(self, name, cls, filing):
-		cls._provided_attributes_.append(name)
-		super(Provided,self).decorate(name, cls, filing)
-	
-	def getFunction(self, name, service):
-		return Registry.getService(*service(name))
-
-class Required(BService):
-	""" Sets the service assigned to basically be set-able, rather than looking up any function """
-	
-	def decorate(self, name, cls, filing):
-		cls._required_attributes_.append(name)
-		super(Required,self).decorate(name, cls, filing)
-	
-	def getFunction(self, name, filing):
-		return lambda inst: getattr(inst, self.fieldName(name))
-
-class Bloomberg(object):
-	
-	@classmethod
-	def ServicesDetected(cls):
-		return [(service,getattr(cls,service)) for service in dir(cls) if isinstance(getattr(cls,service),BService)]
-	
-	@classmethod
-	def DecorateServices(cls):
-		cls._required_attributes_ = [] #[serviceName for serviceName,_ in cls._services_ if isinstance(getattr(cls,serviceName), AttributeService)]
-		cls._provided_attributes_ = [] #[serviceName for serviceName,_ in cls._services_ if isinstance(getattr(cls,serviceName), RegisteredService)] 
-		
-	@classmethod
-	def getAttributes(cls):
-		return cls._attributes_
-		
-	def prefetch(self): 
-		return dict([(serviceName, getattr(self,serviceName)) for serviceName,_ in self._provided_services_])
-	
-	def __init__(self, *args, **kwargs):
-		#attribute service lookup SHOULD assume that attributes are passed in in the order that they are defined, or in the keywords.  but i should still expect them
-		#to be in order
-		args = list(args)
-		for key in self._required_attributes_:
-			try:
-				setattr(self, key, kwargs.get(key, args.pop()))
-			except IndexError:
-				raise TypeError("__init__ takes exactly %d arguments, %d given" % (len(self._attribute_services_), len(args) + len(kwargs)))
-		
-	@classmethod
-	def fetch(cls, *args, **kwargs):
-		attributes = {}
-		args = list(args)
-		for key in cls._required_attributes_:
-			try:
-				attributes["".join(["_",key])] = kwargs.get(key, args.pop()) #ew...
-			except IndexError:
-				raise TypeError("fetch takes exactly %d arguments, %d given" % (len(cls._required_attributes_), len(args) + len(kwargs)))
-		
-		dbCache = cls.query.filter_by(**attributes).all()
-		if not dbCache:
-			return cls(symbol)
-		else:
-			if len(dbCache) > 1:
-				raise Exception("Returned multiple results on query for: %s (%s)" % (cls, attributes))
-			else:
-				return dbCache[0]
-		
-class Periodic(Bloomberg):
-	@classmethod
-	def AvailableDates(cls, symbol):
-		return [toDate(x.Date) for x in cls.query().filter_by(Symbol=symbol).all()]
-#		
-	@classmethod
-	def WebDates(cls, symbol):
-		return Registry.getServiceFunction(Service.Meta(cls.__document_name__ + "Dates"))(symbol)
-#	
-	@classmethod
-	def NewDates(cls, symbol):
-		available = set(cls.AvailableDates(symbol))
-		onTheWeb = set(cls.WebDates(symbol))
-		return list(onTheWeb - available)
-	
 
 #	#prefecth problems...
 #	#prefetch method must be accessed via the 'fetch' method from market.symbol...., otherwise, multiple entries get put into 
@@ -143,74 +30,27 @@ def MakePeriodical(service, prefix):
 		def ServiceFunction(name):
 			return [service(name), SignatureMap({"symbol":"Symbol","date":"Date"})]
 		
-		document_name = CreateName(prefix, document)
+		document_name = "".join([prefix,document.__name__])
 		
-		return decorate_(document, document_name, ServiceFunction)
+		staticHost = DecoratePersistantHost(document, document_name, ServiceFunction)
+		staticHost.AvailableDates = AvailableDates
 	return _
-	
-Daily = MakePeriodical(Service.Daily,"Daily")
-Annual = MakePeriodical(Service.Annually,"Annual")
-Quarterly = MakePeriodical(Service.Quarterly, "Quarterly")
 
 def Meta(document):
 	
 	def MetaService(name):
 		return [Service.Meta(name), SignatureMap({"symbol":"Symbol"})]
 	
-	document_name = CreateName("",document)
-	
-	return decorate_(document, document_name, MetaService)
+	return DecoratePersistantHost(document, document.__name__, MetaService)
 
-class ServiceDescriptor(object):
-	def __init__(self, initializerKey, cacheKey, function):	
-		self.cacheKey = cacheKey
-		self.initializerKey = initializerKey
-		self.function = function
-		
-	def __get__(self, inst, owner):
-		if not getattr(inst, self.initializerKey):
-			try:
-				setattr(inst, self.cacheKey, unicode(self.function(inst)))
-				setattr(inst, self.initializerKey, True)
-				elixir.session.commit()
-			except KeyError:
-				elixir.session.rollback()
-				raise Exception("Service %s is not registered" % str(service))
-		return getattr(inst, self.cacheKey)
-	
-	def __set__(self, inst, value):
-		try:
-			setattr(inst, self.cacheKey, value)
-			elixir.session.commit()
-		except:
-			elixir.session.rollback()
-			raise
+Daily = MakePeriodical(Service.Daily,"Daily")
+Annual = MakePeriodical(Service.Annually,"Annual")
+Quarterly = MakePeriodical(Service.Quarterly, "Quarterly")
 
-#move this into a module because its basically a singleton builder class.
-def decorate_(document, name, service):
 	
-	
-	document = type(name,(document,Entity),{})
-	
-		
-	document.DecorateServices()	
-	services = document.ServicesDetected()
-
-	for serviceName, bservice in services:
-		#yet another reason my whole 'plugin framework' is horrendous.
-		bservice.decorate(serviceName, document, service)
-		
-	#ugliness mostly due to Elixir's own 'dsl' style syntax which seems to assume you're using their silly syntax.  
-	#todo: maybe look into a better way to do this but i'm not sure it exists.
-	document._descriptor.tablename = name
-	document._descriptor.polymorphic = False
-	document._descriptor.inheritance = "concrete"
-		
-	return document
-	
-def CreateName(prefix, document, mix=""):
+#def CreateName(prefix, document, mix=""):
 	#return mix.join([prefix, document._descriptor.tablename])
-	return mix.join([prefix, document.__name__])
+#	return mix.join([prefix, document.__name__])
 	
 #def SECFiling(filing, document):
 #		name = filing.createName(document.__name__)

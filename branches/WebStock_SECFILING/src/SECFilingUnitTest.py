@@ -20,10 +20,10 @@ class MarketTestCase(unittest.TestCase):
 	
 	def testProvidedAttributes(self):
 		x = Metadata.Metadata("IRBT")
-		self.assertEqual(Metadata.Metadata._provided_attributes_,["Industry"])
+		self.assertEqual(Metadata.Metadata._provided_attributes_[0][0],"Industry")
 		
 	def testRequiredAttributes(self):
-		self.assertEqual(Metadata.Metadata._required_attributes_,["Symbol"])
+		self.assertEqual(Metadata.Metadata._required_attributes_[0][0],"Symbol")
 		
 	def testIndustry(self):
 		self.assertEqual(len(Metadata.Metadata.query.all()), 0)
