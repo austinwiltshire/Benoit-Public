@@ -68,6 +68,7 @@ import FinancialDate
 from Registry import Register
 from Service import Service
 from Signature import Signature
+from Cached import cached
 
 from utilities import publicInterface, isString, isRegex, checkCache, delegateInterface
 
@@ -624,10 +625,10 @@ class Google(Website):
 				
 			searchRe = re.compile(regEx)
 			
-			annualMethod = lambda : self._webparse(annualVariableName, searchRe\
-												  , annualDiv, self._getDates(annualDiv, annualDateKey))
-			quarterlyMethod = lambda : self._webparse(quarterlyVariableName, searchRe\
-												  , quarterlyDiv, self._getDates(quarterlyDiv, quarterlyDateKey))
+			annualMethod = cached(1)(lambda : self._webparse(annualVariableName, searchRe\
+												  , annualDiv, self._getDates(annualDiv, annualDateKey)))
+			quarterlyMethod = cached(1)(lambda : self._webparse(quarterlyVariableName, searchRe\
+												  , quarterlyDiv, self._getDates(quarterlyDiv, quarterlyDateKey)))
 			
 			#**** TODO: right here is where i would put my registry decorators.  the annual one then the quartelry one, based on the secDoc.S
 			self.__setattr__(annualMethodName, annualMethod)
@@ -1422,7 +1423,9 @@ class Google(Website):
 			self._SECCache = {}
 			self._basicCache = {}
 			
-		def buildBasicSoup(self, symbol):
+		@classmethod
+		@cached(100)
+		def buildBasicSoup(cls, symbol):
 			""" Public function that takes in a symbol and returns a Beautiful Soup object of that symbol's 
 			Basic information page parsed. This assumes nothing and is a way to capture search or 'symbol not found' pages.
 			
@@ -1442,13 +1445,16 @@ class Google(Website):
 				symbol in self._basicCache if not symbol in __old__.self._basicCache else self._basicCache[symbol] == __old__.self._basicCache[symbol]
 			"""
 			
-			if not self._basicCache.has_key(symbol):
-				url = urllib2.urlopen(self._buildBaseURL(symbol))
-				self._basicCache[symbol] = BeautifulSoup.BeautifulSoup(url)
-			return self._basicCache[symbol]
-									
+		#	if not self._basicCache.has_key(symbol):
+		#		url = urllib2.urlopen(self._buildBaseURL(symbol))
+		#		self._basicCache[symbol] = BeautifulSoup.BeautifulSoup(url)
+		#	return self._basicCache[symbol]
 		
-		def buildMetaSoup(self, symbol):
+		  	return BeautifulSoup.BeautifulSoup(urllib2.urlopen(cls._buildBaseURL(symbol)))
+									
+		@classmethod
+		@cached(100)
+		def buildMetaSoup(cls, symbol):
 			""" Public function that takes in a symbol and returns a Beautiful Soup object of that symbol's
 			Meta information page parsed.  This assumes the symbol exists and will throw an error otherwise.
 			
@@ -1469,17 +1475,20 @@ class Google(Website):
 				
 			"""
 			
-			if not self._metaCache.has_key(symbol):
-	   	   	   	if not self.hasBasic(symbol):
-					raise SymbolNotFound(symbol)
-	   	   	   	if not self.hasMeta(symbol):
-					raise SymbolNotFound(symbol)
-				else:
-					self._metaCache[symbol] = self.buildBasicSoup(symbol) 
+#			if not self._metaCache.has_key(symbol):
+   	   	   	if not cls.hasBasic(symbol):
+				raise SymbolNotFound(symbol)
+   	   	   	if not cls.hasMeta(symbol):
+				raise SymbolNotFound(symbol)
+				#else:
+				#	self._metaCache[symbol] = self.buildBasicSoup(symbol)
+			return cls.buildBasicSoup(symbol) 
 					
-			return self._metaCache[symbol]
+#			return self._metaCache[symbol]
 				
-		def buildSECSoup(self, symbol):
+		@classmethod
+		@cached(100)
+		def buildSECSoup(cls, symbol):
 			""" Public function that takes in a symbol and returns a Beautiful Soup object of that symbol's
 			financial page parsed.
 			
@@ -1500,17 +1509,19 @@ class Google(Website):
 				
 			"""
 			
-			if not self._SECCache.has_key(symbol):
-	   	   	   	if not self.hasBasic(symbol):
-					raise SymbolNotFound(symbol)
-	   	   	   	if not self.hasSEC(symbol):
-					raise SymbolHasNoFinancials(symbol) 
-				else:
-					url = urllib2.urlopen(self._buildSECURL(symbol))
-					self._SECCache[symbol] = BeautifulSoup.BeautifulSoup(url) 
-			return self._SECCache[symbol]
+#			if not self._SECCache.has_key(symbol):
+   	   	   	if not cls.hasBasic(symbol):
+				raise SymbolNotFound(symbol)
+   	   	   	if not cls.hasSEC(symbol):
+				raise SymbolHasNoFinancials(symbol) 
+			else:
+				return BeautifulSoup.BeautifulSoup(urllib2.urlopen(cls._buildSECURL(symbol)))
+#					url = urllib2.urlopen(self._buildSECURL(symbol))
+#					self._SECCache[symbol] = BeautifulSoup.BeautifulSoup(url) 
+#			return self._SECCache[symbol]
 		
-		def _buildBaseURL(self, symbol):
+		@classmethod
+		def _buildBaseURL(cls, symbol):
 			""" Used internally to soup factory to build a base URL for all soup objects 
 			symbols looked up.
 		
@@ -1551,7 +1562,8 @@ class Google(Website):
 					return link['href']
 			return None
 		
-		def _buildSECURL(self, symbol):
+		@classmethod
+		def _buildSECURL(cls, symbol):
 			""" Builds the proper URL for a particular stock symbol's SEC information 	
 			Example: #For testing purposes only
 		
@@ -1572,13 +1584,14 @@ class Google(Website):
 			
 			
 			"""			
-			soup = self.buildBasicSoup(symbol)
+			soup = cls.buildBasicSoup(symbol)
 			links = soup.findAll('a')
-			suffix = self._findSuffix(links, self.incomeLinkRe)
+			suffix = cls._findSuffix(links, cls.incomeLinkRe)
 		
 			return unicode("".join(["http://finance.google.com/finance",suffix]))
 		
-		def hasSEC(self, symbol):
+		@classmethod
+		def hasSEC(cls, symbol):
 			""" A public predicate that returns whether or not this symbol supports lookup of SEC information.
 			
 			>>> x = Google.SoupFactory()
@@ -1597,13 +1610,14 @@ class Google(Website):
 				isinstance(__return__, bool)
 			
 			"""
-			if not self.hasBasic(symbol):
+			if not cls.hasBasic(symbol):
 				return False
-			elif not self._isSECSoup(self.buildBasicSoup(symbol)):
+			elif not cls._isSECSoup(cls.buildBasicSoup(symbol)):
 				return False
 			return True
 			
-		def hasMeta(self, symbol):
+		@classmethod
+		def hasMeta(cls, symbol):
 			""" A public predicate that returns whether or not this symbol supports lookup of meta information
 			
 			>>> x = Google.SoupFactory()
@@ -1623,13 +1637,14 @@ class Google(Website):
 				
 			"""
 			
-			if not self.hasBasic(symbol):
+			if not cls.hasBasic(symbol):
 				return False
-			elif not self._isMetaSoup(self.buildBasicSoup(symbol)):
+			elif not cls._isMetaSoup(cls.buildBasicSoup(symbol)):
 				return False
 			return True
-			
-		def hasBasic(self, symbol):
+		
+		@classmethod
+		def hasBasic(cls, symbol):
 			""" A public predicate that returns whether or not this symbol supports basic lookup and is a symbol at all.
 			
 			>>> x = Google.SoupFactory()
@@ -1647,11 +1662,12 @@ class Google(Website):
 				
 			"""
 			
-			if not self._isBasicSoup(self.buildBasicSoup(symbol)):
+			if not cls._isBasicSoup(cls.buildBasicSoup(symbol)):
 				return False
 			return True
 		
-		def _isSECSoup(self, soup):
+		@classmethod
+		def _isSECSoup(cls, soup):
 			""" A predicate that returns whether or not this symbol has SEC information . Helper function to hasBasic
 			
 			pre:
@@ -1668,7 +1684,8 @@ class Google(Website):
 				return False
 			return True
 		
-		def _isMetaSoup(self, soup):
+		@classmethod
+		def _isMetaSoup(cls, soup):
 			""" A predicate that returns whether or not this symbol has meta information 
 			
 			pre:
@@ -1680,9 +1697,10 @@ class Google(Website):
 				isinstance(__return__,bool)
 			
 			"""
-			return self._isBasicSoup(soup)
+			return cls._isBasicSoup(soup)
 		
-		def _isBasicSoup(self, soup):
+		@classmethod
+		def _isBasicSoup(cls, soup):
 			""" A predicate that returns whether or not this symbol has basic information, helper function to
 			isBasic.
 			
@@ -1702,7 +1720,7 @@ class Google(Website):
 			
 			links = soup.findAll('a')
 			for link in links:
-				if link.string and self.invalidResultRe.search(link.string):
+				if link.string and cls.invalidResultRe.search(link.string):
 					return False #for search pages
 			
 			return True
@@ -1800,7 +1818,6 @@ class Google(Website):
 			#symbol in self._SECCache if not symbol in __old__.self._SECCache else self._SECCache[symbol] == __old__.self._SECCache[symbol]
 		"""
 		
-		symbol = self.resolver.getGoogle(symbol)
 		
 		if not self._SECCache.has_key(symbol):
 			self._SECCache[symbol] = self.SECData(self.factory.buildSECSoup(symbol))
@@ -1829,7 +1846,7 @@ class Google(Website):
 			all([hasattr(self,x) for x in publicInterface(self.SECData)])
 			
 		"""
-		#print isinstance(datePolicy,type) , "isinstance(datePolicy,type)?"
+		# isinstance(datePolicy,type) , "isinstance(datePolicy,type)?"
 		#print issubclass(datePolicy,FinancialDate.DatePolicy), "issubclass..."
 
 #		prototype = self.SECData()  # SECData's interface doesn't get fully set until it's built so I need an instantiated object
@@ -1873,6 +1890,11 @@ delegateInterface(Google,Google.Metadata,Google._metaWrapper)
 Register(Service.Meta("Industry"))(Google.getIndustry)
 
 Register(Service.Meta("QuarterlyCashFlowStatementDates"))(Google.getQuarterlyCashFlowStatementDates)
+Register(Service.Meta("QuarterlyBalanceSheetDates"))(Google.getQuarterlyBalanceSheetDates)
+Register(Service.Meta("QuarterlyIncomeStatementDates"))(Google.getQuarterlyIncomeStatementDates)
+Register(Service.Meta("AnnualCashFlowStatementDates"))(Google.getAnnualCashFlowStatementDates)
+Register(Service.Meta("AnnualBalanceSheetDates"))(Google.getAnnualBalanceSheetDates)
+Register(Service.Meta("AnnualIncomeStatementDates"))(Google.getAnnualIncomeStatementDates)
 #		getAnnualCashFlowDates
 #		getQuarterlyIncomeStatementDates
 #		getAnnualIncomeStatementDates

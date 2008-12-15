@@ -21,10 +21,9 @@ class FunctionHelper(object):
 		cls.storedObjects[method.im_class] = method.im_class()
 		
 		def _(*args, **kwargs):
+#			print "calling", method, "on", method.im_class()
 			return method(cls.storedObjects[method.im_class], *args, **kwargs)
 		return _
-			
-	
 
 class Registry(object):
 	""" Provides functions for mapping "Hosts" to "Interfaces".  Hosts are things that say they can provide a certain service
@@ -34,39 +33,18 @@ class Registry(object):
 	registeredHosts = {}
 	
 	@staticmethod
-	def getStaticService(service, signatureMap):
+	def getServiceFunction(service):
+		return Registry.registeredHosts[service]
+	
+	@staticmethod
+	def getService(service, signatureMap):
 		def _(self, *args, **kwargs):
 			return Registry.registeredHosts[service](**service.resolveArguments(signatureMap.bind(self)))
 		return _
-	
-	@staticmethod
-	def getService(service, signatureMap, cacheName, initializerName):
-		""" A factory method that returns the __get__ method for a potential descriptor, in this case binding __get__ to a service
-		call back to this registry, currently does not support arguments. """
 		
-		#TODO: it'd be nice if i could seperate this database memoization from the 
-		# call to the service function.
-		class ServiceDescriptor(object):	
-			def __get__(self, inst, owner):
-				if not getattr(inst, initializerName):
-					try:
-						serviceFunction = Registry.registeredHosts[service]
-						#resolve arguments
-						setattr(inst, cacheName, serviceFunction(**service.resolveArguments(signatureMap.bind(inst))))
-						setattr(inst, initializerName, True)
-						session.commit()
-					except KeyError:
-						raise Exception("Service %s is not registered" % str(service))
-						
-				return getattr(inst, cacheName)
-			
-			def __set__(self, instance, value):
-				raise Exception("Setting an immutable value")
-			
-			def __delete__(self, instance):
-				raise Exception("Cannot delete immutable value")
-		
-		return ServiceDescriptor()
+	#TODO: it'd be nice if i could seperate this database memoization from the 
+	# call to the service function.
+#
 	
 	@staticmethod
 	def hostService(service, callback):

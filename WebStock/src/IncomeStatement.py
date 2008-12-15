@@ -1,4 +1,4 @@
-from SECFiling import SECFiling, Annual, Quarterly, Field, Float
+from SECFiling import Field, Float
 
 #TODO:
 # run test that uniqueness is enforced
@@ -9,9 +9,6 @@ and Annual Balance Sheets.  A Balance sheet can be represented as a row in a dat
 class IncomeStatement(object):
 	Revenue = Field(Float(precision=4))
 	UnusualExpense = Field(Float(precision=4))
-
-AnnualIncomeStatement = SECFiling("AnnualIncomeStatement",IncomeStatement, Annual)
-QuarterlyIncomeStatement = SECFiling("QuarterlyIncomeStatement",IncomeStatement, Quarterly)
 
 #how might prefetch work?
 #  given any SECFiling, a prefetch should first gather

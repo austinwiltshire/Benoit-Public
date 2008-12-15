@@ -1,4 +1,4 @@
-from SECFiling import SECFiling, Annual, Quarterly, Field, Float
+from SECFiling import Field, Float
 
 
 """ A Balance Sheet has a Symbol and a Date associated with it, as well as Balance Sheet information.  There are two types: Quarterly
@@ -26,6 +26,3 @@ class CashFlowStatement(object):
 	#for symbol in symbol
 	#	for date in cls.unavailabledates(symbol):
 	#		cls(symbol,date).prefetch()
-
-QuarterlyCashFlowStatement = SECFiling("QuarterlyCashFlowStatement",CashFlowStatement, Quarterly)
-AnnualCashFlowStatement = SECFiling("AnnualCashFlowStatement",CashFlowStatement, Annual)
