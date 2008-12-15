@@ -9,7 +9,7 @@ import copy
 #import copy
 #from FinancialDate import toDate
 import elixir
-from elixir import Entity
+from elixir import Entity, Field
 
 #TODO: refactoring goals
 #build a generic memoization framework 
@@ -41,7 +41,7 @@ class BService(object):
 	
 	def addField(self, cls, name):
 		fieldName = self.fieldName(name)
-		setattr(cls, fieldName, copy.deepcopy(self.fieldType))
+		setattr(cls, fieldName, Field(self.fieldType))
 		
 	def buildDescriptor(self, initializerName, fieldName, function):
 		return ServiceDescriptor(initializerName, fieldName, function)
@@ -49,22 +49,22 @@ class BService(object):
 	def getFunction(self, name, filing):
 		pass
 
-class RegisteredService(BService):
+class Provided(BService):
 	""" This sets a service such that asking for it does a look up. """
 	
 	def decorate(self, name, cls, filing):
-		cls._registered_services_.append(name)
-		super(RegisteredService,self).decorate(name, cls, filing)
+		cls._provided_attributes_.append(name)
+		super(Provided,self).decorate(name, cls, filing)
 	
 	def getFunction(self, name, service):
 		return Registry.getService(*service(name))
 
-class AttributeService(BService):
+class Required(BService):
 	""" Sets the service assigned to basically be set-able, rather than looking up any function """
 	
 	def decorate(self, name, cls, filing):
-		cls._attribute_services_.append(name)
-		super(AttributeService,self).decorate(name, cls, filing)
+		cls._required_attributes_.append(name)
+		super(Required,self).decorate(name, cls, filing)
 	
 	def getFunction(self, name, filing):
 		return lambda inst: getattr(inst, self.fieldName(name))
@@ -77,21 +77,21 @@ class Bloomberg(object):
 	
 	@classmethod
 	def DecorateServices(cls):
-		cls._attribute_services_ = [] #[serviceName for serviceName,_ in cls._services_ if isinstance(getattr(cls,serviceName), AttributeService)]
-		cls._registered_services_ = [] #[serviceName for serviceName,_ in cls._services_ if isinstance(getattr(cls,serviceName), RegisteredService)] 
+		cls._required_attributes_ = [] #[serviceName for serviceName,_ in cls._services_ if isinstance(getattr(cls,serviceName), AttributeService)]
+		cls._provided_attributes_ = [] #[serviceName for serviceName,_ in cls._services_ if isinstance(getattr(cls,serviceName), RegisteredService)] 
 		
 	@classmethod
-	def getServices(cls):
-		return cls._services_
+	def getAttributes(cls):
+		return cls._attributes_
 		
 	def prefetch(self): 
-		return dict([(serviceName, getattr(self,serviceName)) for serviceName,_ in self._registered_services_])
+		return dict([(serviceName, getattr(self,serviceName)) for serviceName,_ in self._provided_services_])
 	
 	def __init__(self, *args, **kwargs):
 		#attribute service lookup SHOULD assume that attributes are passed in in the order that they are defined, or in the keywords.  but i should still expect them
 		#to be in order
 		args = list(args)
-		for key in self._attribute_services_:
+		for key in self._required_attributes_:
 			try:
 				setattr(self, key, kwargs.get(key, args.pop()))
 			except IndexError:
@@ -101,11 +101,11 @@ class Bloomberg(object):
 	def fetch(cls, *args, **kwargs):
 		attributes = {}
 		args = list(args)
-		for key in cls._attribute_services_:
+		for key in cls._required_attributes_:
 			try:
 				attributes["".join(["_",key])] = kwargs.get(key, args.pop()) #ew...
 			except IndexError:
-				raise TypeError("fetch takes exactly %d arguments, %d given" % (len(cls._attribute_services_), len(args) + len(kwargs)))
+				raise TypeError("fetch takes exactly %d arguments, %d given" % (len(cls._required_attributes_), len(args) + len(kwargs)))
 		
 		dbCache = cls.query.filter_by(**attributes).all()
 		if not dbCache:
@@ -149,7 +149,7 @@ def MakePeriodical(service, prefix):
 	return _
 	
 Daily = MakePeriodical(Service.Daily,"Daily")
-Annual = MakePeriodical(Service.Annually,"Annually")
+Annual = MakePeriodical(Service.Annually,"Annual")
 Quarterly = MakePeriodical(Service.Quarterly, "Quarterly")
 
 def Meta(document):
@@ -157,7 +157,7 @@ def Meta(document):
 	def MetaService(name):
 		return [Service.Meta(name), SignatureMap({"symbol":"Symbol"})]
 	
-	document_name = CreateName("Meta",document)
+	document_name = CreateName("",document)
 	
 	return decorate_(document, document_name, MetaService)
 
@@ -188,7 +188,6 @@ class ServiceDescriptor(object):
 
 #move this into a module because its basically a singleton builder class.
 def decorate_(document, name, service):
-#def SECFiling_Decorator(document):
 	
 	
 	document = type(name,(document,Entity),{})
@@ -209,7 +208,7 @@ def decorate_(document, name, service):
 		
 	return document
 	
-def CreateName(prefix, document, mix="_"):
+def CreateName(prefix, document, mix=""):
 	#return mix.join([prefix, document._descriptor.tablename])
 	return mix.join([prefix, document.__name__])
 	
