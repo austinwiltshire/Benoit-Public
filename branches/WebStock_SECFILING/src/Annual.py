@@ -4,9 +4,9 @@ from IncomeStatement import IncomeStatement
 from CashFlowStatement import CashFlowStatement
 from utilities import ClassAccess
 
-#BalanceSheet = Annual(BalanceSheet)
-#CashFlowStatement = Annual(CashFlowStatement)
-#IncomeStatement = Annual(IncomeStatement)
+BalanceSheet = Annual(BalanceSheet)
+CashFlowStatement = Annual(CashFlowStatement)
+IncomeStatement = Annual(IncomeStatement)
 
 class Meta(object):
 	BalanceSheet = ClassAccess(BalanceSheet)
