@@ -161,6 +161,91 @@ def BuildTradingDateRule(beginDate=datetime.date(1900,1,1), otherIncRules=None, 
 	
 	return tradingDates
 
+def BuildTradingDateRule2(baseRule):
+	beginDate = baseRule._dtstart
+	
+	if isinstance(baseRule,rrule):
+		baseRuleSet = rruleset()
+		baseRuleSet.rrule(baseRule)
+	else:
+		baseRuleSet = baseRule
+	
+	days_of_mourning = {"Eisenhower":datetime.datetime(1969,3,31), 
+					    "MartinLutherKing":datetime.datetime(1968,4,9),
+						"Truman":datetime.datetime(1972,12,28),
+						"JFK":datetime.datetime(1963,11,25),
+						"LBJ":datetime.datetime(1973,1,25),
+ 					  	"Nixon":datetime.datetime(1994,4,27),
+ 		 		  	   	"Reagan":datetime.datetime(2004,6,11),
+			 		  	"Ford":datetime.datetime(2007,1,2) }
+	
+	acts_of_god = {"SnowDay":datetime.datetime(1969,2,10), #apparently horrible weather and snow.
+				   "NewYorkCityBlackout":datetime.datetime(1977,7,14), 
+				   "HurricaneGloria":datetime.datetime(1985,9,27)}
+	
+	acts_of_war = {"WorldTradeCenter1":datetime.datetime(2001,9,11),
+				   "WorldTradeCenter2":datetime.datetime(2001,9,12),
+				   "WorldTradeCenter3":datetime.datetime(2001,9,13),
+				   "WorldTradeCenter4":datetime.datetime(2001,9,14) }
+				
+	paper_crisis_additions = {"LincolnsBirthday":datetime.datetime(1968,2,12),
+							  "DayAfterIndependenceDay":datetime.datetime(1968,7,5), 	
+							  "VeteransDay":datetime.datetime(1968,11,11) }
+								 
+	one_small_step_for_man = {"MoonLanding":datetime.datetime(1969,7,21) } # first lunar landing
+	
+	exception_dates = {}
+	exception_dates.update(days_of_mourning)
+	exception_dates.update(acts_of_god)
+	exception_dates.update(acts_of_war)
+	exception_dates.update(paper_crisis_additions)
+	exception_dates.update(one_small_step_for_man)
+
+	#check out : www.chronos-st.org/NYSE_Observed_Holidays-1885-Present.html
+	
+	Holidays = {"PaperCrisis":rrule(WEEKLY,bymonth=(6,7,8,9,10,11,12),byweekday=(WE),dtstart=datetime.datetime(1968,6,6),until=datetime.datetime(1969,1,1)),
+			 	"ElectionDayEveryYear":rrule(YEARLY,bymonth=11,bymonthday=(2,3,4,5,6,7,8),byweekday=(TU),dtstart=beginDate,until=datetime.datetime(1969,1,1)),
+			 	"ElectionDayPresidential":rrule(YEARLY,bymonth=11,bymonthday=(2,3,4,5,6,7,8),byweekday=(TU),interval=4,dtstart=datetime.datetime(1972,1,1),until=datetime.datetime(1984,1,1)),			 	
+			 	"WashingtonsBirthdayWeek":rrule(YEARLY,bymonthday=22,bymonth=2,byweekday=(MO,TU,WE,TH,FR),dtstart=beginDate,until=datetime.datetime(1971,1,1)),
+			 	"WashingtonsBirthdaySun":rrule(YEARLY,bymonthday=23,bymonth=2,byweekday=(MO),dtstart=beginDate,until=datetime.datetime(1971,1,1)),
+			 	"WashingtonsBirthdaySat":rrule(YEARLY,bymonthday=21,bymonth=2,byweekday=(FR),dtstart=beginDate,until=datetime.datetime(1971,1,1)),
+			 	"OldMemorialDayWeek":rrule(YEARLY,bymonthday=30,bymonth=5,byweekday=(MO,TU,WE,TH,FR),dtstart=beginDate,until=datetime.datetime(1970,1,1)),
+			 	"OldMemorialDaySun":rrule(YEARLY,bymonthday=31,bymonth=5,byweekday=(MO),dtstart=beginDate,until=datetime.datetime(1970,1,1)),
+			 	"OldMemorialDaySat":rrule(YEARLY,bymonthday=29,bymonth=5,byweekday=(FR),dtstart=beginDate,until=datetime.datetime(1970,1,1)), #there was no celebration of memorial day in 1970
+			 	"NewYearsDayWeek":rrule(YEARLY,bymonthday=1,bymonth=1,byweekday=(MO,TU,WE,TH,FR),dtstart=beginDate),
+			 	"NewYearsDaySun":rrule(YEARLY,bymonthday=2,bymonth=1,byweekday=(MO),dtstart=beginDate),
+		  	    "IndependenceDayWeek":rrule(YEARLY,bymonth=7,bymonthday=(4),byweekday=(MO,TU,WE,TH,FR),dtstart=beginDate),
+		  	    "IndependenceDaySun":rrule(YEARLY,bymonth=7,bymonthday=5,byweekday=(MO),dtstart=beginDate),
+		  	    "IndependenceDaySat":rrule(YEARLY,bymonth=7,bymonthday=3,byweekday=(FR),dtstart=beginDate),
+		  	    "ChristmasWeek":rrule(YEARLY,bymonth=12,bymonthday=25,byweekday=(MO,TU,WE,TH,FR),dtstart=beginDate),
+		  	    "ChristmasSun":rrule(YEARLY,bymonth=12,bymonthday=26,byweekday=(MO),dtstart=beginDate),
+		  	    "ChristmasSat":rrule(YEARLY,bymonth=12,bymonthday=24,byweekday=(FR),dtstart=beginDate),
+		  	    "GoodFriday":rrule(YEARLY,byeaster=-2,dtstart=beginDate),
+		  	    "MartinLutherKingDay":rrule(YEARLY,bymonth=1,byweekday=MO(+3),dtstart=datetime.datetime(1998,1,1)),
+		  	    "PresidentsDay":rrule(YEARLY,bymonth=2,byweekday=MO(+3),dtstart=datetime.datetime(1971,1,1)),
+		  	    "LaborDay":rrule(YEARLY,bymonth=9,byweekday=MO(+1), dtstart=beginDate),
+		  	    "NewMemorialDay":rrule(YEARLY,bymonth=5,byweekday=MO(-1),dtstart=datetime.datetime(1971,1,1)),
+		  	    "ThanksgivingDay":rrule(YEARLY,bymonth=11,byweekday=TH(4),dtstart=beginDate)}
+	
+	PaperCrisisRule = rrule(WEEKLY,bymonth=(6,7,8,9,10,11,12),byweekday=(WE),dtstart=datetime.datetime(1968,6,6),until=datetime.datetime(1969,1,1))
+	PaperCrisisSet = rruleset()
+	PaperCrisisSet.rrule(PaperCrisisRule)
+	PaperCrisisSet.exdate(datetime.datetime(1968,6,5))
+	PaperCrisisSet.exdate(datetime.datetime(1968,7,3))
+	PaperCrisisSet.exdate(datetime.datetime(1968,9,4))
+	PaperCrisisSet.exdate(datetime.datetime(1968,11,6))
+	PaperCrisisSet.exdate(datetime.datetime(1968,11,13))
+	PaperCrisisSet.exdate(datetime.datetime(1968,11,27))
+	Holidays["PaperCrisis"] = PaperCrisisSet
+	
+	exclude_weekends = rrule(DAILY,byweekday=(SA,SU),dtstart=beginDate)
+	
+	baseRuleSet.exrule(exclude_weekends)
+	for holiday in Holidays.values():
+		baseRuleSet.exrule(holiday)
+	
+	return baseRuleSet
+
 AllTradingDays = BuildTradingDateRule() #builds the most conservative date rule - this tends to be slow to access!
 
 class Year(object):
@@ -411,6 +496,7 @@ class FuzzyPolicy(DatePolicy):
 		pre:
 			isinstance(roundRule,FuzzyPolicy.RoundRule)
 		"""
+		
 		self._roundRule = roundRule
 		
 	def advice(self, aDate, dateList):

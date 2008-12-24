@@ -3,69 +3,32 @@ import Quarter
 from utilities import Lazy
 
 class FinancialPeriod(object):
-	def __init__(self, policy, *args, **kwargs):
-		self.policy = policy
-		self.args = args
-		self.kwargs = kwargs
+	def __init__(self, symbol, date):
+		self.symbol = symbol
+		self.date = date
 	
 	@Lazy
 	def Quarter(self):
-		return self.FinancialsForPeriod(Quarter)
+		return Financials(Quarter, self.symbol, self.date)
 
 	@Lazy
 	def Annual(self):
-		return self.FinancialsForPeriod(Annual)
-	
-	def FinancialsForPeriod(self, period):
-		return Financials(period, self.policy, *self.args, **self.kwargs)
-
-	@classmethod
-	def Meta(cls, *args, **kwargs):
-		class policy(object):
-				@staticmethod
-				def resolveClass(cls):
-					return cls.Meta
-	
-				@staticmethod
-				def construct(cls, *args, **kwargs):
-					return cls(*args, **kwargs)
-			
+		return Financials(Annual, self.symbol, self.date)
 		
-		return cls(policy, *args, **kwargs)
-	
-	@classmethod
-	def Normal(cls, *args, **kwargs):	
-		class policy(object):
-			@staticmethod
-			def resolveClass(cls):
-				return cls
-	
-			@staticmethod
-			def construct(cls, *args, **kwargs):
-				return cls.fetch(*args, **kwargs)
-		
-		return cls(policy, *args, **kwargs)
-	
 class Financials(object):
-	def __init__(self, module, policy, *args, **kwargs):
-		self.policy = policy
-		self.args = args
-		self.kwargs = kwargs
+	def __init__(self, module, symbol, date):
 		self.module = module
+		self.symbol = symbol
+		self.date = date
 	
 	@Lazy
 	def BalanceSheet(self):
-		return self.SECDocument("BalanceSheet")
+		return self.module.BalanceSheet.fetch(self.symbol, self.date)
 	
 	@Lazy
 	def IncomeStatement(self):
-		return self.SECDocument("IncomeStatement")
-	
+		return self.module.IncomeStatement.fetch(self.symbol, self.date)
+
 	@Lazy
 	def CashFlowStatement(self):
-		return self.SECDocument("CashFlowStatement")
-	
-	def SECDocument(self, document):
-		resolvedClass = self.policy.resolveClass(self.module)
-		innerClass = getattr(resolvedClass, document)
-		return self.policy.construct(innerClass, *self.args, **self.kwargs)
+		return self.module.CashFlowStatement.fetch(self.symbol, self.date)

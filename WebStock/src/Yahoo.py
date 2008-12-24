@@ -10,7 +10,7 @@ from Cached import cached
 
 import sys
 sys.path.append(r"C:\Users\John\Workspace\Webstock\src\Experimental")
-from Registry import Register
+from Registry import Register#, _register
 from Service import Service
 from Signature import Signature
 
@@ -282,7 +282,7 @@ class Yahoo(Website.Website):
 			title = potentialBasicSoup.find('title')
 			
 			if rightTitleRe.search(str(title)):
-				return True
+				return True 
 			elif wrongTitleRe.search(str(title)):
 				return False
 			else:
@@ -764,6 +764,11 @@ class Yahoo(Website.Website):
 		return self._tradingDateCollectionCache[symbol].hasDate(date)
 delegateInterface(Yahoo,Yahoo.TradingDay,Yahoo._priceWrapper)
 
-Register(Service.Daily("High"))(Yahoo.getHigh)
-Register(Service.Meta("DailyTradingDayDates"))(Yahoo.getDates)
-Register(Service.Meta("DailyFundamentalsDates"))(Yahoo.getDates)
+#Register(Service.Daily("DailyHigh"))(Yahoo.getHigh)
+#Register(Service.Meta("DailyTradingDayDates"))(Yahoo.getDates)
+#Register(Service.Meta("DailyFundamentalsDates"))(Yahoo.getDates)
+
+Register("DailyHigh",Yahoo.getHigh)
+Register("DailyClose",Yahoo.getClose)
+Register("DailyTradingDayDates",Yahoo.getDates)
+Register("DailyFundamentalsDates",Yahoo.getDates)

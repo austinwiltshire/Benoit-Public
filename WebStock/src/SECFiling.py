@@ -1,7 +1,7 @@
 from Registry import Registry
 import Website
-from Service import Service
-from Signature import Signature, SignatureMap
+#rom Service import Service
+#from Signature import Signature, SignatureMap
 import copy
 #import datetime
 #from elixir import *
@@ -24,29 +24,26 @@ from Periodic import AvailableDates
 #	#the database since that is the only way to get access to 'fetched' data.  i need to look further into enforcing uniqueness of
 #	#data by symbol and date.  the constraints don't seem to be able to be enforced...
 
-
-def MakePeriodical(service, prefix):
+def MakePeriodical(document_type):
 	def _(document):
-		def ServiceFunction(name):
-			return [service(name), SignatureMap({"symbol":"Symbol","date":"Date"})]
 		
-		document_name = "".join([prefix,document.__name__])
+		document_name = "".join([document_type,document.__name__])
+		document = type(document_name,(document,Entity),{})
 		
-		staticHost = DecoratePersistantHost(document, document_name, ServiceFunction)
-		staticHost.AvailableDates = AvailableDates
+		staticHost = DecoratePersistantHost(document, document_type)
+		#staticHost.AvailableDates = AvailableDates
 		return staticHost
 	return _
 
 def Meta(document):
 	
-	def MetaService(name):
-		return [Service.Meta(name), SignatureMap({"symbol":"Symbol"})]
+	document = type(document.__name__,(document,Entity),{})
 	
-	return DecoratePersistantHost(document, document.__name__, MetaService)
+	return DecoratePersistantHost(document, "Meta")
 
-Daily = MakePeriodical(Service.Daily,"Daily")
-Annual = MakePeriodical(Service.Annually,"Annual")
-Quarterly = MakePeriodical(Service.Quarterly, "Quarterly")
+Daily = MakePeriodical("Daily")
+Annual = MakePeriodical("Annual")
+Quarterly = MakePeriodical("Quarterly")
 
 	
 #def CreateName(prefix, document, mix=""):

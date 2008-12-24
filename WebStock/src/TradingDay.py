@@ -6,9 +6,10 @@ and Annual Balance Sheets.  A Balance sheet can be represented as a row in a dat
 
 
 
-class TradingDay(PersistantHost):
+class Prices(PersistantHost):
 	""" Balance sheet contains ... well, balance sheet information.  There are two types, Quarterly and Annual, and this is just a 
 	semantic reference """
 	Symbol = Required(Unicode(60))
 	Date = Required(DateTime)
 	High = Provided(Float(precision=4))
+	Close = Provided(Float(precision=4))

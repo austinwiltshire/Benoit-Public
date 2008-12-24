@@ -65,7 +65,7 @@ import datetime
 import FinancialXML
 import SymbolLookup
 import FinancialDate
-from Registry import Register
+from Registry import Register#, _register
 from Service import Service
 from Signature import Signature
 from Cached import cached
@@ -1870,6 +1870,16 @@ def addSECData(cls):
 	methodsToAdd = otherKW['regular_expressions'].keys()
 		
 	for method in methodsToAdd:
+		
+		def annual():
+			pass
+		annual.__name__ = "getAnnual%s" % method
+		
+		def quarterly():
+			pass
+		quarterly.__name__ = "getQuarterly%s" % method
+		
+		
 		setattr(cls,"getAnnual%s" % method,lambda:0)
 		setattr(cls,"getQuarterly%s" % method,lambda:0)
 		
@@ -1887,14 +1897,22 @@ delegateInterface(Google,Google.Metadata,Google._metaWrapper)
 #in 2.6, it might be possible to have a mark-n-register wrapper, where each class method is 'registered', but is simply marked.
 #outside of that registration, the entire class itself is decorated with a register, and it's that final class registration that
 #finds all the marked 'registers' and loads them.
-Register(Service.Meta("Industry"))(Google.getIndustry)
+#Register(Service.Meta("Industry"))(Google.getIndustry)
+Register("Industry", Google.getIndustry)
 
-Register(Service.Meta("QuarterlyCashFlowStatementDates"))(Google.getQuarterlyCashFlowStatementDates)
-Register(Service.Meta("QuarterlyBalanceSheetDates"))(Google.getQuarterlyBalanceSheetDates)
-Register(Service.Meta("QuarterlyIncomeStatementDates"))(Google.getQuarterlyIncomeStatementDates)
-Register(Service.Meta("AnnualCashFlowStatementDates"))(Google.getAnnualCashFlowStatementDates)
-Register(Service.Meta("AnnualBalanceSheetDates"))(Google.getAnnualBalanceSheetDates)
-Register(Service.Meta("AnnualIncomeStatementDates"))(Google.getAnnualIncomeStatementDates)
+#Register(Service.Meta("QuarterlyCashFlowStatementDates"))(Google.getQuarterlyCashFlowStatementDates)
+#Register(Service.Meta("QuarterlyBalanceSheetDates"))(Google.getQuarterlyBalanceSheetDates)
+#Register(Service.Meta("QuarterlyIncomeStatementDates"))(Google.getQuarterlyIncomeStatementDates)
+#Register(Service.Meta("AnnualCashFlowStatementDates"))(Google.getAnnualCashFlowStatementDates)
+#Register(Service.Meta("AnnualBalanceSheetDates"))(Google.getAnnualBalanceSheetDates)
+#Register(Service.Meta("AnnualIncomeStatementDates"))(Google.getAnnualIncomeStatementDates)
+
+Register("QuarterlyCashFlowStatementDates", Google.getQuarterlyCashFlowStatementDates)
+Register("QuarterlyBalanceSheetDates",Google.getQuarterlyBalanceSheetDates)
+Register("QuarterlyIncomeStatementDates",Google.getQuarterlyIncomeStatementDates)
+Register("AnnualCashFlowStatementDates",Google.getAnnualCashFlowStatementDates)
+Register("AnnualBalanceSheetDates",Google.getAnnualBalanceSheetDates)
+Register("AnnualIncomeStatementDates",Google.getAnnualIncomeStatementDates)
 #		getAnnualCashFlowDates
 #		getQuarterlyIncomeStatementDates
 #		getAnnualIncomeStatementDates
@@ -1907,10 +1925,12 @@ for method in publicInterface(Google):
 	method_work = method[3:] #strip 'get'
 	if method_work[:6] == 'Annual': #annual method
 		method_name = method_work[6:]
-		Register(Service.Annually(method_name))(getattr(Google,method))
+		#Register(Service.Annually(method_name))(getattr(Google,method))
+		Register(method[3:], getattr(Google,method))
 	elif method_work[:9] == 'Quarterly':
 		method_name = method_work[9:]
-		Register(Service.Quarterly(method_name))(getattr(Google,method))
+		Register(method[3:],getattr(Google,method))
+		#Register(Service.Quarterly(method_name))(getattr(Google,method))
 																											
 
 		

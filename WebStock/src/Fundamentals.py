@@ -10,4 +10,7 @@ class Fundamentals(PersistantHost):
 	semantic reference """
 	Symbol = Required(Unicode(60))
 	Date = Required(DateTime)
+	
 	PriceToEarnings = Provided(Float(precision=4))
+	NetRevenues = Provided(Float(precision=4))
+	EarningsPerShare = Provided(Float(precision=4))

@@ -2,7 +2,8 @@ from Registry import Registry
 from Bloomberg import PersistantHost
 
 def WebDates(cls, symbol):
-	return Registry.getServiceFunction(Service.Meta(cls.__document_name__ + "Dates"))(symbol)
+	dateFunc = Registry.get("".join([cls.__name__,"Dates"]))
+	return dateFunc(symbol)
 	
 def NewDates(cls, symbol):
 	available = set(cls.AvailableDates(symbol))

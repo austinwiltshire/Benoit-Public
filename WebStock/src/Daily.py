@@ -1,6 +1,6 @@
 from SECFiling import Daily
-from TradingDay import TradingDay
+from TradingDay import Prices
 from Fundamentals import Fundamentals
 
-TradingDay = Daily(TradingDay)
+Prices = Daily(Prices)
 Fundamentals = Daily(Fundamentals)

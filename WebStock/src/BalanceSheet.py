@@ -12,3 +12,4 @@ class BalanceSheet(PersistantHost):
 	Symbol = Required(Unicode(60))
 	Date = Required(DateTime)
 	CashAndEquivalents = Provided(Float(precision=4))
+	TotalCommonSharesOutstanding = Provided(Float(precision=4))

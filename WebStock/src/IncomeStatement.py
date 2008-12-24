@@ -10,6 +10,8 @@ and Annual Balance Sheets.  A Balance sheet can be represented as a row in a dat
 class IncomeStatement(PersistantHost):
 	Symbol = Required(Unicode(60))
 	Date = Required(DateTime)
+	PreferredDividends = Provided(Float(precision=4))
+	NetIncome = Provided(Float(precision=4))
 	Revenue = Provided(Float(precision=4))
 	UnusualExpense = Provided(Float(precision=4))
 

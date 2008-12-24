@@ -20,7 +20,7 @@ from Metadata import Metadata
 import elixir
 
 elixir.metadata.bind = "sqlite:///SEC.sqlite"
-elixir.metadata.bind.echo = True #used to debug SQL statements
+elixir.metadata.bind.echo = False #used to debug SQL statements
 #elixir.session = sqlalchemy.orm.scoped_session(sqlalchemy.orm.create_session(transactional=False, autoflush=True))
 
 elixir.setup_all(True)
