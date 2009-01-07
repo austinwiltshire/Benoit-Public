@@ -1,3 +1,5 @@
+""" Obsolete """
+
 import Symbol
 import Website
 import Yahoo

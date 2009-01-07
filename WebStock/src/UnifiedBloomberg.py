@@ -1,5 +1,7 @@
 """
 
+OBSOLETE, old version of the bloomberg framework that's been replaced by Module2. 
+
 A bloomberg that unifies any number of other bloombergs behind a single interface.
 
 >>> ub = UnifiedBloomberg(Yahoo.Yahoo,Website.Google)

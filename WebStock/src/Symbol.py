@@ -1,5 +1,8 @@
 """
 
+OBSOLETE.  Replaced by Market, then replaced by Module2.  Iterators have been moved into Iterator.py, but this will still serve as good
+inspiration for use cases.
+
 Symbol provides a single point of interface to a UnifiedBloomberg, where all calls to bloomberg data are closed on symbol.
 This is assumed to be the first argument to all methods, and it is assumed to be a string.
 

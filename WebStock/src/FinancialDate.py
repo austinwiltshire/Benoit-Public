@@ -3,6 +3,11 @@ This module contains the beginings of a Financial Calendering API.  Currently it
 are standard, module helper classes for distinguishing date resolution.
 
 Also contains stubs for Year and Quarter types, which should provide convienient, unified access to dates.
+
+Implementation Notes:
+Much of this may be deprecated given the Adaptation API built off of generic functions found in Adapt.  This will allow a function to define itself
+off of either dates or datetimes and still work.  Annual and Quarterly helpers may still be useful, and certainly the overall calendering service - while slow -
+contains a lot of valuable logic used in iterators.
 """
 
 import datetime
@@ -10,20 +15,33 @@ from dateutil.rrule import *
 import dateutil.relativedelta
 
 def toDatetime(aDate):
+	""" Obsolete.  Use Adapt.py """
 	return datetime.datetime(aDate.year,aDate.month,aDate.day)
 
 def toDate(aDate):
+	""" Obsolete.  Use Adapt.py """
 	return datetime.date(aDate.year,aDate.month,aDate.day)
 
 def lastDayOfMonth(aDate):
+	""" Helper function to find the last day of any particular month. I.e., 31, 30, 28... 
+	
+	Implementation Notes:
+	This seems like its functionality that should already be provided somewhere.
+	"""
 	return datetime.datetime(aDate.year,(aDate.month+1)%12,1) - dateutil.relativedelta.relativedelta(days=1)
 
 def YearDay(aDate):
-	#could also add week and weekday
+	""" Converts a date in datetime format to the number of days into the year it is.
+	
+	Impelmentation Notes:
+	This seems like its functionality that should already be provided somewhere.  Could also add functionality to say which week it is.
+	"""
+
 	baseyear = datetime.datetime(aDate.year, 1, 1)
 	return (aDate - baseyear).days + 1
 
 def NthTradingDayAfter(aDate, n):
+	""" Finds the nth trading day after aDate.  Takes into account holidays and weekends. """
 	
 	if aDate in AllTradingDays: #start so i'm always on a trading day.
 		trialDate = aDate
@@ -38,6 +56,7 @@ def NthTradingDayAfter(aDate, n):
 	return trialDate
 
 def NthTradingDayBefore(aDate, n):
+	""" Finds the nth trading day before aDate.  Takes into account holidays and weekends. """
 	trialDate = aDate
 	
 	if n==0: #in case we actually just want the trading day we passed in
@@ -50,21 +69,11 @@ def NthTradingDayBefore(aDate, n):
 		trialDate = AllTradingDays.before(trialDate)
 	return trialDate
 
-		 
-
-#def LocalDailyRule(baserule):
-#	if baserule._freq == DAILY:
-#		return baserule
-#	if baserule._freq == WEEKLY:
-#		return rrule(DAILY,byweekday=baserule._byweekday,bymonth=baserule._dtstart.month,byyear=baserule._dtstart.year)
-#	if baserule._freq == MONTHLY:
-#		return rrule(DAILY,byweekday=baserule._byweekday,bymonth=baserule._dtstart.month,byyear=baserule._dtstart.year)
-#	if baserule._freq == YEARLY:
-#		return rrule(DAILY,byweekday=baserule._byweekday,bymonth=baserule._bymonth,byyear=baserule._dtstart.year)
-
-#TODO: were these always market holidays?  I can change up the dates by manipulating dtstart and until, for example, I might
-#change MLK day to be a market holiday only after 1989 or something.  more research needed
+#todo: remove positional args after beginDate.  Remove default to beginDate.  Move all dicts out to global scope such that they are only built once.
 def BuildTradingDateRule(beginDate=datetime.date(1900,1,1), otherIncRules=None, otherExRules=None, otherIncDates=None, otherExDates=None):
+	""" Helper function to build any local daily rule for iterator use.  Takes into account holidays and weekends.  Set beginDate to the first
+	date available, the further back you go, the more strenuous performance. """
+	
 	
 	days_of_mourning = {"Eisenhower":datetime.datetime(1969,3,31), 
 					    "MartinLutherKing":datetime.datetime(1968,4,9),
@@ -98,7 +107,6 @@ def BuildTradingDateRule(beginDate=datetime.date(1900,1,1), otherIncRules=None, 
 	exception_dates.update(one_small_step_for_man)
 
 	#check out : www.chronos-st.org/NYSE_Observed_Holidays-1885-Present.html
-	
 	Holidays = {"PaperCrisis":rrule(WEEKLY,bymonth=(6,7,8,9,10,11,12),byweekday=(WE),dtstart=datetime.datetime(1968,6,6),until=datetime.datetime(1969,1,1)),
 			 	"ElectionDayEveryYear":rrule(YEARLY,bymonth=11,bymonthday=(2,3,4,5,6,7,8),byweekday=(TU),dtstart=beginDate,until=datetime.datetime(1969,1,1)),
 			 	"ElectionDayPresidential":rrule(YEARLY,bymonth=11,bymonthday=(2,3,4,5,6,7,8),byweekday=(TU),interval=4,dtstart=datetime.datetime(1972,1,1),until=datetime.datetime(1984,1,1)),			 	
@@ -161,7 +169,11 @@ def BuildTradingDateRule(beginDate=datetime.date(1900,1,1), otherIncRules=None, 
 	
 	return tradingDates
 
+#TODO: merge with the above trading dates rule.
 def BuildTradingDateRule2(baseRule):
+	""" A new version of Trading Dates rule building that simply takes a base rule and modifies it to take into account weekends and holidays.  This allows the user
+	to pass in a DAILY, MONTHLY or other such iterator and have holidays and weekends thus removed. """
+	
 	beginDate = baseRule._dtstart
 	
 	if isinstance(baseRule,rrule):
@@ -202,7 +214,6 @@ def BuildTradingDateRule2(baseRule):
 	exception_dates.update(one_small_step_for_man)
 
 	#check out : www.chronos-st.org/NYSE_Observed_Holidays-1885-Present.html
-	
 	Holidays = {"PaperCrisis":rrule(WEEKLY,bymonth=(6,7,8,9,10,11,12),byweekday=(WE),dtstart=datetime.datetime(1968,6,6),until=datetime.datetime(1969,1,1)),
 			 	"ElectionDayEveryYear":rrule(YEARLY,bymonth=11,bymonthday=(2,3,4,5,6,7,8),byweekday=(TU),dtstart=beginDate,until=datetime.datetime(1969,1,1)),
 			 	"ElectionDayPresidential":rrule(YEARLY,bymonth=11,bymonthday=(2,3,4,5,6,7,8),byweekday=(TU),interval=4,dtstart=datetime.datetime(1972,1,1),until=datetime.datetime(1984,1,1)),			 	
@@ -248,11 +259,14 @@ def BuildTradingDateRule2(baseRule):
 
 AllTradingDays = BuildTradingDateRule() #builds the most conservative date rule - this tends to be slow to access!
 
+#TODO: Is this used?
 class Year(object):
 	""" Represents a financial year and provides convienience operations to derive information based on financial years. """
+	
 	def __init__(self, seedDate):
 		""" Right now assumes a datetime date, but really most of these Year and Quarter types are going to have to do a lot of
 		isinstance stuff to resolve all sorts of dates into a single format. """
+		
 		self.value = seedDate.year
 	
 	def __repr__(self):
@@ -261,13 +275,20 @@ class Year(object):
 	def getValue(self):
 		return self.value
 	
+#TODO: is this used?
 class Quarter(object):
 	""" Represents a financial year and provides convieneince opteraions to derive information based on financial quarters. """
+	
 	Quarters = [(0,4,1),(0,7,1),(0,10,1),(1,1,1)] #used for base quarter calcuations
 	QuarterStrings = {1:"First Quarter",2:"Second Quarter",3:"Third Quarter",4:"Fourth Quarter"}
+	
 	def __init__(self, seedDate):
 		""" Right now assumes a datetime date, but really msot of these Year and Quarter types rae going to have to do a lot of
-		isinstance stuff to resolve all sorts of dates into a single format. """ 
+		isinstance stuff to resolve all sorts of dates into a single format. 
+		
+		Implementation Notes:
+		Use Adapt.py """ 
+		
 		self.date = seedDate
 		quarterFinder = FuzzyPolicy(FuzzyPolicy.RoundUp())
 		closestQuarter = quarterFinder.advice(seedDate, Quarter.genQuarters(Year(seedDate)))
@@ -280,7 +301,7 @@ class Quarter(object):
 	def __repr__(self):
 		return Quarter.QuarterStrings[self.value]
 		
-
+#TODO: There are very limited uses for this and it has been overly abstracted.  Shrink it down to just a few use cases.  Most of this is obsolete given dateutil
 class DatePolicy(object):
 	"""
 	 A date policy is a class that provides date advice when faced with a single date that potentially falls somewhere

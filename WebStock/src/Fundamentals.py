@@ -1,13 +1,15 @@
+""" The fundamentals module contians the persistance information for fundamentals, which are generally derivatives of the price and financial information. """
+
 from SECFiling import PersistantHost, Required, Provided
 from elixir import Float, Unicode, DateTime
 
-
-""" A Balance Sheet has a Symbol and a Date associated with it, as well as Balance Sheet information.  There are two types: Quarterly
-and Annual Balance Sheets.  A Balance sheet can be represented as a row in a database. """
-
 class Fundamentals(PersistantHost):
-	""" Balance sheet contains ... well, balance sheet information.  There are two types, Quarterly and Annual, and this is just a 
-	semantic reference """
+	""" Contains fundamentals information such as PriceToEarnings and EarningsPerShare.
+	
+	Implementation Note:
+	Perhaps providing a new Attribute, called Alias, who's constructor takes an already previously defined attribute, would allow for nice EPS and PE syntax here.
+	"""
+	
 	Symbol = Required(Unicode(60))
 	Date = Required(DateTime)
 	

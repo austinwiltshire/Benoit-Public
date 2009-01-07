@@ -1,3 +1,5 @@
+""" Module that pulls in all needed stuff for the Market DSL to work, and is the core module to import from there.  Also sets up database and other setup. """
+
 #import stuff needed to register SEC stuff
 import Website #for sec data from google
 import Yahoo #for price data from yahoo
@@ -20,7 +22,7 @@ from Metadata import Metadata
 import elixir
 
 elixir.metadata.bind = "sqlite:///SEC.sqlite"
-elixir.metadata.bind.echo = False #used to debug SQL statements
-#elixir.session = sqlalchemy.orm.scoped_session(sqlalchemy.orm.create_session(transactional=False, autoflush=True))
+elixir.metadata.bind.echo = True #used to debug SQL statements
+#elixir.session = sqlalchemy.orm.scoped_session(sqlalchemy.orm.create_session(transactional=False, autofalse=True, autocommit=False))
 
 elixir.setup_all(True)

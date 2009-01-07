@@ -1,3 +1,8 @@
+""" Obsolete.  But still used because there's no replacement.  This was a very silly exercise into trying to create my own language in XML for some reason.
+TODO: Move everything this XML stuff contains into a simple python file that declares the same stuff.  Just do everything in python - XML is for communicating in, 
+not for programming in. """
+
+
 import BeautifulSoup
 import re
 import sys

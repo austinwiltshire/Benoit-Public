@@ -1,3 +1,5 @@
+""" Obsolete unit tests of UnifiedBloomberg. """
+
 import UnifiedBloomberg
 import Website
 import Yahoo

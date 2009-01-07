@@ -1,3 +1,5 @@
+""" A deep unit test(verification) that checks to make sure bloomberg is doing things how i expect them. """
+
 import unittest
 import Metadata
 import BalanceSheet

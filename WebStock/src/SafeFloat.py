@@ -1,3 +1,6 @@
+""" Module defines a 'safe float', similar to the Maybe monad, such that float operations are defined when something is None/Null.  All ops on a None/Null return
+None/Null themselves, but they do not throw exceptions. """
+
 class SafeFloat(float):
 	def __new__(cls, val):
 		if val is not None:

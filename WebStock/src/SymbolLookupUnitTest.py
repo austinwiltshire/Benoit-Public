@@ -1,3 +1,5 @@
+""" Runs the doc tests for SymbolLookup """
+
 import doctest
 import contract
 import unittest

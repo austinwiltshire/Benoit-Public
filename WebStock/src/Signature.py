@@ -1,4 +1,4 @@
-#TODO: document how this works
+""" OBSOLETE """
 
 import itertools
 

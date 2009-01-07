@@ -1,3 +1,4 @@
+<!-- OBSOLETE.  Convert this to a python file.  What was I thinking? -->
 <!-- The term 'MinorityInterest' appears twice.  It is both in the Income Statement and the -->
 <!-- Balance sheet.  In this xml file, they are differentiated by appending _Inc to the -->
 <!-- version on the income statement and _Bal to the version on the balance sheet. -->

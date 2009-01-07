@@ -1,3 +1,4 @@
+<!-- If this was google specific stuff, why didn't I put it in a python config file for the google website parser, hrm?  XML again? -->
 <!-- Google Specific Stuff -->
 <webpage name='Google'>
 	<divisions>

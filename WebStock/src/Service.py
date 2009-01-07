@@ -1,3 +1,5 @@
+""" OBSOLETE. """
+
 from Signature import Signature
 from datetime import date
 

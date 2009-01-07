@@ -1,3 +1,5 @@
+""" Tests the FinancialDate package. """
+
 import doctest
 import contract
 import unittest

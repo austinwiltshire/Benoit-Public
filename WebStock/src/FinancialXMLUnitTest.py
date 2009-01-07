@@ -1,3 +1,5 @@
+""" The FinancialXML module is deprecated and should not be expected to pass tests. """
+
 import doctest
 import contract
 import unittest

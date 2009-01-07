@@ -1,3 +1,5 @@
+""" Obsolete.  Use pyunit."""
+
 def assertClose(x,y,message="Assert Close Failed", e=0.05, prnt=False, reverse=False):
     """ Checks to see if the difference between x and y is below some error threshhold """
     diff = x - y

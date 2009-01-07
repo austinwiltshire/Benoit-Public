@@ -1,3 +1,5 @@
+""" A collection of tests.  OBSOLETE: check out unit test runners like nose. """
+
 import unittest
 
 modulesLoaded = []

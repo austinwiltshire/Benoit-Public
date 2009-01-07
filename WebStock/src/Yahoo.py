@@ -770,5 +770,5 @@ delegateInterface(Yahoo,Yahoo.TradingDay,Yahoo._priceWrapper)
 
 Register("DailyHigh",Yahoo.getHigh)
 Register("DailyClose",Yahoo.getClose)
-Register("DailyTradingDayDates",Yahoo.getDates)
+Register("DailyPricesDates",Yahoo.getDates)
 Register("DailyFundamentalsDates",Yahoo.getDates)

@@ -1,10 +1,14 @@
+""" Various utilities and helper functions. """
+
 import re
 import datetime
 import copy
 import inspect
 from itertools import chain
 
+#TODO: investigate itertools for something like this.
 def getBy(iterable, n=1):
+	""" Turns an iteratble of N into an iterable of N / X, where the new iterable returns every X'th element in N """
 	iterable = iter(iterable)
 	for x in iterable:
 		args = [x]
@@ -34,6 +38,7 @@ def publicInterface(anObject):
 	
 	return [x for x in dir(anObject) if  callable(getattr(anObject,x)) and x[0] != '_' and not isinstance(getattr(anObject,x),type)]
 
+#TODO: obsolete.  Gross.  I'm glad I don't do this any more.
 def delegateInterface(cls, interface, wrapper):
 	""" Helper private function that implements my own little delegated interface idiom.
 	Pushes the interface's methods on to this object, and sets all of the calls equal to 
@@ -80,12 +85,17 @@ def delegateInterface(cls, interface, wrapper):
    		funcToSet.__doc__ = " This method is delegated to %s, check documentation there. " % interface
    	   	setattr(cls,method, funcToSet)
 
+#TODO: replace with ADAPT
 def isString(aPossibleString):
+	""" Literate Programming aid to check whether or not the argument is a string. """
 	return isinstance(aPossibleString, basestring) 
 
+#TODO: any time this is used probably means my typeing is weak anyway and it should be removed.
 def isRegex(aPossibleRegex):
+	""" Literate programming aid ot check whether or not the argument is a regex. """
 	return isinstance(aPossibleRegex, type(re.compile("")))
 
+#TODO: is this used?
 def dateFromString(stringifiedDate):
 	""" Assumes a YEAR-MO-DA layout.  """
 	#TODO: bound to already be in the standard library.  dont want to find it right now
@@ -93,6 +103,7 @@ def dateFromString(stringifiedDate):
 	#then you have your year month day unpacking
 	return datetime.datetime.strptime(stringifiedDate,"%Y-%m-%d").date()
 
+#TODO: Obsolete.  use cached.py
 class Cache(dict):
 	def __init__(self, method):
 		super(Cache,self).__init__(self)
@@ -107,6 +118,7 @@ def checkCache(new, old, key):
 	return (len(new.keys()) - len(old.keys()) == 1) if (key not in old.keys()) else (len(new.keys()) - len(old.keys()) == 0)
 
 class Lazy(object):
+	""" Decorator for lazy initialization of attributes on classes. """
 	def __init__(self, func):
 		self._func = func
 		self.__name__ = func.__name__
@@ -119,13 +131,15 @@ class Lazy(object):
 		return result
 	
 def isClassMethod(cls, func=None):
+	""" Predicate returns whether the function is a class method of cls, as opposed to a staticmethod or function or unbound method or normal method. """
 	if not func:
 		#syntax here is to just assume they passed us the method itself
 		return inspect.ismethod(cls) and cls.im_class is type
 	elif func and isString(func):
 		#passed in a string function to check against cls
 		return hasattr(cls, func) and inspect.ismethod(getattr(cls,func)) and issubclass(getattr(cls,func).im_class, type)
-	
+
+#TODO: gross.  Obsolete.
 class ClassAccess(object):
 	""" This is a pretty nasty hack to wrap a class, allowing access to it's class methods only, closed over any args you pass in in it's init """
 	def __init__(self, cls, *args, **kwargs):
