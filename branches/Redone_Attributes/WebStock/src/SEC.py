@@ -1,8 +1,10 @@
 """ Module that pulls in all needed stuff for the Market DSL to work, and is the core module to import from there.  Also sets up database and other setup. """
 
 #import stuff needed to register SEC stuff
-import Website #for sec data from google
-import Yahoo #for price data from yahoo
+#import Website 
+#import Yahoo 
+import Yahoo2 #for price data from yahoo
+import Google#for sec data from google
 import Ratios #for fundamentals
 import Registry
 import sqlalchemy.orm

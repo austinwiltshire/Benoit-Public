@@ -1,16 +1,17 @@
 """ This module defines the IncomeStatement financial document, which holds stuff like NetIncome and PreferredDividends """
 
-from SECFiling import PersistantHost, Required, Provided
-from elixir import Float, Unicode, DateTime
+from SECFiling import PersistantHost, Require, Provide
+from elixir import Float, Unicode
+from elixir import Date as DateT
 
-class IncomeStatement(PersistantHost):
+class IncomeStatement(object):
 	""" Holds NetIncome and other Income Statement information in a declarative syntax. """
 	
-	Symbol = Required(Unicode(60))
-	Date = Required(DateTime)
+	Symbol = Require(Unicode(60))
+	Date = Require(DateT)
 	
-	PreferredDividends = Provided(Float(precision=4))
-	NetIncome = Provided(Float(precision=4))
-	Revenue = Provided(Float(precision=4))
-	UnusualExpense = Provided(Float(precision=4))
+	PreferredDividends = Provide(Float(precision=4))
+	NetIncome = Provide(Float(precision=4))
+	Revenue = Provide(Float(precision=4))
+	UnusualExpense = Provide(Float(precision=4))
 

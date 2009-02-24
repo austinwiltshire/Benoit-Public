@@ -6,18 +6,16 @@ In this case, it may be cleaner if Metadata inherits from a class that declares 
 it's make sense and would be insanely easy to switch between the two methods should something change in the future.  In fact, Daily can be done in the same way.
 It's only quarterly and annually that need to be delayed."""
 
-import Registry
-import Website
-
-from SECFiling import Meta, Required, Provided, PersistantHost
-from elixir import metadata, setup_all, Field, Entity, Unicode
+from SECFiling import Require, Provide, PersistantHost
+from Bloomberg import Meta
+from elixir import Unicode
 
 class Metadata(PersistantHost):
 	""" Contains Industry, Sector and other information. """
 	
-	Symbol = Required(Unicode(60))
-	Industry = Provided(Unicode(60))
-
+	Symbol = Require(Unicode(60))
+	Industry = Provide(Unicode(60))
+	
 Metadata = Meta(Metadata)
 
 	

@@ -8,11 +8,14 @@ from Website import SymbolNotFound, DateNotFound
 import SymbolLookup
 from Cached import cached
 
+print "SHOULD NOT BE SEEING THIS"
+
 import sys
 sys.path.append(r"C:\Users\John\Workspace\Webstock\src\Experimental")
 from Registry import Register#, _register
 from Service import Service
 from Signature import Signature
+
 
 class Yahoo(Website.Website):
 	""" Class represents a scraping framework for the yahoo website.  Currently provides price information. 
@@ -276,14 +279,14 @@ class Yahoo(Website.Website):
 			 
 			"""
 			potentialBasicSoup = self.buildBasicSoup(symbol)
-			rightTitleRe = re.compile("".join([symbol,": Summary for .* - Yahoo! Finance"]))
+			rightTitleRe = re.compile("".join([symbol,": Summary for [\w\s]*- Yahoo! Finance"]),  re.DOTALL)
 			wrongTitleRe = re.compile("Symbol Lookup from Yahoo! Finance")
 			
 			title = potentialBasicSoup.find('title')
 			
-			if rightTitleRe.search(str(title)):
+			if rightTitleRe.search(title.string):
 				return True 
-			elif wrongTitleRe.search(str(title)):
+			elif wrongTitleRe.search(title.string):
 				return False
 			else:
 				raise Exception("I dont know whether this is a basic soup or not")
@@ -768,7 +771,7 @@ delegateInterface(Yahoo,Yahoo.TradingDay,Yahoo._priceWrapper)
 #Register(Service.Meta("DailyTradingDayDates"))(Yahoo.getDates)
 #Register(Service.Meta("DailyFundamentalsDates"))(Yahoo.getDates)
 
-Register("DailyHigh",Yahoo.getHigh)
-Register("DailyClose",Yahoo.getClose)
-Register("DailyPricesDates",Yahoo.getDates)
-Register("DailyFundamentalsDates",Yahoo.getDates)
+#Register("DailyHigh",Yahoo.getHigh)
+#Register("DailyClose",Yahoo.getClose)
+#Register("DailyPricesDates",Yahoo.getDates)
+#Register("DailyFundamentalsDates",Yahoo.getDates)

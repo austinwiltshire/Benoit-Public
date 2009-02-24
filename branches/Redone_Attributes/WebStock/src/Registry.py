@@ -9,17 +9,17 @@ from peak.rules import abstract, when
 from Adapt import Adaptable, Adapt
 from datetime import date, datetime
 
-Registry = {}
+_Registry_ = {}
 
 def Add(func):
 	""" Add a function to the registry, using it's name as the UID.  This should not be used by users. """
-	Registry[func.__name__] = func
+	_Registry_[func.__name__] = func
 	
 def Get(funcName):
 	""" Return a function from the registry, via it's UID. """
 #	if funcName not in Registry.keys():
 #		print Registry.keys()
-	return dashesToNull(Registry[funcName])
+	return dashesToNull(_Registry_[funcName])
 
 def dashesToNull(func):
 	""" Takes invalid results and turns them into valid ones.  Including dashes for character input from raw web data, or exceptions from attempting to add or

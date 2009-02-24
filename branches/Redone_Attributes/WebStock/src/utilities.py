@@ -6,6 +6,12 @@ import copy
 import inspect
 from itertools import chain
 
+def head(lst):
+	return lst[0]
+
+def tail(lst):
+	return lst[1:]
+
 #TODO: investigate itertools for something like this.
 def getBy(iterable, n=1):
 	""" Turns an iteratble of N into an iterable of N / X, where the new iterable returns every X'th element in N """

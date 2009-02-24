@@ -5,7 +5,7 @@ Implementation Note:
 Currently only Prices and Fundamentals(which indirectly relies on Prices) are defined.  However, another addition here would be technicals. 
 """
 
-from SECFiling import Daily
+from Bloomberg import Daily
 from TradingDay import Prices
 from Fundamentals import Fundamentals
 

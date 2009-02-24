@@ -6,7 +6,7 @@ Symbol("IRBT").Date(4,20,2008).Prices.High
 """
 
 from elixir import session
-from datetime import datetime, date
+import datetime
 from functools import partial
 from utilities import Lazy #isClassMethod, Lazy
 from itertools import chain
@@ -42,7 +42,7 @@ class Symbol(Flyweight):
 	
 	def AvailableDates(self, cls):
 		""" Returns the dates available for this stock, given a persistant host class.  Only queries the database, not the web. """
-		return [Adapt(x.Date,date) for x in cls.query().filter_by(_Symbol=self.name).all()]
+		return sorted([Adapt(x.Date,datetime.date) for x in cls.query().filter_by(_Symbol=self.name).all()])
 	
 	def prefetch(self):
 		""" Work in progress.  Preloads all information, given a stock date. """
@@ -74,32 +74,41 @@ class Symbol(Flyweight):
 		
 #TODO: could add annual/quarterly logic here too.
 
-		for _date in WebDates(Financials.Annual.IncomeStatement, self.name):
+		for _date in NewDates(Financials.Annual.IncomeStatement, self.name):
 	   	   	self.Date(_date.month,_date.day,_date.year).Financials.Annual.IncomeStatement.prefetch()
 #		
-		for _date in WebDates(Financials.Quarter.IncomeStatement, self.name):
+		for _date in NewDates(Financials.Quarter.IncomeStatement, self.name):
 	   	   	self.Date(_date.month,_date.day,_date.year).Financials.Quarter.IncomeStatement.prefetch()
 #		
-		for _date in WebDates(Financials.Annual.CashFlowStatement, self.name):
+		for _date in NewDates(Financials.Annual.CashFlowStatement, self.name):
 			self.Date(_date.month,_date.day,_date.year).Financials.Annual.CashFlowStatement.prefetch()
 #			prefetched.update({_date:self.Date(_date.month,_date.day,_date.year).Financials.Annual.CashFlowStatement.prefetch()})
 #		
-		for _date in WebDates(Financials.Quarter.CashFlowStatement, self.name):
+		for _date in NewDates(Financials.Quarter.CashFlowStatement, self.name):
 			self.Date(_date.month,_date.day,_date.year).Financials.Quarter.CashFlowStatement.prefetch()
 #			
-		for _date in WebDates(Financials.Annual.BalanceSheet, self.name):
+		for _date in NewDates(Financials.Annual.BalanceSheet, self.name):
 			self.Date(_date.month,_date.day,_date.year).Financials.Annual.BalanceSheet.prefetch()
 #		
-		for _date in WebDates(Financials.Quarter.BalanceSheet, self.name):
+		for _date in NewDates(Financials.Quarter.BalanceSheet, self.name):
 			self.Date(_date.month,_date.day,_date.year).Financials.Quarter.BalanceSheet.prefetch()
 		
 		session.configure(autocommit=False,autoflush=False)
 		
-		for _date in WebDates(Daily.Prices, self.name):
-			print _date
-			Prices.new(self.name, _date)
+		try:
+		
+			for _date in NewDates(Daily.Prices, self.name):
+			#yahoo has a silly bug in it that any info before this date is currently logged at this date... so we throw it all out until they figure out wtf they did wrong.
+			 if _date > datetime.date(1962,01,02):
+			 	Prices.new(self.name, _date)
+		except:
+			session.rollback()
+			session.close()
+			raise
+		
 		
 		session.commit()
+		session.configure(autocommit=True,autoflush=True)
 #			i+=1
 #			if i%100==0:
 #				i=0
@@ -117,7 +126,7 @@ class StockDate(Flyweight):
 	other information can be queried by using functions like MostRecent. """
 	
 	def __init__(self, name, month, day, year):
-		self.date = date = datetime(year, month, day)
+		self.date = date = datetime.date(year, month, day)
 		self.name = name
 		
 	def MostRecent(self, cls):

@@ -4,8 +4,8 @@ Implementation Note:
 Both this and fundamentals 'belong' together, such that using and exercising the actual module system and folders would mean it'd make sense to put
 them in the same module and have fundamentals refer to this as its 'definitions' file or something. """
 
-import Website
-import Yahoo
+#import Website
+#import Yahoo
 import FinancialDate
 from Registry import Register
 import Module2
