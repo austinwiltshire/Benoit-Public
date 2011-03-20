@@ -19,6 +19,9 @@ def Get(funcName):
 	""" Return a function from the registry, via it's UID. """
 #	if funcName not in Registry.keys():
 #		print Registry.keys()
+	if funcName not in _Registry_:
+		print _Registry_.keys()
+		raise Exception("Could not find %s in Registry" % funcName)
 	return dashesToNull(_Registry_[funcName])
 
 def dashesToNull(func):
@@ -60,6 +63,14 @@ class FunctionHelper(object):
 def isboundmethod(func):
 	""" Returns true if this method is bound, false otherwise.  Assumes that this is a method being passed in. """
 	return isinstance(func.im_self, func.im_class)
+
+def InlineRegister(func):
+	return Register(func.__name__,func)
+
+def RegisterWithName(name):
+	def _(func):
+		return Register(name, func)
+	return _
 
 def Register(name, func):
 	""" Adds a function to the registry given a specific name. This is to be used by users, not add. Wraps the function in a generic wrapper to abstract

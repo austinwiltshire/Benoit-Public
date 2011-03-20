@@ -15,20 +15,28 @@ import Registry
 from Attributes import Require, Provide, AttributeBuilder
 from sqlalchemy import UniqueConstraint
 from sqlalchemy import Integer
+from Adapt import Adapt
+import datetime
+from Cached import cached
 
 class PersistantHostMeta(type):	
 	def __new__(cls, doc):
 		oldname = doc.__name__
 		newname = cls.getName(oldname)
 		
-		attrs = {}
-		attrs["_required_attributes_"] = []
-		attrs["_provided_attributes_"] = []
+
 		
-		document = type(newname, (PersistantHost,Entity), attrs)
+		document = cls.create_type(newname)
+		
+#		document = type(newname, (PersistantHost,Entity), attrs)
 		
 		for attributeName, attribute in cls.AttributesDetected(doc):
-			setattr(document, attributeName, attribute(attributeName, document, cls.getFunction(attributeName)))
+			#if attribute is Provide:
+			#	print "!!!!!"
+			#if attribute is Require:
+				#print "******"
+			#setattr(document, attributeName, attribute(attributeName, document, cls.getFunction(attributeName)))
+			setattr(document, attributeName, attribute(attributeName, document, cls.getName(attributeName)))
 			
 		#ugliness mostly due to Elixir's own 'dsl' style syntax which seems to assume you're using their silly syntax.  
 		#todo: maybe look into a better way to do this but i'm not sure it exists.
@@ -42,6 +50,15 @@ class PersistantHostMeta(type):
 			
 		
 		return document
+	
+	@classmethod
+	def create_type(cls, newname):
+		
+		attrs = {}
+		attrs["_required_attributes_"] = []
+		attrs["_provided_attributes_"] = []
+		
+		return type(newname, (PersistantHost, Entity), attrs)
 	
 	def __init__(cls, name, bases, dct):
 		return super(PHMeta,cls).__init__(cls, name, bases, dct)
@@ -69,6 +86,15 @@ class Annual(PersistantHostMeta):
 	@classmethod
 	def getConstraints(cls):
 		return ["_Symbol","_Date"]
+	
+#	@classmethod
+#	def create_type(cls, newname):			
+#		attrs = {}
+#		attrs["_required_attributes_"] = []
+#		attrs["_provided_attributes_"] = []
+#		
+#		return type(newname, (DatedPersistantHost, Entity), attrs)
+		
 	
 	@classmethod
 	def getName(cls, name):
@@ -109,6 +135,9 @@ class Meta(PersistantHostMeta):
 #	def getFunction(cls, name):
 #		return Registry.Get(name)
 
+
+#TODO:
+# persistnat host ought to be a flyweight, however, both entity and persistant host (who i'm multiply inheriting from, could override _new_.  
 class PersistantHost(object):
 	""" This represents an object that is stored in a database, similar to Elixir's own entities.  But it adds on a few things to help with lookups, such as
 	defining 'required attributes' that are used in the initializer list to do a look up or create a new entry dynamically. """
@@ -175,6 +204,7 @@ class PersistantHost(object):
 		return query
 		
 	@classmethod
+	@cached(20)
 	def fetch(cls, *args, **kwargs):
 		""" A class creation method similar to __init__ that does a lookup in the database using SQLAlchemy, returning a query that represents the class with 
 		required attributes filled in.  If such a class does not exist, fetch creates it. """
@@ -186,6 +216,13 @@ class PersistantHost(object):
 		if not dbCache:
 			return cls(*args, **kwargs)
 		return dbCache
+
+	
+#class DatedPersistantHost(PersistantHost):	
+##	@Lazy
+	#@classmethod
+	#def AvailableDates(cls, symbol):
+#		return sorted([Adapt(x.Date,datetime.date) for x in cls.query().filter_by(_Symbol=symbol).all()])
 	
 #	id = Field(Integer, nullable=True, autoincrement=True)
 #	using_options(auto_primarykey=False)

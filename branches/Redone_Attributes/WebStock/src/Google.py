@@ -84,7 +84,7 @@ u'NYSE'
 
 """
 
-from Registry import Register
+#from Registry import Register
 import urllib
 from urlparse import urlunparse
 from urllib2 import urlopen, HTTPError
@@ -674,13 +674,13 @@ class ParsedMetadata(object):
 		soup = BeautifulSoup(rawHTML)
 		
 		#if this type of lookup is still too slow, ordering them and using the previously found item may speed things up.  thesse are currently not ordered.
-		self.currency = ParsedMetadata.currencyRe.search(soup.find(text=ParsedMetadata.currencyRe)).group("currency")
-		self.exchange = ParsedMetadata.exchangeRe.search(soup.find(text=ParsedMetadata.exchangeRe)).group("exchange")
-		self.sector = soup.find(text=lambda navstr: "Sector:" in navstr).next.string
-		self.industry = soup.find(text=lambda navstr: "Industry:" in navstr).next.string
-		self.properName = soup.find('div',attrs={'class':'tophdg'}).h1.string
-		self.symbol = ParsedMetadata.exchangeRe.search(soup.find(text=ParsedMetadata.exchangeRe)).group("symbol")
-		self.competitors = [competitor.string for competitor in soup.findAll("a",id=ParsedMetadata.competitorRe)]
+		self.currency = unicode(ParsedMetadata.currencyRe.search(soup.find(text=ParsedMetadata.currencyRe)).group("currency"))
+		self.exchange = unicode(ParsedMetadata.exchangeRe.search(soup.find(text=ParsedMetadata.exchangeRe)).group("exchange"))
+		self.sector = unicode(soup.find(text=lambda navstr: "Sector:" in navstr).next.string)
+		self.industry = unicode(soup.find(text=lambda navstr: "Industry:" in navstr).next.string)
+		self.properName = unicode(soup.find('div',attrs={'class':'tophdg'}).h1.string)
+		self.symbol = unicode(ParsedMetadata.exchangeRe.search(soup.find(text=ParsedMetadata.exchangeRe)).group("symbol"))
+		self.competitors = [unicode(competitor.string) for competitor in soup.findAll("a",id=ParsedMetadata.competitorRe)]
 
 def getCurrencyReported(symbol):
 	return getMetadata(symbol).currency
@@ -703,27 +703,27 @@ def getSymbol(symbol):
 def getCompetitors(symbol):
 	return getMetadata(symbol).competitors
 
-Register("Industry",getIndustry)
-Register("QuarterlyCashFlowStatementDates",getQuarterlyCashFlowStatementDates)
-Register("QuarterlyBalanceSheetDates",getQuarterlyBalanceSheetDates)
-Register("QuarterlyIncomeStatementDates",getQuarterlyIncomeStatementDates)
-Register("AnnualCashFlowStatementDates",getAnnualCashFlowStatementDates)
-Register("AnnualBalanceSheetDates",getAnnualBalanceSheetDates)
-Register("AnnualIncomeStatementDates",getAnnualIncomeStatementDates)
-
-Register("AnnualPreferredDividends",getAnnualPreferredDividends)
-Register("QuarterlyPreferredDividends",getQuarterlyPreferredDividends)
-Register("AnnualNetIncome",getAnnualNetIncome)
-Register("QuarterlyNetIncome",getQuarterlyNetIncome)
-Register("AnnualRevenue",getAnnualRevenue)
-Register("QuarterlyRevenue",getQuarterlyRevenue)
-Register("AnnualUnusualExpense",getAnnualUnusualExpense)
-Register("QuarterlyUnusualExpense",getQuarterlyUnusualExpense)
-
-Register("QuarterlyCashAndEquivalents",getQuarterlyCashAndEquivalents)
-Register("AnnualCashAndEquivalents",getAnnualCashAndEquivalents)
-Register("AnnualTotalCommonSharesOutstanding",getAnnualTotalCommonSharesOutstanding)
-Register("QuarterlyTotalCommonSharesOutstanding",getQuarterlyTotalCommonSharesOutstanding)
-
-Register("QuarterlyNetIncomeStartingLine", getQuarterlyNetIncomeStartingLine)
-Register("AnnualNetIncomeStartingLine", getAnnualNetIncomeStartingLine)
+#Register("Industry",getIndustry)
+#Register("QuarterlyCashFlowStatementDates",getQuarterlyCashFlowStatementDates)
+#Register("QuarterlyBalanceSheetDates",getQuarterlyBalanceSheetDates)
+#Register("QuarterlyIncomeStatementDates",getQuarterlyIncomeStatementDates)
+#Register("AnnualCashFlowStatementDates",getAnnualCashFlowStatementDates)
+#Register("AnnualBalanceSheetDates",getAnnualBalanceSheetDates)
+#Register("AnnualIncomeStatementDates",getAnnualIncomeStatementDates)
+#
+#Register("AnnualPreferredDividends",getAnnualPreferredDividends)
+#Register("QuarterlyPreferredDividends",getQuarterlyPreferredDividends)
+#Register("AnnualNetIncome",getAnnualNetIncome)
+#Register("QuarterlyNetIncome",getQuarterlyNetIncome)
+#Register("AnnualRevenue",getAnnualRevenue)
+#Register("QuarterlyRevenue",getQuarterlyRevenue)
+#Register("AnnualUnusualExpense",getAnnualUnusualExpense)
+#Register("QuarterlyUnusualExpense",getQuarterlyUnusualExpense)
+#
+#Register("QuarterlyCashAndEquivalents",getQuarterlyCashAndEquivalents)
+#Register("AnnualCashAndEquivalents",getAnnualCashAndEquivalents)
+#Register("AnnualTotalCommonSharesOutstanding",getAnnualTotalCommonSharesOutstanding)
+#Register("QuarterlyTotalCommonSharesOutstanding",getQuarterlyTotalCommonSharesOutstanding)
+#
+#Register("QuarterlyNetIncomeStartingLine", getQuarterlyNetIncomeStartingLine)
+#Register("AnnualNetIncomeStartingLine", getAnnualNetIncomeStartingLine)

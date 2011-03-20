@@ -3,8 +3,8 @@
 #import stuff needed to register SEC stuff
 #import Website 
 #import Yahoo 
-import Yahoo2 #for price data from yahoo
-import Google#for sec data from google
+import YahooFunctions #for price data from yahoo
+import GoogleFunctions#for sec data from google
 import Ratios #for fundamentals
 import Registry
 import sqlalchemy.orm
@@ -21,10 +21,10 @@ from Metadata import Metadata
 
 #setup ORM
 #from elixir import metadata, setup_all, session
-import elixir
+#import elixir
 
-elixir.metadata.bind = "sqlite:///SEC.sqlite"
-elixir.metadata.bind.echo = True #used to debug SQL statements
+#elixir.metadata.bind = "sqlite:///SEC.sqlite"
+#elixir.metadata.bind.echo = False #used to debug SQL statements
 #elixir.session = sqlalchemy.orm.scoped_session(sqlalchemy.orm.create_session(transactional=False, autofalse=True, autocommit=False))
 
-elixir.setup_all(True)
+#elixir.setup_all(True)

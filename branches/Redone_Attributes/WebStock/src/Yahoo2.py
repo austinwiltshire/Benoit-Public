@@ -149,18 +149,19 @@ class PriceForDate(object):
 		self.volume = priceArray[4]
 		self.adjclose = priceArray[5]
 			
-		#invariant checks
-		assert all([self.open <= self.high, 
-					self.close <= self.high, 
-					self.open >= self.low,
-					self.close >= self.close,
-					self.low <= self.high,
-					self.open >= 0.0,
-					self.close >= 0.0,
-					self.high >= 0.0,
-					self.low >= 0.0,
-					self.volume >= 0.0,
-					self.adjclose >= 0.0])	
+		#invariant checks.. TODO: check these in the database instead.  
+#		if not all([self.open <= self.high, 
+#					self.close <= self.high, 
+#					self.open >= self.low,
+#					self.close >= self.close,
+#					self.low <= self.high,
+#					self.open >= 0.0,
+#					self.close >= 0.0,
+#					self.high >= 0.0,
+#					self.low >= 0.0,
+#					self.volume >= 0.0,
+#					self.adjclose >= 0.0]):
+			#print self.date, self.open, self.high, self.low, self.close, self.volume, self.adjclose, "failed invariant checks."	
 		
 @ThrowsDateError
 def getHigh(symbol, date):
@@ -171,7 +172,9 @@ def getClose(symbol, date):
 	return historicalPrices(symbol)[Adapt(date,datetime.date)].close
 	
 def getDates(symbol):
-	return historicalPrices(symbol).getDates()
+	#yahoo has a bug that it gives us 1962,1,1 so we throw those out.
+	return [_date for _date in historicalPrices(symbol).getDates() if _date > datetime.date(1962,01,02)]
+
 
 @ThrowsDateError
 def getOpen(symbol, date):
@@ -190,7 +193,7 @@ def getAdjustedClose(symbol, date):
 	return historicalPrices(symbol)[Adapt(date,datetime.date)].adjclose
 
 		
-Register("DailyHigh",getHigh)
-Register("DailyClose",getClose)
-Register("DailyPricesDates",getDates)
-Register("DailyFundamentalsDates",getDates)
+#Register("DailyHigh",getHigh)
+#Register("DailyClose",getClose)
+#Register("DailyPricesDates",getDates)
+#Register("DailyFundamentalsDates",getDates)

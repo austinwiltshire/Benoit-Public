@@ -14,7 +14,15 @@ class Metadata(PersistantHost):
 	""" Contains Industry, Sector and other information. """
 	
 	Symbol = Require(Unicode(60))
+	
 	Industry = Provide(Unicode(60))
+	CurrencyReported = Provide(Unicode(60))
+	Exchange = Provide(Unicode(60))
+	Sector = Provide(Unicode(60))
+	ProperName = Provide(Unicode(60))
+
+#def getCompetitors(symbol):
+#	return getMetadata(symbol).competitors
 	
 Metadata = Meta(Metadata)
 

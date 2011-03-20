@@ -3,12 +3,14 @@ user have no state independent of the constructor arguments, though! """
 
 import weakref
 import itertools
+import LRUCache
 
 class Flyweight(object):
 	""" Inherit from this to have your class act like a Flyweight, basing itself completely off its constructor arguments. """
 	
 	#TODO: use an LRU cache instead?
-	_Pool = weakref.WeakValueDictionary()
+#	_Pool = weakref.WeakValueDictionary()
+	_Pool = LRUCache.LRUCache(1000)
 
 	def __new__(cls, *args, **kwargs):
 		
@@ -16,10 +18,10 @@ class Flyweight(object):
 		key = "".join(str(x) for x in itertools.chain(args, kwargs.iteritems()))
 		
 		#TODO: use setdefault instead?
-		obj = Flyweight._Pool.get(key, None)
-
-		if not obj:
-			obj = super(Flyweight, cls).__new__(cls)
-			Flyweight._Pool[key] = obj
-
-		return obj
+		if not key in Flyweight._Pool:		
+		#obj = Flyweight._Pool.get(key, None)
+			Flyweight._Pool[key] = super(Flyweight, cls).__new__(cls)
+			Flyweight._Pool[key]._flyweight_init_(*args, **kwargs)
+			
+		return Flyweight._Pool[key]
+		#return obj

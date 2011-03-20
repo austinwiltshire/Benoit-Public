@@ -4,7 +4,28 @@ import re
 import datetime
 import copy
 import inspect
-from itertools import chain
+from itertools import chain, ifilter
+
+def getNestedAttr(obj, path):
+	
+	if "." in path:
+		return getNestedAttr(getattr(obj,head(path.split(".",1))), head(tail(path.split(".",1))))
+	else:
+		return getattr(obj,path)
+	
+
+def findFirst(seq,pred):
+	try:
+		return ifilter(pred, seq).next()
+	except StopIteration, e:
+		return None
+	
+def findLast(seq,pred):
+	return findFirst(reversed(seq),pred)
+
+def iterModule(module):
+	for obj in dir(module):
+		yield obj,getattr(module,obj)
 
 def head(lst):
 	return lst[0]

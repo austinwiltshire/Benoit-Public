@@ -14,6 +14,5 @@ class Fundamentals(PersistantHost):
 	Symbol = Require(Unicode(60))
 	Date = Require(DateT)
 	
+	PriceToFreeCashFlow = Provide(Float(precision=4))
 	PriceToEarnings = Provide(Float(precision=4))
-	NetRevenues = Provide(Float(precision=4))
-	EarningsPerShare = Provide(Float(precision=4))

@@ -8,12 +8,14 @@ Symbol("IRBT").Date(4,20,2008).Prices.High
 from elixir import session
 import datetime
 from functools import partial
-from utilities import Lazy #isClassMethod, Lazy
+from utilities import Lazy, findFirst #isClassMethod, Lazy
 from itertools import chain
 from Adapt import Adapt
 from Flyweight import Flyweight
-from sqlalchemy import desc
-from Periodic import WebDates, NewDates
+from sqlalchemy import desc, asc
+from Periodic import WebDates, NewDates, AvailableDates
+from Cached import cached
+import WebsiteExceptions
 
 from SEC import Metadata, Daily, FinancialPeriod
 import Financials
@@ -30,21 +32,21 @@ class Symbol(Flyweight):
 	""" Symbol is the basis of the Stock DSL, and provides symbol name information.  It's functionality is used declaratively to further define particular stock
 	information. """
 	
-	def __init__(self, name):
+	def _flyweight_init_(self, name):
 		""" Requires stock symbol information. """
 		self.name = Adapt(name,unicode)
-		self.Date = partial(StockDate, name)
+		self.Date = cached(100)(partial(StockDate, name))
 		
 	@Lazy
 	def Meta(self):
 		""" Provides access to stock metadata. """
 		return Metadata.fetch(self.name)
 	
+	@cached(15)
 	def AvailableDates(self, cls):
-		""" Returns the dates available for this stock, given a persistant host class.  Only queries the database, not the web. """
 		return sorted([Adapt(x.Date,datetime.date) for x in cls.query().filter_by(_Symbol=self.name).all()])
 	
-	def prefetch(self):
+	def prefetch(self, deep_prefetch=False):
 		""" Work in progress.  Preloads all information, given a stock date. """
 		
 		#how might prefetch work?
@@ -73,42 +75,98 @@ class Symbol(Flyweight):
 #	#data by symbol and date.  the constraints don't seem to be able to be enforced...
 		
 #TODO: could add annual/quarterly logic here too.
+#		session.configure(autocommit=False,autoflush=False)
 
-		for _date in NewDates(Financials.Annual.IncomeStatement, self.name):
-	   	   	self.Date(_date.month,_date.day,_date.year).Financials.Annual.IncomeStatement.prefetch()
-#		
-		for _date in NewDates(Financials.Quarter.IncomeStatement, self.name):
-	   	   	self.Date(_date.month,_date.day,_date.year).Financials.Quarter.IncomeStatement.prefetch()
-#		
-		for _date in NewDates(Financials.Annual.CashFlowStatement, self.name):
-			self.Date(_date.month,_date.day,_date.year).Financials.Annual.CashFlowStatement.prefetch()
-#			prefetched.update({_date:self.Date(_date.month,_date.day,_date.year).Financials.Annual.CashFlowStatement.prefetch()})
-#		
-		for _date in NewDates(Financials.Quarter.CashFlowStatement, self.name):
-			self.Date(_date.month,_date.day,_date.year).Financials.Quarter.CashFlowStatement.prefetch()
-#			
-		for _date in NewDates(Financials.Annual.BalanceSheet, self.name):
-			self.Date(_date.month,_date.day,_date.year).Financials.Annual.BalanceSheet.prefetch()
-#		
-		for _date in NewDates(Financials.Quarter.BalanceSheet, self.name):
-			self.Date(_date.month,_date.day,_date.year).Financials.Quarter.BalanceSheet.prefetch()
-		
-		session.configure(autocommit=False,autoflush=False)
-		
+
+	   	#i'm pre-searching for these dates and doing this all up front to avoid accidental commits in the middle of everything.
+	   	annualIncDates = NewDates(Financials.Annual.IncomeStatement, self.name)
+	   	annualCasDates = NewDates(Financials.Annual.CashFlowStatement, self.name)
+	   	annualBalDates = NewDates(Financials.Annual.BalanceSheet, self.name)
+	   	quarterIncDates = NewDates(Financials.Quarter.IncomeStatement, self.name)
+	   	quarterCasDates = NewDates(Financials.Quarter.CashFlowStatement, self.name)
+	   	quarterBalDates = NewDates(Financials.Quarter.BalanceSheet, self.name)
+	   	
+	   	pricesDates = NewDates(Daily.Prices, self.name)
+	   	quarterDerivedDates = NewDates(Financials.Quarter.Derived, self.name)
+		annualDerivedDates = NewDates(Financials.Annual.Derived, self.name)
+
 		try:
+			
+			self.Meta.prefetch()
+			session.commit()	
+
+#			for _date in NewDates(Financials.Annual.IncomeStatement, self.name):
+	   	   	for _date in annualIncDates:
+				Financials.Annual.IncomeStatement.new(self.name, _date)
+		   	   	#self.Date(_date.month,_date.day,_date.year).Financials.Annual.IncomeStatement.prefetch()
+	#		
+			session.commit()	
+#			for _date in NewDates(Financials.Quarter.IncomeStatement, self.name):
+	   	   	for _date in quarterIncDates:
+				Financials.Quarter.IncomeStatement.new(self.name, _date)
+	#	   	   	self.Date(_date.month,_date.day,_date.year).Financials.Quarter.IncomeStatement.prefetch()
+	#
+			session.commit()			
+	   	   	for _date in annualCasDates:
+#			for _date in NewDates(Financials.Annual.CashFlowStatement, self.name):
+				Financials.Annual.CashFlowStatement.new(self.name, _date)
+	#			self.Date(_date.month,_date.day,_date.year).Financials.Annual.CashFlowStatement.prefetch()
+	#			prefetched.update({_date:self.Date(_date.month,_date.day,_date.year).Financials.Annual.CashFlowStatement.prefetch()})
+	#
+			session.commit()	
+	
+	   	   	for _date in quarterCasDates:		
+#			for _date in NewDates(Financials.Quarter.CashFlowStatement, self.name):
+				Financials.Quarter.CashFlowStatement.new(self.name, _date)
+	#			self.Date(_date.month,_date.day,_date.year).Financials.Quarter.CashFlowStatement.prefetch()
+	#		
+			session.commit()		
+			#for _date in NewDates(Financials.Annual.BalanceSheet, self.name):
+			for _date in annualBalDates:
+				Financials.Annual.BalanceSheet.new(self.name, _date)
+	#			self.Date(_date.month,_date.day,_date.year).Financials.Annual.BalanceSheet.prefetch()
+	#		
+			session.commit()	
+	
+#			for _date in NewDates(Financials.Quarter.BalanceSheet, self.name):
+	   	   	for _date in quarterBalDates:
+				Financials.Quarter.BalanceSheet.new(self.name, _date)
+				
+			session.commit()	
+	#			self.Date(_date.month,_date.day,_date.year).Financials.Quarter.BalanceSheet.prefetch()	
+			
+			#for _date in NewDates(Daily.Prices, self.name):
+			for _date in pricesDates:
+				Daily.Prices.new(self.name, _date)		
+			
+			session.commit()		 	
+				
+			#for _date in NewDates(Financials.Quarter.Derived, self.name):
+			for _date in quarterDerivedDates:
+			 	Financials.Quarter.Derived.new(self.name, _date)
+			 	
+			session.commit()		
+				 	
+			#for _date in NewDates(Financials.Annual.Derived, self.name):
+			for _date in annualDerivedDates:
+			 	Financials.Annual.Derived.new(self.name, _date)
+			 	
+			session.commit()	
+			
+			#expensive prefetches.  And they're all off line.  Actually, this would be best done with some raw SQL stuff.  We only need to do a handfull of selects
+			# per stock.  but it's being selected over and over and over again.  Each select forces a commit.  Hense it's slow.
+			if(deep_prefetch):	 	
+				for _date in NewDates(Daily.Fundamentals, self.name):
+					Daily.Fundamentals.new(self.name, _date)
 		
-			for _date in NewDates(Daily.Prices, self.name):
-			#yahoo has a silly bug in it that any info before this date is currently logged at this date... so we throw it all out until they figure out wtf they did wrong.
-			 if _date > datetime.date(1962,01,02):
-			 	Prices.new(self.name, _date)
+		
+			session.commit()
+		
 		except:
 			session.rollback()
 			session.close()
 			raise
-		
-		
-		session.commit()
-		session.configure(autocommit=True,autoflush=True)
+		#session.configure(autocommit=True,autoflush=True)
 #			i+=1
 #			if i%100==0:
 #				i=0
@@ -125,9 +183,14 @@ class StockDate(Flyweight):
 	""" Stock date further defines stock information by declaring a particular date to look up.  Daily information is easily queried this way, and quarterly and 
 	other information can be queried by using functions like MostRecent. """
 	
-	def __init__(self, name, month, day, year):
+	def _flyweight_init_(self, name, month, day, year):
 		self.date = date = datetime.date(year, month, day)
 		self.name = name
+		
+	def ClosestAvailable(self, cls):
+		""" Returns the closest available date to the one this StockDate represents, whether it's in the past or future. """
+		dt = min(Symbol(self.name).AvailableDates(cls), key=lambda x: abs((self.date - x).days))
+		return cls.fetch(self.name, dt)
 		
 	def MostRecent(self, cls):
 		""" Returns the most recent dates available given a date and a persistant host class.  
@@ -139,9 +202,21 @@ class StockDate(Flyweight):
 		maybe i can ask grant if there are required times filing dates must be in by, or required waiting periods to give me a better range.  For instance,
 		if I knew the last date was on X, can i predict from that alone the next date? 
 		"""
+		#print Sym
+		dt = findFirst(reversed(Symbol(self.name).AvailableDates(cls)), lambda x: x<= self.date)		
+		if not dt:
+			raise WebsiteExceptions.DateNotFound(self.name, self.date)
+		return cls.fetch(self.name, dt)
+		#return cls.query.filter_by(_Symbol=self.name).filter(cls._Date <= self.date).order_by(desc(cls._Date)).first()
+				
+	def NextAvailable(self, cls):
+		""" Opposite of Most Recent. """
+		dt = findFirst(Symbol(self.name).AvailableDates(cls), lambda x: x >= self.date)
+		if not dt:
+			raise WebsiteExceptions.DateNotFound(self.name, self.date)
+		return cls.fetch(self.name, dt)
+		#return cls.query.filter_by(_Symbol=self.name).filter(cls._Date >= self.date).order_by(asc(cls._Date)).first()
 		
-		return cls.query.filter_by(_Symbol=self.name).filter(cls._Date <= self.date).order_by(desc(cls._Date)).first()
-			
 	@Lazy
 	def Financials(self):
 		""" Provides access to financial information like Income and Balance Sheets. """

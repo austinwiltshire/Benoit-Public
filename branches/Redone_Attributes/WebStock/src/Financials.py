@@ -44,3 +44,7 @@ class Financials(object):
 	@Lazy
 	def CashFlowStatement(self):
 		return self.module.CashFlowStatement.fetch(self.symbol, self.date)
+	
+	@Lazy
+	def Derived(self):
+		return self.module.Derived.fetch(self.symbol, self.date)

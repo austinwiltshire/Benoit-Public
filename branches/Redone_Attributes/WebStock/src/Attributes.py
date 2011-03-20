@@ -10,7 +10,7 @@ from elixir import Field, Boolean, session, DateTime, Float
 #from sqlalchemy import desc, asc
 from SafeFloat import SafeFloat
 import WebsiteExceptions
-#import Registry
+import Registry
 #import Website
 
 class AttributeBuilder(object):
@@ -25,26 +25,41 @@ class AttributeBuilder(object):
 		self.order = AttributeBuilder.counter
 		AttributeBuilder.counter += 1
 		
-	def __call__(self, name, cls, function):
-		return self.attributeType(self.fieldType, name, cls, function)
+#	def __call__(self, name, cls, function):
+#		return self.attributeType(self.fieldType, name, cls, function)
 	
 	def __cmp__(self, other):
 		return cmp(self.order, other.order)
 
-Provide = lambda x: AttributeBuilder(Provided,x)
-Require = lambda x: AttributeBuilder(Required,x)
+class Provide(AttributeBuilder):
+	
+	def __init__(self, fieldType):
+		super(Provide,self).__init__(Provided,fieldType)
+		
+	def __call__(self, name, cls, qualifiedName):
+		function = Registry.Get(qualifiedName)
+		return self.attributeType(self.fieldType, name, cls, function)
+
+class Require(AttributeBuilder):
+	
+	def __init__(self, fieldType):
+		super(Require,self).__init__(Required,fieldType)
+		
+	def __call__(self, name, cls, qualifiedName):
+		return self.attributeType(self.fieldType, name, cls)
+
 
 class Attribute(object):
 	""" Defines a generic attribute on a stock info yielding object.  Attributes provide a framework both for first time use via web calls, persistance and 
 	declarative-style use. """
 	
-	def __init__(self, fieldType, name, cls, function):#, *args, **kwargs):
+	def __init__(self, fieldType, name, cls): #, function):#, *args, **kwargs):
 		""" Returns the fieldType this attribute will be stored in the database and cast as. """
 		self.fieldType = fieldType
 		self.name = name
 		self.cls = cls
 		self.register(cls, name)
-	   	self.function = function
+	#   	self.function = function
 		self.addField(cls, name)
 		
 	def addInitializer(self, cls, name):
@@ -85,7 +100,8 @@ class Provided(Attribute):
 	""" This represents an attribute that, given all required attributes on this class are given, this class can provide to the user, usually via a web interface. """
 	def __init__(self, fieldType, name, cls, function):
 		self.addInitializer(cls, name)
-		super(Provided,self).__init__(fieldType, name, cls, function)
+		self.function = function
+		super(Provided,self).__init__(fieldType, name, cls)#, function)
 		
 	def register(self, cls, name):
 		""" Function adds this attribute to the list of attributes on the class. """
@@ -107,17 +123,21 @@ class Provided(Attribute):
 				setattr(inst, initializer, True)
 				session.commit()
 			except KeyError:
-				elixir.session.rollback()
+				session.rollback()
 				session.close()
 				raise Exception("Service %s is not registered" % str(cache))
 			except WebsiteExceptions.DateNotFound: #these two errors don't work well with rollback due to a misunderstanding on my part.
-   	   	   	   	   	session.commit()
-   	   	   	   	   	inst.delete()
-   	   	   	   	   	raise
+				session.rollback()
+				session.close()
+				raise
+    	   	   #   	   	   	   	session.commit()
+ #  	   	   	   	inst.delete()
 			except WebsiteExceptions.SymbolNotFound:
-					session.commit()
-					inst.delete()
-					raise
+				session.rollback()
+				session.close()
+				#session.commit()
+				#inst.delete()
+				raise
 #					except Web stuff.  i need to detect if i just can't get on the web and NOT delete stuff.
 		return cleanup(getattr(inst, cache))
 	

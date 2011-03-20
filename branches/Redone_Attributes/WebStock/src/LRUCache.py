@@ -25,15 +25,23 @@ class LRUCache(object):
 					self.queue.append(k)
 				else:
 					self.refcount[k] -= 1
-			assert len(self.queue) == len(self.cache) == len(self.refcount) == sum(self.refcount.itervalues()) 
+			#TODO: this would be good to log.  i dont know why it's getting out of sync but there's an easy way to fix it!
+			#TODO: switch to an exception handling format and also log the error in addition to fixing it.
+			#TODO: consider a global 'exception policy', with values like "bailout", "recover" and "ignore"
+			if not len(self.queue) == len(self.cache) == len(self.refcount) == sum(self.refcount.itervalues()):
+				print len(self.queue), len(self.cache), len(self.refcount), sum(self.refcount.itervalues())
+				self.cache = {}
+				self.queue = deque()
+				self.refcount = {}
+				self._update_(key) #attempt to re-add the key
 				
 	def __getitem__(self, key):
 		self._update_(key)
 		return self.cache[key]
 		
 	def __setitem__(self, key, value):
-		self._update_(key)
 		self.cache[key] = value
+		self._update_(key)
 		
 	def __contains__(self, key):
 		return key in self.cache

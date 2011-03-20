@@ -58,7 +58,10 @@ class SafeFloat(float):
 		elif isinstance(arg,SafeFloat) and not arg.just:
 				return SafeFloat(None)
 		else:
-			return SafeFloat(getattr(float,op)(self, arg))
+			try:
+				return SafeFloat(getattr(float,op)(self, arg))
+			except ZeroDivisionError, e:
+				return SafeFloat(None)
 		
 		
 	def __repr__(self):

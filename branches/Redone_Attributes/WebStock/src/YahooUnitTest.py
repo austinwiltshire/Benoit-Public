@@ -255,6 +255,9 @@ class Yahoo_TradingDay(unittest.TestCase):
 		self.assertTrue(self.trophy.isValid())
 		#invariant error via contract will buzz in the bad case.
 		
-if __name__ == "__main__": #for coverage tests
+def RunTests():
 	unittest.main()
+		
+if __name__ == "__main__": #for coverage tests
+	RunTests()
 									   
