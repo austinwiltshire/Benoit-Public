@@ -10,6 +10,9 @@ import utilities
 contract.checkmod(utilities)
 contract.checkmod(Yahoo2)
 
+
+
+
 class DoctestWrapper(unittest.TestSuite):
 	def __init__(self):
 		unittest.TestSuite.__init__(self, doctest.DocTestSuite(Yahoo2))
