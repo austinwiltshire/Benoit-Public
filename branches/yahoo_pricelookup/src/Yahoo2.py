@@ -1,34 +1,35 @@
 """
 Examples:
 >>> from datetime import date
->>> round(getHigh("MRK", date(2007,12,31)))
+>>> prices = HistoricalPrices()
+>>> round(prices.getHigh("MRK", date(2007,12,31)))
 59.0
 
->>> round(getLow("IBM", date(2008,9,30)))
+>>> round(prices.getLow("IBM", date(2008,9,30)))
 112.0
 
->> round(getVolume("SBUX", date(2008,09,29)))
+>> round(prices.getVolume("SBUX", date(2008,09,29)))
 20719700
 
->>> round(getOpen("CSCO", date(2008,01,25)))
+>>> round(prices.getOpen("CSCO", date(2008,01,25)))
 26.0
 
->>> round(getClose("CSCO", date(2008,01,24)))
+>>> round(prices.getClose("CSCO", date(2008,01,24)))
 25.0
 
->>> round(getAdjustedClose("CSCO", date(2008,01,30)))
+>>> round(prices.getAdjustedClose("CSCO", date(2008,01,30)))
 24.0
 
 Exceptions are thrown for dates not supported, or symbols not supported.
 
->>> getHigh("CHEESE", date(2007,9,30))
+>>> prices.getHigh("CHEESE", date(2007,9,30))
 Traceback (most recent call last):
     ...
 SymbolNotFound: Could not find symbol : \"CHEESE\"
 
 Or if the date is invalid:
 
->>> getLow("BAC", date(2007,12,30))
+>>> prices.getLow("BAC", date(2007,12,30))
 Traceback (most recent call last):
     ...
 DateNotFound: Symbol \"BAC\" does not support date : 2007-12-30
@@ -81,41 +82,6 @@ def buildSymbol(symbol):
 def parseDate(date):
     return datetime.datetime.strptime(date,"%Y-%m-%d").date()
 
-@Cached.cached(100)
-def historicalPrices(symbol, fromDate=None, toDate=None):
-    
-    #TODO: will check date sanity up front using financial date
-    #and rear-end check after the website hit
-    
-    if not fromDate:
-        fromDate = datetime.date(1950,1,1)
-    if not toDate:
-        toDate = datetime.date.today()
-    
-    #NOTE: introduce yahoo symbol class that stands for a yahoo symbol rather than using this resolver.    
-    #resolve to yahoo style symbols
-    #symbol = resolver.getYahoo(symbol)
-    
-    #we'll introduce a financial date class, rather than adaptation
-    assert isinstance(fromDate, datetime.date)
-    #fromDate = Adapt(fromDate, datetime.date)
-    
-    assert isinstance(toDate, datetime.date)
-    #toDate = Adapt(toDate, datetime.date)
-    args = baseArgs.copy()
-    
-    args.update(buildSymbol(symbol))
-    args.update(buildToDate(toDate))
-    args.update(buildFromDate(fromDate))
-    
-    url = historicalPricesURL(args)
-    raw_url = urlparse.urlunparse(url)
-    
-    try:
-        return ParsedCSV(urllib2.urlopen(raw_url))
-    except urllib2.HTTPError, e:
-        raise WebsiteExceptions.SymbolNotFound(symbol)
-
 class ParsedCSV(object):
     def __init__(self, csvFile):
         self.dates = {}
@@ -154,51 +120,93 @@ class PriceForDate(object):
         self.close = priceArray[3]
         self.volume = priceArray[4]
         self.adjclose = priceArray[5]
-                
-@WebsiteExceptions.ThrowsDateError
-def getHigh(symbol, date):
-    #typecheck rather than adapt and use financial date in the future
-    assert isinstance(date, datetime.date)
-    #return historicalPrices(symbol)[Adapt(date,datetime.date)].high
-    return historicalPrices(symbol)[date].high
+                  
+   
+class HistoricalPrices(object):
+    def __init__(self):
+        pass
     
-@WebsiteExceptions.ThrowsDateError
-def getClose(symbol, date):
-    #typecheck rather than adapt and use financial date in the future
-    assert isinstance(date, datetime.date)
-    #return historicalPrices(symbol)[Adapt(date,datetime.date)].close
-    return historicalPrices(symbol)[date].close
+    @Cached.cached(100)
+    def historicalPrices(self, symbol, fromDate=None, toDate=None):
+        
+        #TODO: will check date sanity up front using financial date
+        #and rear-end check after the website hit
+        
+        if not fromDate:
+            fromDate = datetime.date(1950,1,1)
+        if not toDate:
+            toDate = datetime.date.today()
+        
+        #NOTE: introduce yahoo symbol class that stands for a yahoo symbol rather than using this resolver.    
+        #resolve to yahoo style symbols
+        #symbol = resolver.getYahoo(symbol)
+        
+        #we'll introduce a financial date class, rather than adaptation
+        assert isinstance(fromDate, datetime.date)
+        #fromDate = Adapt(fromDate, datetime.date)
+        
+        assert isinstance(toDate, datetime.date)
+        #toDate = Adapt(toDate, datetime.date)
+        args = baseArgs.copy()
+        
+        args.update(buildSymbol(symbol))
+        args.update(buildToDate(toDate))
+        args.update(buildFromDate(fromDate))
+        
+        url = historicalPricesURL(args)
+        raw_url = urlparse.urlunparse(url)
+        
+        try:
+            return ParsedCSV(urllib2.urlopen(raw_url))
+        except urllib2.HTTPError, e:
+            raise WebsiteExceptions.SymbolNotFound(symbol)
     
-def getDates(symbol):
-    #yahoo has a bug that it gives us 1962,1,1 so we throw those out.
-    return [_date for _date in historicalPrices(symbol).getDates() if _date > datetime.date(1962,01,02)]
+    @WebsiteExceptions.ThrowsDateError
+    def getHigh(self, symbol, date):
+        #typecheck rather than adapt and use financial date in the future
+        assert isinstance(date, datetime.date)
+        #return historicalPrices(symbol)[Adapt(date,datetime.date)].high
+        return self.historicalPrices(symbol)[date].high
+    
+    @WebsiteExceptions.ThrowsDateError
+    def getAdjustedClose(self, symbol, date):
+        #typecheck rather than adapt and use financial date in the future
+        assert isinstance(date, datetime.date)
+        #return historicalPrices(symbol)[Adapt(date,datetime.date)].adjclose
+        return self.historicalPrices(symbol)[date].adjclose
+    
+    #TODO: remove throwsdate error once date checking is done on front ends
+    @WebsiteExceptions.ThrowsDateError
+    def getVolume(self, symbol, date):
+        #typecheck rather than adapt and use financial date in the future
+        assert isinstance(date, datetime.date)
+        #return historicalPrices(symbol)[Adapt(date,datetime.date)].volume
+        return self.historicalPrices(symbol)[date].volume
+       
+    @WebsiteExceptions.ThrowsDateError
+    def getLow(self, symbol, date):
+        #typecheck rather than adapt and use financial date in the future
+        assert isinstance(date, datetime.date)
+        #return historicalPrices(symbol)[Adapt(date,datetime.date)].low
+        return self.historicalPrices(symbol)[date].low
+    
 
+    @WebsiteExceptions.ThrowsDateError
+    def getOpen(self, symbol, date):
+        #typecheck rather than adapt and use financial date in the future
+        assert isinstance(date, datetime.date)
+        #return historicalPrices(symbol)[Adapt(date,datetime.date)].open
+        return self.historicalPrices(symbol)[date].open
 
-@WebsiteExceptions.ThrowsDateError
-def getOpen(symbol, date):
-    #typecheck rather than adapt and use financial date in the future
-    assert isinstance(date, datetime.date)
-    #return historicalPrices(symbol)[Adapt(date,datetime.date)].open
-    return historicalPrices(symbol)[date].open
-
-@WebsiteExceptions.ThrowsDateError
-def getLow(symbol, date):
-    #typecheck rather than adapt and use financial date in the future
-    assert isinstance(date, datetime.date)
-    #return historicalPrices(symbol)[Adapt(date,datetime.date)].low
-    return historicalPrices(symbol)[date].low
-
-#TODO: remove throwsdate error once date checking is done on front ends
-@WebsiteExceptions.ThrowsDateError
-def getVolume(symbol, date):
-    #typecheck rather than adapt and use financial date in the future
-    assert isinstance(date, datetime.date)
-    #return historicalPrices(symbol)[Adapt(date,datetime.date)].volume
-    return historicalPrices(symbol)[date].volume
-
-@WebsiteExceptions.ThrowsDateError
-def getAdjustedClose(symbol, date):
-    #typecheck rather than adapt and use financial date in the future
-    assert isinstance(date, datetime.date)
-    #return historicalPrices(symbol)[Adapt(date,datetime.date)].adjclose
-    return historicalPrices(symbol)[date].adjclose
+    def getDates(self, symbol):
+        #yahoo has a bug that it gives us 1962,1,1 so we throw those out.
+        return [_date for _date in self.historicalPrices(symbol).getDates() if _date > datetime.date(1962,01,02)]
+    
+    @WebsiteExceptions.ThrowsDateError
+    def getClose(self, symbol, date):
+        #typecheck rather than adapt and use financial date in the future
+        assert isinstance(date, datetime.date)
+        #return historicalPrices(symbol)[Adapt(date,datetime.date)].close
+        return self.historicalPrices(symbol)[date].close
+        
+        
