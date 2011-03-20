@@ -47,41 +47,6 @@ import WebsiteExceptions
 
 #resolver = SymbolLookup()
 
-#constants derived from how the website currently works
-DATE_FORMAT = "%Y-%m-%d"
-KEY_SYMBOL = 's'
-KEY_TO_DATE_MONTH = 'd'
-KEY_TO_DATE_DAY = 'e'
-KEY_TO_DATE_YEAR = 'f'
-KEY_FREQUENCY = 'g'
-VALUE_DAILY = 'd'
-KEY_FROM_DATE_MONTH = 'a'
-KEY_FROM_DATE_DAY = 'b'
-KEY_FROM_DATE_YEAR = 'c'
-
-schema = 'http'
-basePage = 'ichart.finance.yahoo.com'
-path = 'table.csv'
-baseArgs = {'ignore':'.csv'}
-
-#curry urlencode to always decode lists
-urlencode = lambda dct: urllib.urlencode(dct, True)
-
-def historicalPricesURL(dct):
-    return (schema, basePage, path, '', urlencode(dct), '')
-
-def buildToDate(date):
-    return {KEY_TO_DATE_MONTH:date.month-1, KEY_TO_DATE_DAY:date.day, KEY_TO_DATE_YEAR:date.year}
-
-def buildFromDate(date):
-    return {KEY_FROM_DATE_MONTH:date.month-1, KEY_FROM_DATE_DAY:date.day, KEY_FROM_DATE_YEAR:date.year}
-
-def buildSymbol(symbol):
-    return {KEY_SYMBOL:symbol}
-
-def parseDate(date):
-    return datetime.datetime.strptime(date,"%Y-%m-%d").date()
-
 class ParsedCSV(object):
     def __init__(self, csvFile):
         self.dates = {}
@@ -95,7 +60,7 @@ class ParsedCSV(object):
 
             date = splitEntry[0]
             priceInfo = [float(price) for price in splitEntry[1:]]
-            parsedDate = parseDate(date)
+            parsedDate = self._parseDate(date)
 
             #the below is put in right now so that duplicate dates, which might occur
             #due to bugs before 1969, are for now, ignored.            
@@ -109,6 +74,10 @@ class ParsedCSV(object):
     
     def getDates(self):
         return sorted(self.dates.keys())
+    
+    def _parseDate(self, date):
+        return datetime.datetime.strptime(date,"%Y-%m-%d").date()
+
     
 #Plain ole' data
 class PriceForDate(object):
@@ -125,7 +94,7 @@ class PriceForDate(object):
 class HistoricalPrices(object):
     def __init__(self):
         pass
-    
+       
     @Cached.cached(100)
     def historicalPrices(self, symbol, fromDate=None, toDate=None):
         
@@ -147,13 +116,15 @@ class HistoricalPrices(object):
         
         assert isinstance(toDate, datetime.date)
         #toDate = Adapt(toDate, datetime.date)
+        
+        baseArgs = {'ignore':'.csv'}
         args = baseArgs.copy()
         
-        args.update(buildSymbol(symbol))
-        args.update(buildToDate(toDate))
-        args.update(buildFromDate(fromDate))
+        args.update(self._buildSymbol(symbol))
+        args.update(self._buildToDate(toDate))
+        args.update(self._buildFromDate(fromDate))
         
-        url = historicalPricesURL(args)
+        url = self._historicalPricesURL(args)
         raw_url = urlparse.urlunparse(url)
         
         try:
@@ -209,4 +180,36 @@ class HistoricalPrices(object):
         #return historicalPrices(symbol)[Adapt(date,datetime.date)].close
         return self.historicalPrices(symbol)[date].close
         
+    def _buildToDate(self, date):
         
+        #constants derived from how the website currently works
+        KEY_TO_DATE_MONTH = 'd'
+        KEY_TO_DATE_DAY = 'e'
+        KEY_TO_DATE_YEAR = 'f'
+        
+        return {KEY_TO_DATE_MONTH:date.month-1, KEY_TO_DATE_DAY:date.day, KEY_TO_DATE_YEAR:date.year}
+
+    def _buildFromDate(self, date):
+        
+        #constants derived from how the website currently works
+        KEY_FROM_DATE_MONTH = 'a'
+        KEY_FROM_DATE_DAY = 'b'
+        KEY_FROM_DATE_YEAR = 'c'
+        
+        return {KEY_FROM_DATE_MONTH:date.month-1, KEY_FROM_DATE_DAY:date.day, KEY_FROM_DATE_YEAR:date.year}
+
+    def _buildSymbol(self, symbol):
+        
+        #constants derived from how the website currently works
+        KEY_SYMBOL = 's'
+        
+        return {KEY_SYMBOL:symbol}
+    
+    def _historicalPricesURL(self, dct):
+        #urlencode second argument decodes lists
+        
+        schema = 'http'
+        basePage = 'ichart.finance.yahoo.com'
+        path = 'table.csv'
+        
+        return (schema, basePage, path, '', urllib.urlencode(dct, doseq=True), '')        
