@@ -1,29 +1,13 @@
 import Yahoo2
-from TestTools import assertClose, compareDicts
-from datetime import date
 import datetime
 import doctest
-import contract
 import unittest
-import utilities
-
-contract.checkmod(utilities)
-contract.checkmod(Yahoo2)
-
-
-
 
 class DoctestWrapper(unittest.TestSuite):
 	def __init__(self):
 		unittest.TestSuite.__init__(self, doctest.DocTestSuite(Yahoo2))
 
 class YahooTestCase(unittest.TestCase):
-	def setUp(self):
-		pass
-	
-	def tearDown(self):	
-		pass
-		
 	
 	def testRandom(self):
 		""" Randomly sample different stocks and attributes """
