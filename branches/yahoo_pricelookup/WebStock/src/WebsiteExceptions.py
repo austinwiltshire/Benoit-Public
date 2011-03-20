@@ -1,3 +1,14 @@
+
+#NOTE: added
+#translates key errors into date errors on Google Financial Functions
+def ThrowsDateError(func):
+    def _(symbol, date):
+        try:
+            return func(symbol, date)
+        except KeyError, e:
+            raise DateNotFound(symbol, date)
+    return _
+
 class SymbolNotFound(Exception):
 	""" Raised when a symbol is not found or information for it cannot be found "
 	
