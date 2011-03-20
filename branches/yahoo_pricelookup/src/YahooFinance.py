@@ -42,7 +42,7 @@ import urllib2
 #from Adapt import Adapt
 import datetime
 #from SymbolLookup import SymbolLookup
-import WebsiteExceptions
+import YahooFinanceExceptions
 
 import LRUCache
 
@@ -137,7 +137,7 @@ class HistoricalPrices(object):
         try:
             return ParsedCSV(urllib2.urlopen(raw_url))
         except urllib2.HTTPError, e:
-            raise WebsiteExceptions.SymbolNotFound(symbol)
+            raise YahooFinanceExceptions.SymbolNotFound(symbol)
     
     def getPriceForDate(self, symbol, date):
         
@@ -148,7 +148,7 @@ class HistoricalPrices(object):
         try:
             return all_prices[date]
         except KeyError, e:
-            raise WebsiteExceptions.DateNotFound(symbol, date)
+            raise YahooFinanceExceptions.DateNotFound(symbol, date)
     
     def getHigh(self, symbol, date):
         #typecheck rather than adapt and use financial date in the future
