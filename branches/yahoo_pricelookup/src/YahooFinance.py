@@ -139,53 +139,63 @@ class HistoricalPrices(object):
         except urllib2.HTTPError, e:
             raise WebsiteExceptions.SymbolNotFound(symbol)
     
-    @WebsiteExceptions.ThrowsDateError
+    def getPriceForDate(self, symbol, date):
+        
+        #typecheck rather than adapt and use financial date in the future
+        assert isinstance(date, datetime.date)
+        
+        all_prices = self.historicalPrices(symbol)
+        try:
+            return all_prices[date]
+        except KeyError, e:
+            raise WebsiteExceptions.DateNotFound(symbol, date)
+    
     def getHigh(self, symbol, date):
         #typecheck rather than adapt and use financial date in the future
         assert isinstance(date, datetime.date)
         #return historicalPrices(symbol)[Adapt(date,datetime.date)].high
-        return self.historicalPrices(symbol)[date].high
+        
+        return self.getPriceForDate(symbol, date).high
     
-    @WebsiteExceptions.ThrowsDateError
     def getAdjustedClose(self, symbol, date):
         #typecheck rather than adapt and use financial date in the future
         assert isinstance(date, datetime.date)
         #return historicalPrices(symbol)[Adapt(date,datetime.date)].adjclose
-        return self.historicalPrices(symbol)[date].adjclose
+        
+        return self.getPriceForDate(symbol, date).adjclose
     
-    #TODO: remove throwsdate error once date checking is done on front ends
-    @WebsiteExceptions.ThrowsDateError
     def getVolume(self, symbol, date):
         #typecheck rather than adapt and use financial date in the future
         assert isinstance(date, datetime.date)
         #return historicalPrices(symbol)[Adapt(date,datetime.date)].volume
-        return self.historicalPrices(symbol)[date].volume
+        
+        return self.getPriceForDate(symbol, date).volume
        
-    @WebsiteExceptions.ThrowsDateError
     def getLow(self, symbol, date):
         #typecheck rather than adapt and use financial date in the future
         assert isinstance(date, datetime.date)
         #return historicalPrices(symbol)[Adapt(date,datetime.date)].low
-        return self.historicalPrices(symbol)[date].low
+        
+        return self.getPriceForDate(symbol, date).low
     
 
-    @WebsiteExceptions.ThrowsDateError
     def getOpen(self, symbol, date):
         #typecheck rather than adapt and use financial date in the future
         assert isinstance(date, datetime.date)
         #return historicalPrices(symbol)[Adapt(date,datetime.date)].open
-        return self.historicalPrices(symbol)[date].open
+        
+        return self.getPriceForDate(symbol, date).open
 
     def getDates(self, symbol):
         #yahoo has a bug that it gives us 1962,1,1 so we throw those out.
         return [_date for _date in self.historicalPrices(symbol).getDates() if _date > datetime.date(1962,01,02)]
     
-    @WebsiteExceptions.ThrowsDateError
     def getClose(self, symbol, date):
         #typecheck rather than adapt and use financial date in the future
         assert isinstance(date, datetime.date)
         #return historicalPrices(symbol)[Adapt(date,datetime.date)].close
-        return self.historicalPrices(symbol)[date].close
+        
+        return self.getPriceForDate(symbol, date).close
         
     def _buildToDate(self, date):
         
