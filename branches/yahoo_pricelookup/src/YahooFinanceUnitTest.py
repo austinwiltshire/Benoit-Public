@@ -1,18 +1,18 @@
-import Yahoo2
+import YahooFinance
 import datetime
 import doctest
 import unittest
 
 class DoctestWrapper(unittest.TestSuite):
     def __init__(self):
-        unittest.TestSuite.__init__(self, doctest.DocTestSuite(Yahoo2))
+        unittest.TestSuite.__init__(self, doctest.DocTestSuite(YahooFinance))
 
 class YahooTestCase(unittest.TestCase):
     
     def testRandom(self):
         """ Randomly sample different stocks and attributes """
         
-        historical_prices = Yahoo2.HistoricalPrices()
+        historical_prices = YahooFinance.HistoricalPrices()
         
         self.assertEqual(historical_prices.getHigh("DD", datetime.date(2008,4,14)), 49.41)
         self.assertEqual(historical_prices.getHigh("DD", datetime.date(2007,12,31)), 44.29)
@@ -110,7 +110,7 @@ class YahooTestCase(unittest.TestCase):
     def testGetDates(self):
         """Test that get dates returns the proper range """
         
-        historical_prices = Yahoo2.HistoricalPrices()
+        historical_prices = YahooFinance.HistoricalPrices()
         
         self.assertTrue(datetime.date(2009,1,28) in historical_prices.getDates("BRK-A"))
         self.assertTrue(historical_prices.getDates("BRK-A")[0] == datetime.date(1990,1,12))    
