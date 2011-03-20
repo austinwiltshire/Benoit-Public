@@ -42,8 +42,10 @@ import urllib2
 #from Adapt import Adapt
 import datetime
 #from SymbolLookup import SymbolLookup
-import Cached
 import WebsiteExceptions
+
+import LRUCache
+import itertools
 
 #resolver = SymbolLookup()
 
@@ -92,19 +94,25 @@ class PriceForDate(object):
                   
    
 class HistoricalPrices(object):
-    def __init__(self):
-        pass
+    def __init__(self, cache_size=100):
+        self._cache = LRUCache.LRUCache(cache_size)
+    
+    def historicalPrices(self, symbol):
+        
+        key = symbol
+        if key in self._cache:
+            val = self._cache[key]
+        else:
+            self._cache[key] = val = self.download_historical_prices(symbol)
+        return val
        
-    @Cached.cached(100)
-    def historicalPrices(self, symbol, fromDate=None, toDate=None):
+    def download_historical_prices(self, symbol):
         
         #TODO: will check date sanity up front using financial date
         #and rear-end check after the website hit
         
-        if not fromDate:
-            fromDate = datetime.date(1950,1,1)
-        if not toDate:
-            toDate = datetime.date.today()
+        fromDate = datetime.date(1950,1,1)
+        toDate = datetime.date.today()
         
         #NOTE: introduce yahoo symbol class that stands for a yahoo symbol rather than using this resolver.    
         #resolve to yahoo style symbols
