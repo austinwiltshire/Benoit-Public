@@ -45,7 +45,6 @@ import datetime
 import WebsiteExceptions
 
 import LRUCache
-import itertools
 
 #resolver = SymbolLookup()
 
