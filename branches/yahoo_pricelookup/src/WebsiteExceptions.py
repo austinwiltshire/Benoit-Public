@@ -2,9 +2,9 @@
 #NOTE: added
 #translates key errors into date errors on Google Financial Functions
 def ThrowsDateError(func):
-    def _(symbol, date):
+    def _(self, symbol, date):
         try:
-            return func(symbol, date)
+            return func(self, symbol, date)
         except KeyError, e:
             raise DateNotFound(symbol, date)
     return _
