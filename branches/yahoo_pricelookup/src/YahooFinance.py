@@ -1,38 +1,38 @@
 """
 Examples:
->>> from datetime import date
+>>> from datetime import datetime
 >>> prices = HistoricalPrices()
->>> round(prices.getHigh("MRK", date(2007,12,31)))
+>>> round(prices.getHigh("MRK", datetime(2007,12,31)))
 59.0
 
->>> round(prices.getLow("IBM", date(2008,9,30)))
+>>> round(prices.getLow("IBM", datetime(2008,9,30)))
 112.0
 
->> round(prices.getVolume("SBUX", date(2008,09,29)))
+>> round(prices.getVolume("SBUX", datetime(2008,09,29)))
 20719700
 
->>> round(prices.getOpen("CSCO", date(2008,01,25)))
+>>> round(prices.getOpen("CSCO", datetime(2008,01,25)))
 26.0
 
->>> round(prices.getClose("CSCO", date(2008,01,24)))
+>>> round(prices.getClose("CSCO", datetime(2008,01,24)))
 25.0
 
->>> round(prices.getAdjustedClose("CSCO", date(2008,01,30)))
+>>> round(prices.getAdjustedClose("CSCO", datetime(2008,01,30)))
 24.0
 
 Exceptions are thrown for dates not supported, or symbols not supported.
 
->>> prices.getHigh("CHEESE", date(2007,9,30))
+>>> prices.getHigh("CHEESE", datetime(2008,01,30))
 Traceback (most recent call last):
     ...
 SymbolNotFound: Could not find symbol : \"CHEESE\"
 
 Or if the date is invalid:
 
->>> prices.getLow("BAC", date(2007,12,30))
+>>> prices.getLow("BAC", datetime(2007,12,30))
 Traceback (most recent call last):
     ...
-DateNotFound: Symbol \"BAC\" does not support date : 2007-12-30
+DateNotFound: Symbol \"BAC\" does not support date : 2007-12-30 00:00:00
 """
 
 #from Registry import Register
@@ -43,6 +43,7 @@ import urllib2
 import datetime
 #from SymbolLookup import SymbolLookup
 import YahooFinanceExceptions
+import FinancialDate
 
 import LRUCache
 
@@ -68,7 +69,7 @@ class ParsedCSV(object):
             if parsedDate in self.dates:
                 continue
             
-            self.dates[parsedDate] = PriceForDate(parsedDate, priceInfo)
+            self.dates[parsedDate] = PriceForDate(parsedDate, *priceInfo)
 
     def __getitem__(self, index):
         return self.dates[index]
@@ -77,22 +78,24 @@ class ParsedCSV(object):
         return sorted(self.dates.keys())
     
     def _parseDate(self, date):
-        return datetime.datetime.strptime(date,"%Y-%m-%d").date()
+        return datetime.datetime.strptime(date,"%Y-%m-%d")
 
-    
-#Plain ole' data
 class PriceForDate(object):
-    def __init__(self, date, priceArray):
+    def __init__(self, date, open, high, low, close, volume, adjclose):
         self.date = date
-        self.open = priceArray[0]
-        self.high = priceArray[1]
-        self.low = priceArray[2]
-        self.close = priceArray[3]
-        self.volume = priceArray[4]
-        self.adjclose = priceArray[5]
+        self.open = open
+        self.high = high
+        self.low = low
+        self.close = close
+        self.volume = volume
+        self.adjclose = adjclose
                   
    
 class HistoricalPrices(object):
+    
+    #yahoo has a bug that it gives us 1962,1,1 for any day on or before that one, so we start the day after
+    YAHOO_BASE_DATE = datetime.datetime(1962, 1, 2)
+    
     def __init__(self, cache_size=100):
         self._cache = LRUCache.LRUCache(cache_size)
     
@@ -107,21 +110,19 @@ class HistoricalPrices(object):
        
     def download_historical_prices(self, symbol):
         
-        #TODO: will check date sanity up front using financial date
-        #and rear-end check after the website hit
-        
-        fromDate = datetime.date(1950,1,1)
-        toDate = datetime.date.today()
+     
+        fromDate = self.YAHOO_BASE_DATE
+        toDate = datetime.datetime.today()
         
         #NOTE: introduce yahoo symbol class that stands for a yahoo symbol rather than using this resolver.    
         #resolve to yahoo style symbols
         #symbol = resolver.getYahoo(symbol)
         
         #we'll introduce a financial date class, rather than adaptation
-        assert isinstance(fromDate, datetime.date)
+        assert isinstance(fromDate, datetime.datetime)
         #fromDate = Adapt(fromDate, datetime.date)
         
-        assert isinstance(toDate, datetime.date)
+        assert isinstance(toDate, datetime.datetime)
         #toDate = Adapt(toDate, datetime.date)
         
         baseArgs = {'ignore':'.csv'}
@@ -140,9 +141,9 @@ class HistoricalPrices(object):
             raise YahooFinanceExceptions.SymbolNotFound(symbol)
     
     def getPriceForDate(self, symbol, date):
+        """ Gets a price object for a day, given a symbol and a date. """
         
-        #typecheck rather than adapt and use financial date in the future
-        assert isinstance(date, datetime.date)
+        self._check_date(symbol, date)
         
         all_prices = self.historicalPrices(symbol)
         try:
@@ -151,48 +152,59 @@ class HistoricalPrices(object):
             raise YahooFinanceExceptions.DateNotFound(symbol, date)
     
     def getHigh(self, symbol, date):
-        #typecheck rather than adapt and use financial date in the future
-        assert isinstance(date, datetime.date)
-        #return historicalPrices(symbol)[Adapt(date,datetime.date)].high
+        """ Gets the highest price for a day given a symbol and a date. """
         
+        self._check_date(symbol, date)
+       
         return self.getPriceForDate(symbol, date).high
     
     def getAdjustedClose(self, symbol, date):
-        #typecheck rather than adapt and use financial date in the future
-        assert isinstance(date, datetime.date)
+        """ Gets the close adjusted for splits and dividends by Yahoo for a day, given a symbol and a date. """
+        
+        self._check_date(symbol, date)
+
         #return historicalPrices(symbol)[Adapt(date,datetime.date)].adjclose
         
         return self.getPriceForDate(symbol, date).adjclose
     
     def getVolume(self, symbol, date):
-        #typecheck rather than adapt and use financial date in the future
-        assert isinstance(date, datetime.date)
+        """ Gets trading volume for a day, given a symbol and a date. """
+        
+        self._check_date(symbol, date)
+        
         #return historicalPrices(symbol)[Adapt(date,datetime.date)].volume
         
         return self.getPriceForDate(symbol, date).volume
        
     def getLow(self, symbol, date):
-        #typecheck rather than adapt and use financial date in the future
-        assert isinstance(date, datetime.date)
+        """ Gets the lowest price for a day given a symbol and a date. """
+        
+        self._check_date(symbol, date)
+
         #return historicalPrices(symbol)[Adapt(date,datetime.date)].low
         
         return self.getPriceForDate(symbol, date).low
     
 
     def getOpen(self, symbol, date):
-        #typecheck rather than adapt and use financial date in the future
-        assert isinstance(date, datetime.date)
+        """ Gets the opening price given a symbol and a date. """
+        
+        self._check_date(symbol, date)
+        
         #return historicalPrices(symbol)[Adapt(date,datetime.date)].open
         
         return self.getPriceForDate(symbol, date).open
 
     def getDates(self, symbol):
-        #yahoo has a bug that it gives us 1962,1,1 so we throw those out.
-        return [_date for _date in self.historicalPrices(symbol).getDates() if _date > datetime.date(1962,01,02)]
+        """ Gets all supported trading dates for a symbol, up to January 2nd, 1961 due to yahoo constraints. """
+        
+        return [_date for _date in self.historicalPrices(symbol).getDates() if _date >= self.YAHOO_BASE_DATE]
     
     def getClose(self, symbol, date):
-        #typecheck rather than adapt and use financial date in the future
-        assert isinstance(date, datetime.date)
+        """ Gets the closing price given a symbol and a date """
+        
+        self._check_date(symbol, date)
+        
         #return historicalPrices(symbol)[Adapt(date,datetime.date)].close
         
         return self.getPriceForDate(symbol, date).close
@@ -223,10 +235,15 @@ class HistoricalPrices(object):
         return {KEY_SYMBOL:symbol}
     
     def _historicalPricesURL(self, dct):
-        #urlencode second argument decodes lists
         
+        #urlencode second argument decodes lists  
         schema = 'http'
         basePage = 'ichart.finance.yahoo.com'
         path = 'table.csv'
         
-        return (schema, basePage, path, '', urllib.urlencode(dct, doseq=True), '')        
+        return (schema, basePage, path, '', urllib.urlencode(dct, doseq=True), '')
+    
+    def _check_date(self, symbol, date):
+        assert isinstance(date, datetime.datetime)
+        if not FinancialDate.IsTradingDay(date) or date < self.YAHOO_BASE_DATE:
+            raise YahooFinanceExceptions.DateNotFound(symbol, date)
