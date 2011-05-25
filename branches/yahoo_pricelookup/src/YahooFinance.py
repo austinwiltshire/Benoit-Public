@@ -35,19 +35,14 @@ Traceback (most recent call last):
 DateNotFound: Symbol \"BAC\" does not support date : 2007-12-30 00:00:00
 """
 
-#from Registry import Register
 import urllib
 import urlparse
 import urllib2
-#from Adapt import Adapt
 import datetime
-#from SymbolLookup import SymbolLookup
 import YahooFinanceExceptions
 import FinancialDate
 
 import LRUCache
-
-#resolver = SymbolLookup()
 
 class ParsedCSV(object):
     def __init__(self, csvFile):
@@ -109,15 +104,12 @@ class HistoricalPrices(object):
         return val
        
     def download_historical_prices(self, symbol):
-        
+        #we assume that the symbol passed in is an appropriate yahoo symbol.
+        #TODO: we'll ensure this through the use of a symbol resolver class.
      
         fromDate = self.YAHOO_BASE_DATE
         toDate = datetime.datetime.today()
-        
-        #NOTE: introduce yahoo symbol class that stands for a yahoo symbol rather than using this resolver.    
-        #resolve to yahoo style symbols
-        #symbol = resolver.getYahoo(symbol)
-        
+             
         #we'll introduce a financial date class, rather than adaptation
         assert isinstance(fromDate, datetime.datetime)
         #fromDate = Adapt(fromDate, datetime.date)
@@ -162,9 +154,7 @@ class HistoricalPrices(object):
         """ Gets the close adjusted for splits and dividends by Yahoo for a day, given a symbol and a date. """
         
         self._check_date(symbol, date)
-
-        #return historicalPrices(symbol)[Adapt(date,datetime.date)].adjclose
-        
+       
         return self.getPriceForDate(symbol, date).adjclose
     
     def getVolume(self, symbol, date):
@@ -172,16 +162,12 @@ class HistoricalPrices(object):
         
         self._check_date(symbol, date)
         
-        #return historicalPrices(symbol)[Adapt(date,datetime.date)].volume
-        
         return self.getPriceForDate(symbol, date).volume
        
     def getLow(self, symbol, date):
         """ Gets the lowest price for a day given a symbol and a date. """
         
         self._check_date(symbol, date)
-
-        #return historicalPrices(symbol)[Adapt(date,datetime.date)].low
         
         return self.getPriceForDate(symbol, date).low
     
@@ -190,8 +176,6 @@ class HistoricalPrices(object):
         """ Gets the opening price given a symbol and a date. """
         
         self._check_date(symbol, date)
-        
-        #return historicalPrices(symbol)[Adapt(date,datetime.date)].open
         
         return self.getPriceForDate(symbol, date).open
 
@@ -204,8 +188,6 @@ class HistoricalPrices(object):
         """ Gets the closing price given a symbol and a date """
         
         self._check_date(symbol, date)
-        
-        #return historicalPrices(symbol)[Adapt(date,datetime.date)].close
         
         return self.getPriceForDate(symbol, date).close
         
