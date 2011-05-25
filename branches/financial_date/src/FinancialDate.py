@@ -18,23 +18,82 @@ import datetime
 from dateutil.rrule import *
 import dateutil.relativedelta
 
-class FinancialCalendar(object):
+class Calendar(object):
     """
     Provides calendaring services, a factory for financial datetimes.
     """
-    pass
+    
+    def __init__(self):
+        self._allTradingDays = AllTradingDays
+    
+    def NthTradingDayAfter(self, aDate, n):
+        """ Finds the nth trading day after aDate.  Takes into account holidays and weekends. """
+        
+        if aDate in self._allTradingDays: #start so i'm always on a trading day.
+            trialDate = aDate
+        else:
+            trialDate = self._allTradingDays.after(aDate) 
+        
+        if n==0: #in case we actually just want the trading day we passed in
+            return FinancialDateTime(trialDate, self)
+        
+        for x in range(n):
+            trialDate = self._allTradingDays.after(trialDate)
+            
+        return FinancialDateTime(trialDate, self)
+    
+    def NthTradingDayBefore(self, aDate, n):
+        """ Finds the nth trading day before aDate.  Takes into account holidays and weekends. """
+        trialDate = aDate
+        
+        if aDate in self._allTradingDays:
+            trialDate = aDate
+        else:
+            trialDate = self._allTradingDays.before(aDate)
+        
+        if n==0: #in case we actually just want the trading day we passed in
+               return FinancialDateTime(trialDate, self)
+        
+        for x in range(n):
+            trialDate = self._allTradingDays.before(trialDate)
+        return FinancialDateTime(trialDate, self)
+    
+    def FirstTradingDayBefore(self, aDate):
+        """ Finds the first trading day before aDate, taking into account holidays and weekends. """
+        return self.NthTradingDayBefore(aDate, 0)
+    
+    def FirstTradingDayAfter(self, aDate):
+        """ Finds the first trading day after aDate, taking into account holidays and weekends. """
+    
+        return self.NthTradingDayAfter(aDate, 0)
+    
+    def IsTradingDay(self, aDate):
+        """ Predicate returns true if aDate is a trading day, false otherwise. """
+    
+        return aDate in self._allTradingDays 
 
 class FinancialDateTime(object):
     """
     Represents a datetime that is financially useful, i.e., during trading days and hours.
     """
     
-    def __init__(self, _date):
+    def __init__(self, date_, calendar):
         
-        if isinstance(_date, datetime.datetime):
-            self._date = _date
+        assert calendar.IsTradingDay(date_), "FinancialDateTimes only represent trading days!"
+        
+        if isinstance(date_, datetime.datetime):
+            self._date = date_
         else: #assume datetime.date
-            self._date = datetime.datetime(_date.year, _date.month, _date.day, 9, 0, 0) #assume 9 oclock am to make it a valid trading time           
+            self._date = datetime.datetime(date_.year, date_.month, date_.day, 9, 0, 0) #assume 9 oclock am to make it a valid trading time   
+            
+    def toDatetime(self):
+        return self._date
+    
+    def toDate(self):
+        return self._date.date()
+    
+    def __eq__(self, rhs):
+        return self._date == rhs     
 
 def NthTradingDayAfter(aDate, n):
     """ Finds the nth trading day after aDate.  Takes into account holidays and weekends. """
@@ -61,7 +120,7 @@ def NthTradingDayBefore(aDate, n):
         trialDate = AllTradingDays.before(aDate)
     
     if n==0: #in case we actually just want the trading day we passed in
-           trialDate
+           return trialDate
     
     for x in range(n):
         trialDate = AllTradingDays.before(trialDate)
