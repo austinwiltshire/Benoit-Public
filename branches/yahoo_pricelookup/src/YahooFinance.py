@@ -227,5 +227,5 @@ class HistoricalPrices(object):
     
     def _check_date(self, symbol, date):
         assert isinstance(date, datetime.datetime)
-        if not FinancialDate.IsTradingDay(date) or date < self.YAHOO_BASE_DATE:
+        if not FinancialDate.Calendar().IsTradingDay(date) or date < self.YAHOO_BASE_DATE:
             raise YahooFinanceExceptions.DateNotFound(symbol, date)
