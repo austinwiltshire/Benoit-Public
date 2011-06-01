@@ -1,33 +1,37 @@
 """
-This module contains the beginings of a Financial Calendering API.  Currently it contains date policies, which
-are standard, module helper classes for distinguishing date resolution.
-
-Also contains stubs for Year and Quarter types, which should provide convienient, unified access to dates.
-
-Implementation Notes:
-
-Due to date rule construction, the first call to the date rule may be slow. A way around this might be to get an arbitrary date
-during importation to cause the construction of the calendar.
-
-Much of this may be deprecated given the Adaptation API built off of generic functions found in Adapt.  This will allow a function to define itself
-off of either dates or datetimes and still work.  Annual and Quarterly helpers may still be useful, and certainly the overall calendering service - while slow -
-contains a lot of valuable logic used in iterators.
+Mostly used for it's Calendar, which provides a nice object for access to historical and future trading days.  Also contains
+some helper functions Calendar uses.
 """
 
 import datetime
 from dateutil.rrule import *
 import dateutil.relativedelta
 
+def toDateTime(date_):
+    """
+    Turns date_ into a datetime object, mostly used to translate datetime.date's into datetime.datetimes since
+    those are used interchangeably all over.
+    """
+    if isinstance(date_, datetime.datetime):
+        return date_
+    else: #assume it's a datetime.date like
+        return datetime.datetime(date_.year, date_.month, date_.day) 
+
 class Calendar(object):
     """
     Provides calendaring services, a factory for financial datetimes.
     """
     
-    def __init__(self):
-        self._allTradingDays = AllTradingDays
+    _allTradingDays = None
+    
+    def __init__(self):      
+        if not Calendar._allTradingDays:
+            Calendar._allTradingDays = BuildTradingDateRule()
     
     def NthTradingDayAfter(self, aDate, n):
         """ Finds the nth trading day after aDate.  Takes into account holidays and weekends. """
+        
+        aDate = toDateTime(aDate)
         
         if aDate in self._allTradingDays: #start so i'm always on a trading day.
             trialDate = aDate
@@ -44,7 +48,8 @@ class Calendar(object):
     
     def NthTradingDayBefore(self, aDate, n):
         """ Finds the nth trading day before aDate.  Takes into account holidays and weekends. """
-        trialDate = aDate
+        
+        aDate = toDateTime(aDate)
         
         if aDate in self._allTradingDays:
             trialDate = aDate
@@ -70,8 +75,8 @@ class Calendar(object):
     def IsTradingDay(self, aDate):
         """ Predicate returns true if aDate is a trading day, false otherwise. """
     
-        return aDate in self._allTradingDays 
-
+        return toDateTime(aDate) in self._allTradingDays 
+    
 class FinancialDateTime(object):
     """
     Represents a datetime that is financially useful, i.e., during trading days and hours.
@@ -93,61 +98,12 @@ class FinancialDateTime(object):
         return self._date.date()
     
     def __eq__(self, rhs):
-        return self._date == rhs     
+        return self._date == rhs
 
-def NthTradingDayAfter(aDate, n):
-    """ Finds the nth trading day after aDate.  Takes into account holidays and weekends. """
+def BuildTradingDateRule(beginDate = datetime.datetime(1900, 1, 1)):
+    """ Helper function to build any local daily rule for iterator use.  Takes into account holidays and weekends.  Defaults to begining of
+        the century.  Get better performance by moving the begin date up. """
     
-    if aDate in AllTradingDays: #start so i'm always on a trading day.
-        trialDate = aDate
-    else:
-        trialDate = AllTradingDays.after(aDate) 
-    
-    if n==0: #in case we actually just want the trading day we passed in
-        return trialDate
-    
-    for x in range(n):
-        trialDate = AllTradingDays.after(trialDate)
-    return trialDate
-
-def NthTradingDayBefore(aDate, n):
-    """ Finds the nth trading day before aDate.  Takes into account holidays and weekends. """
-    trialDate = aDate
-    
-    if aDate in AllTradingDays:
-        trialDate = aDate
-    else:
-        trialDate = AllTradingDays.before(aDate)
-    
-    if n==0: #in case we actually just want the trading day we passed in
-           return trialDate
-    
-    for x in range(n):
-        trialDate = AllTradingDays.before(trialDate)
-    return trialDate
-
-def FirstTradingDayBefore(aDate):
-    """ Finds the first trading day before aDate, taking into account holidays and weekends. """
-    
-    return NthTradingDayBefore(aDate, 0)
-
-def FirstTradingDayAfter(aDate):
-    """ Finds the first trading day after aDate, taking into account holidays and weekends. """
-    
-    return NthTradingDayAfter(aDate, 0) 
-
-def IsTradingDay(aDate):
-    """ Predicate returns true if aDate is a trading day, false otherwise. """
-    
-    return aDate in AllTradingDays
-
-#todo: remove positional args after beginDate.  Remove default to beginDate.  Move all dicts out to global scope such that they are only built once.
-def BuildTradingDateRule():
-    """ Helper function to build any local daily rule for iterator use.  Takes into account holidays and weekends.  Set beginDate to the first
-    date available, the further back you go, the more strenuous performance. """
-    
-    #start on january 1st 1900
-    beginDate = datetime.datetime(1900, 1, 1)
     
     days_of_mourning = {"Eisenhower":datetime.datetime(1969,3,31), #dead presidents
                         "MartinLutherKing":datetime.datetime(1968,4,9),
@@ -227,5 +183,3 @@ def BuildTradingDateRule():
         tradingDates.exdate(exception_day)
     
     return tradingDates
-
-AllTradingDays = BuildTradingDateRule() #builds the most conservative date rule - this tends to be slow to access!
