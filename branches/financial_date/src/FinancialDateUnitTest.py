@@ -1,12 +1,9 @@
 """ Tests the FinancialDate package. """
 
 import doctest
-import contract
 import unittest
 import FinancialDate
 import datetime
-
-contract.checkmod(FinancialDate)
 
 class DoctestWrapper(unittest.TestSuite):
 	def __init__(self):
