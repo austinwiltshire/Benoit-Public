@@ -3,7 +3,8 @@
 	<name>StockLab</name>
 	<comment></comment>
 	<projects>
-		<project>WebStock</project>
+		<project>analysis</project>
+		<project>financial_date</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
